@@ -1,2 +1,3 @@
-# r5-wallet
-Community and open source implementation of the R5 Network GUI wallet in Python.
+# R5 GUI Desktop Wallet
+
+Open source development repository of the R5 GUI Desktop Wallet.
