@@ -11,8 +11,6 @@
 # from, out of or in connection with the software or the use or
 # other dealings in the software.
 
-# ENTRY POINT
-
 import os
 import sys
 import json
@@ -254,46 +252,87 @@ def estimate_gas(w3: Web3, wallet: dict, destination: str, amount_wei: int):
     except Exception:
         return 21000
 
-def send_transaction(w3: Web3, wallet: dict, parent):
-    sender = get_wallet_address(wallet, w3)
-    # Create a dialog to gather transaction details
-    dest, ok = QtWidgets.QInputDialog.getText(parent, "Send Transaction", "Destination Address:")
-    if not ok or not dest.strip():
-        return
-    amount_str, ok = QtWidgets.QInputDialog.getText(parent, "Send Transaction", "Amount (in R5):")
-    if not ok:
-        return
-    try:
-        amount_float = float(amount_str)
-    except Exception:
-        QtWidgets.QMessageBox.warning(parent, "Error", "Invalid amount format.")
-        return
-    amount_wei = w3.to_wei(amount_float, 'ether')
+# -------------------------------
+# Async Worker for Transaction History
+# -------------------------------
+class HistoryWorker(QtCore.QObject):
+    finished = QtCore.pyqtSignal(list)
     
-    # Estimate gas settings
-    default_gas = estimate_gas(w3, wallet, dest, amount_wei)
-    gas_input, ok = QtWidgets.QInputDialog.getText(parent, "Transaction Gas", 
-                                                     f"Max. Fee [Estimated: {default_gas}]:", text=str(default_gas))
-    if not ok:
-        return
-    try:
-        gas_limit = int(gas_input)
-    except Exception:
-        gas_limit = default_gas
+    def __init__(self, w3, wallet, parent=None):
+        super().__init__(parent)
+        self.w3 = w3
+        self.wallet = wallet
 
-    default_gas_price = w3.eth.gas_price
-    gas_price_input, ok = QtWidgets.QInputDialog.getText(parent, "Transaction Gas Price",
-                                                         f"Gas Price [Estimated: {w3.from_wei(default_gas_price, 'gwei'):.0f} gwei]:",
-                                                         text=str(w3.from_wei(default_gas_price, 'gwei')))
-    if not ok:
-        return
-    try:
-        gas_price = w3.to_wei(float(gas_price_input), 'gwei')
-    except Exception:
-        gas_price = default_gas_price
+    @QtCore.pyqtSlot()
+    def run(self):
+        transactions = fetch_history(self.w3, self.wallet)
+        self.finished.emit(transactions)
 
-    # Confirm transaction details
-    msg = (f"From: {sender}\nTo: {dest}\nAmount: {amount_float} R5\n"
+# -------------------------------
+# Custom Dialog for Sending Transactions
+# -------------------------------
+class SendTransactionDialog(QtWidgets.QDialog):
+    def __init__(self, w3, wallet, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Send Transaction")
+        self.w3 = w3
+        self.wallet = wallet
+        
+        layout = QtWidgets.QFormLayout(self)
+        
+        self.dest_edit = QtWidgets.QLineEdit()
+        self.amount_edit = QtWidgets.QLineEdit()
+        self.gas_limit_edit = QtWidgets.QLineEdit()
+        self.gas_price_edit = QtWidgets.QLineEdit()
+        
+        # Set default gas values
+        default_amount = "0"
+        default_gas = estimate_gas(self.w3, self.wallet, "0x0", 0)
+        default_gas_price = self.w3.eth.gas_price
+        
+        self.amount_edit.setText(default_amount)
+        self.gas_limit_edit.setText(str(default_gas))
+        self.gas_price_edit.setText(str(self.w3.from_wei(default_gas_price, 'gwei')))
+        
+        layout.addRow("Destination Address:", self.dest_edit)
+        layout.addRow("Amount (in R5):", self.amount_edit)
+        layout.addRow("Gas Limit:", self.gas_limit_edit)
+        layout.addRow("Gas Price (gwei):", self.gas_price_edit)
+        
+        btn_box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+        btn_box.accepted.connect(self.accept)
+        btn_box.rejected.connect(self.reject)
+        layout.addRow(btn_box)
+    
+    def get_data(self):
+        dest = self.dest_edit.text().strip()
+        try:
+            amount = float(self.amount_edit.text())
+        except Exception:
+            amount = 0.0
+        try:
+            gas_limit = int(self.gas_limit_edit.text())
+        except Exception:
+            gas_limit = estimate_gas(self.w3, self.wallet, dest, self.w3.to_wei(amount, 'ether'))
+        try:
+            gas_price = self.w3.to_wei(float(self.gas_price_edit.text()), 'gwei')
+        except Exception:
+            gas_price = self.w3.eth.gas_price
+        return dest, amount, gas_limit, gas_price
+
+def send_transaction(w3: Web3, wallet: dict, parent):
+    dlg = SendTransactionDialog(w3, wallet, parent)
+    if dlg.exec_() != QtWidgets.QDialog.Accepted:
+        return
+    
+    dest, amount, gas_limit, gas_price = dlg.get_data()
+    if not dest:
+        QtWidgets.QMessageBox.warning(parent, "Error", "Destination address is required.")
+        return
+    amount_wei = w3.to_wei(amount, 'ether')
+    sender = get_wallet_address(wallet, w3)
+    
+    msg = (f"From: {sender}\nTo: {dest}\nAmount: {amount} R5\n"
            f"Gas Limit: {gas_limit}\nGas Price: {w3.from_wei(gas_price, 'gwei'):.0f} gwei")
     confirm = QtWidgets.QMessageBox.question(parent, "Confirm Transaction", msg,
                                              QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
@@ -400,10 +439,19 @@ class WalletWindow(QtWidgets.QMainWindow):
         
         self.v_layout.addLayout(self.button_layout)
         
+        # Save the original text for later
+        self.original_history_text = self.history_btn.text()
+        
+        # Timer for cycling the loading text on the Transaction History button
+        self.loading_timer = QtCore.QTimer(self)
+        self.loading_timer.timeout.connect(self.update_loading_text)
+        self.loading_texts = ["loading", "loading.", "loading..", "loading..."]
+        self.loading_index = 0
+        
         # Connect buttons to functions
         self.send_tx_btn.clicked.connect(self.send_transaction)
         self.refresh_btn.clicked.connect(self.refresh_wallet)
-        self.history_btn.clicked.connect(self.show_history)
+        self.history_btn.clicked.connect(self.show_history_async)
         self.expose_pk_btn.clicked.connect(self.expose_private_key)
         self.reset_btn.clicked.connect(self.reset_wallet)
         self.exit_btn.clicked.connect(self.close)
@@ -435,6 +483,11 @@ class WalletWindow(QtWidgets.QMainWindow):
         self.timer.start(self.query_interval * 1000)
         self.refresh_wallet()
     
+    def update_loading_text(self):
+        # Cycle through the loading texts and update the button text.
+        self.history_btn.setText(self.loading_texts[self.loading_index])
+        self.loading_index = (self.loading_index + 1) % len(self.loading_texts)
+    
     def refresh_wallet(self):
         block_height = fetch_block_height(self.w3)
         balance = fetch_balance(self.w3, self.wallet)
@@ -447,8 +500,30 @@ class WalletWindow(QtWidgets.QMainWindow):
         send_transaction(self.w3, self.wallet, self)
         self.refresh_wallet()
     
-    def show_history(self):
-        transactions = fetch_history(self.w3, self.wallet)
+    def show_history_async(self):
+        # Disable the history button and start updating its text
+        self.history_btn.setEnabled(False)
+        self.loading_index = 0
+        self.loading_timer.start(500)  # update every 500ms
+        QtWidgets.QApplication.processEvents()
+        
+        # Create a worker thread to fetch history asynchronously
+        self.thread = QtCore.QThread()
+        self.worker = HistoryWorker(self.w3, self.wallet)
+        self.worker.moveToThread(self.thread)
+        self.thread.started.connect(self.worker.run)
+        self.worker.finished.connect(self.display_history)
+        self.worker.finished.connect(self.thread.quit)
+        self.worker.finished.connect(self.worker.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)
+        self.thread.start()
+    
+    def display_history(self, transactions):
+        # Stop the loading timer, restore button text and re-enable the button.
+        self.loading_timer.stop()
+        self.history_btn.setText(self.original_history_text)
+        self.history_btn.setEnabled(True)
+        
         history_text = ""
         if not transactions:
             history_text = "No transactions found in the specified block range."
@@ -460,7 +535,7 @@ class WalletWindow(QtWidgets.QMainWindow):
                                  f"To: {tx['to']}\n"
                                  f"Amount: R5 {tx['value']:.4f}\n"
                                  f"{'-'*50}\n")
-        # Show in a scrollable message box
+        # Display the history in a scrollable message box.
         dlg = QtWidgets.QDialog(self)
         dlg.setWindowTitle("Transaction History")
         dlg.resize(600, 400)
