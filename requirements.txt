@@ -1,1 +1,1 @@
-# DEPENDENCIES
+PySide6
