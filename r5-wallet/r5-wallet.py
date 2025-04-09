@@ -412,12 +412,24 @@ class WalletWindow(QtWidgets.QMainWindow):
         
         # Wallet info labels
         self.address_label = QtWidgets.QLabel("Loading...")
+        self.copy_btn = QtWidgets.QPushButton("Copy")
+        self.copy_btn.setToolTip("Copy address to clipboard")
+        self.copy_status = QtWidgets.QLabel("")  # For temporary "Copied!" message
+        self.copy_status.setStyleSheet("color: green")
+
+        # Horizontal layout for address + copy
+        self.address_row_layout = QtWidgets.QHBoxLayout()
+        self.address_row_layout.addWidget(self.address_label)
+        self.address_row_layout.addWidget(self.copy_btn)
+        self.address_row_layout.addWidget(self.copy_status)
+        self.address_row_layout.addStretch()
+
         self.rpc_label = QtWidgets.QLabel("Loading...")
         self.block_height_label = QtWidgets.QLabel("Loading...")
         self.balance_label = QtWidgets.QLabel("Loading...")
         self.query_interval_label = QtWidgets.QLabel("Loading...")
         
-        self.info_layout.addRow("Address:", self.address_label)
+        self.info_layout.addRow("Address:", self.address_row_layout)
         self.info_layout.addRow("RPC URL:", self.rpc_label)
         self.info_layout.addRow("Block Height:", self.block_height_label)
         self.info_layout.addRow("Available Balance:", self.balance_label)
@@ -439,24 +451,20 @@ class WalletWindow(QtWidgets.QMainWindow):
         
         self.v_layout.addLayout(self.button_layout)
         
-        # Save the original text for later
         self.original_history_text = self.history_btn.text()
-        
-        # Timer for cycling the loading text on the Transaction History button
         self.loading_timer = QtCore.QTimer(self)
         self.loading_timer.timeout.connect(self.update_loading_text)
         self.loading_texts = ["loading", "loading.", "loading..", "loading..."]
         self.loading_index = 0
         
-        # Connect buttons to functions
         self.send_tx_btn.clicked.connect(self.send_transaction)
         self.refresh_btn.clicked.connect(self.refresh_wallet)
         self.history_btn.clicked.connect(self.show_history_async)
         self.expose_pk_btn.clicked.connect(self.expose_private_key)
         self.reset_btn.clicked.connect(self.reset_wallet)
         self.exit_btn.clicked.connect(self.close)
-        
-        # Load settings and connect to Web3
+        self.copy_btn.clicked.connect(self.copy_address_to_clipboard)
+
         self.settings = load_settings()
         self.rpc_address = self.settings.get("rpc_address", DEFAULT_RPC_ADDRESS)
         try:
@@ -468,23 +476,19 @@ class WalletWindow(QtWidgets.QMainWindow):
             QtWidgets.QMessageBox.critical(self, "Error", f"Unable to connect to RPC at {self.rpc_address}")
             sys.exit(1)
         
-        # Set RPC info labels
         self.rpc_label.setText(self.rpc_address)
         self.query_interval_label.setText(str(self.query_interval))
         
-        # Wallet setup (blocking dialog on startup)
         self.wallet = wallet_setup(self)
         if self.wallet is None:
             sys.exit(1)
         
-        # Timer to refresh block height and balance
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.refresh_wallet)
         self.timer.start(self.query_interval * 1000)
         self.refresh_wallet()
     
     def update_loading_text(self):
-        # Cycle through the loading texts and update the button text.
         self.history_btn.setText(self.loading_texts[self.loading_index])
         self.loading_index = (self.loading_index + 1) % len(self.loading_texts)
     
@@ -501,13 +505,11 @@ class WalletWindow(QtWidgets.QMainWindow):
         self.refresh_wallet()
     
     def show_history_async(self):
-        # Disable the history button and start updating its text
         self.history_btn.setEnabled(False)
         self.loading_index = 0
-        self.loading_timer.start(500)  # update every 500ms
+        self.loading_timer.start(500)
         QtWidgets.QApplication.processEvents()
         
-        # Create a worker thread to fetch history asynchronously
         self.thread = QtCore.QThread()
         self.worker = HistoryWorker(self.w3, self.wallet)
         self.worker.moveToThread(self.thread)
@@ -519,41 +521,43 @@ class WalletWindow(QtWidgets.QMainWindow):
         self.thread.start()
     
     def display_history(self, transactions):
-        # Stop the loading timer, restore button text and re-enable the button.
         self.loading_timer.stop()
         self.history_btn.setText(self.original_history_text)
         self.history_btn.setEnabled(True)
-        
-        history_text = ""
-        if not transactions:
-            history_text = "No transactions found in the specified block range."
-        else:
-            for tx in transactions:
-                history_text += (f"Block: {tx['blockNumber']}\n"
-                                 f"Tx: {tx['hash']}\n"
-                                 f"From: {tx['from']}\n"
-                                 f"To: {tx['to']}\n"
-                                 f"Amount: R5 {tx['value']:.4f}\n"
-                                 f"{'-'*50}\n")
-        # Display the history in a scrollable message box.
+
         dlg = QtWidgets.QDialog(self)
         dlg.setWindowTitle("Transaction History")
-        dlg.resize(600, 400)
+        dlg.resize(500, 400)
         layout = QtWidgets.QVBoxLayout(dlg)
-        text_edit = QtWidgets.QTextEdit()
-        text_edit.setReadOnly(True)
-        text_edit.setPlainText(history_text)
-        layout.addWidget(text_edit)
-        close_btn = QtWidgets.QPushButton("Close")
-        close_btn.clicked.connect(dlg.accept)
-        layout.addWidget(close_btn)
+        table = QtWidgets.QTableWidget()
+        table.setColumnCount(5)
+        table.setHorizontalHeaderLabels(["Block", "From", "To", "Amount", "Tx Hash"])
+        table.setRowCount(len(transactions))
+        for i, tx in enumerate(transactions):
+            table.setItem(i, 0, QtWidgets.QTableWidgetItem(str(tx["blockNumber"])))
+            table.setItem(i, 1, QtWidgets.QTableWidgetItem(tx["from"]))
+            table.setItem(i, 2, QtWidgets.QTableWidgetItem(tx["to"] or ""))
+            table.setItem(i, 3, QtWidgets.QTableWidgetItem(str(tx["value"])))
+            table.setItem(i, 4, QtWidgets.QTableWidgetItem(tx["hash"]))
+        table.resizeColumnsToContents()
+        layout.addWidget(table)
+        btn_close = QtWidgets.QPushButton("Close")
+        btn_close.clicked.connect(dlg.accept)
+        layout.addWidget(btn_close)
         dlg.exec_()
-    
+
     def expose_private_key(self):
         expose_private_key(self.wallet, self)
-    
+
     def reset_wallet(self):
         reset_wallet(self)
+
+    def copy_address_to_clipboard(self):
+        clipboard = QtWidgets.QApplication.clipboard()
+        clipboard.setText(self.address_label.text())
+        self.copy_status.setText("Copied!")
+        QtCore.QTimer.singleShot(1500, lambda: self.copy_status.setText(""))
+
 
 # -------------------------------
 # Main function
