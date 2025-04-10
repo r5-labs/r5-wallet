@@ -7,7 +7,7 @@
   "scripts": {
     "dev:react": "vite",
     "dev": "npm-run-all --parallel dev:react dev:electron",
-    "dev:electron": "npm run transpile:electron; cross-env NODE_ENV=development electron .",
+    "dev:electron": "npm run transpile:electron && cross-env NODE_ENV=development electron .",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -20,7 +20,9 @@
     "crypto-js": "^4.2.0",
     "ethers": "^6.13.5",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "styled-components": "^6.1.17",
+    "transpile": "^2.8.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
