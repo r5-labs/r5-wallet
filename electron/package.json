@@ -1,56 +1,43 @@
 {
-  "name": "r5-desktop-gui",
-  "version": "0.1.0",
+  "name": "wallet",
   "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "dev:react": "vite",
+    "dev": "npm-run-all --parallel dev:react dev:electron",
+    "dev:electron": "npm run transpile:electron; cross-env NODE_ENV=development electron .",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "transpile:electron": "tsc --project src/electron/tsconfig.json",
+    "dist:mac": "npm run transpile:electron && npm run build && electron-builder --mac --arm64",
+    "dist:win": "npm run transpile:electron && npm run build && electron-builder --win --x64",
+    "dist:linux": "npm run transpile:electron && npm run build && electron-builder --linux --x64"
+  },
   "dependencies": {
-    "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.2.0",
-    "@testing-library/user-event": "^13.5.0",
-    "@types/jest": "^27.5.2",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
+    "crypto-js": "^4.2.0",
+    "ethers": "^6.13.5",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@types/electron": "^1.6.12",
-    "@types/node": "^22.13.14",
-    "@types/react": "^19.0.12",
+    "@eslint/js": "^9.21.0",
+    "@types/crypto-js": "^4.2.2",
+    "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "cross-env": "^7.0.3",
     "electron": "^35.1.4",
     "electron-builder": "^26.0.12",
-    "ts-node": "^10.9.2",
-    "typescript": "^4.9.5"
-  },
-  "main": "main.js",
-  "scripts": {
-    "start": "npm run build:ts && npm run build:web && electron dist/main.js",
-    "build:ts": "tsc",
-    "build": "cd public && npm run build:web && electron-builder build --dir ./dist/app",
-    "start:web": "react-scripts start",
-    "build:web": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "package": "electron-builder --win --mac --linux",
-    "dist": "npm run build:ts && npm run build:web && electron-builder"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "eslint": "^9.21.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^15.15.0",
+    "npm-run-all": "^4.1.5",
+    "typescript": "~5.7.2",
+    "typescript-eslint": "^8.24.1",
+    "vite": "^6.2.0"
   }
 }
