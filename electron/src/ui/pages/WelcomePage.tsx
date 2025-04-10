@@ -1,13 +1,26 @@
 import { useState } from 'react';
-import sha256 from 'crypto-js/sha256'; // Import hashing library
+import CryptoJS from 'crypto-js'; // Import encryption library
 
 function WelcomePage({ onAuthenticate }: { onAuthenticate: () => void }) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [storedPassword, setStoredPassword] = useState(
+  const [storedEncryptedPassword, setStoredEncryptedPassword] = useState(
     localStorage.getItem('walletPassword') || ''
   );
   const [error, setError] = useState('');
+
+  const encryptData = (data: string, key: string) => {
+    return CryptoJS.AES.encrypt(data, key).toString();
+  };
+
+  const decryptData = (encryptedData: string, key: string) => {
+    try {
+      const bytes = CryptoJS.AES.decrypt(encryptedData, key);
+      return bytes.toString(CryptoJS.enc.Utf8);
+    } catch {
+      return null; // Return null if decryption fails
+    }
+  };
 
   const handleSetPassword = () => {
     if (password.length < 8) {
@@ -18,15 +31,15 @@ function WelcomePage({ onAuthenticate }: { onAuthenticate: () => void }) {
       setError('Passwords do not match.');
       return;
     }
-    const hashedPassword = sha256(password).toString(); // Hash the password
-    localStorage.setItem('walletPassword', hashedPassword);
-    setStoredPassword(hashedPassword);
+    const encryptedPassword = encryptData(password, password); // Encrypt password with itself as the key
+    localStorage.setItem('walletPassword', encryptedPassword);
+    setStoredEncryptedPassword(encryptedPassword);
     onAuthenticate(); // Notify parent component of successful authentication
   };
 
   const handleLogin = () => {
-    const hashedPassword = sha256(password.trim()).toString(); // Hash the input password
-    if (hashedPassword === storedPassword) {
+    const decryptedPassword = decryptData(storedEncryptedPassword, password.trim());
+    if (decryptedPassword === password.trim()) {
       onAuthenticate(); // Notify parent component of successful authentication
     } else {
       setError('Incorrect password.');
@@ -35,7 +48,7 @@ function WelcomePage({ onAuthenticate }: { onAuthenticate: () => void }) {
 
   const handleReset = () => {
     localStorage.removeItem('walletPassword');
-    setStoredPassword('');
+    setStoredEncryptedPassword('');
     setPassword('');
     setConfirmPassword('');
     setError('');
@@ -44,7 +57,7 @@ function WelcomePage({ onAuthenticate }: { onAuthenticate: () => void }) {
   return (
     <div>
       <h1>Welcome to Your Crypto Wallet</h1>
-      {storedPassword ? (
+      {storedEncryptedPassword ? (
         <>
           <p>Please enter your password to continue:</p>
           <input
