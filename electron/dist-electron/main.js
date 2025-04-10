@@ -3,7 +3,7 @@ import path from 'path';
 import { isDev } from './util.js';
 app.on('ready', () => {
     const mainWindow = new BrowserWindow({
-        width: 800,
+        width: 820,
         height: 600,
         webPreferences: {
             nodeIntegration: true,

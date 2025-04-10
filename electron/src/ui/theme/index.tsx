@@ -26,8 +26,8 @@ export const fontSizeH2 = "42pt";
 export const fontSizeH3 = "32pt";
 export const fontSizeH4 = "24pt";
 export const fontSizeH5 = "18pt";
-export const fontSizeH6 = "12pt";
-export const fontSize = "12pt";
+export const fontSizeH6 = "10pt";
+export const fontSize = "10pt";
 export const fontWeight = "normal";
 
 export const borderNone = "none";
@@ -48,7 +48,7 @@ export const defaultGap = "10px";
 
 export const buttonWidthDefault = "auto";
 export const buttonWidthFull = "100%";
-export const buttonPaddingDefault = "15px 20px 15px 20px";
+export const buttonPaddingDefault = "10px 15px 10px 15px";
 export const buttonBorder = `1px solid ${colorTransparent}`;
 export const buttonOutlinedBorder = `1px solid ${colorPrimary}`;
 export const buttonRoundSize = "48px";
@@ -151,6 +151,22 @@ export const Link = styled.a`
   }
 `;
 
+export const FullPageBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: ${paddingHigh};
+  margin: 0;
+  border-radius: ${borderRadiusDefault};
+  border: ${borderDefault};
+  background: ${colorBoxBackground};
+  width: 100%;
+  height: 100%;
+  min-width: 320px;
+  justify-content: center;
+  align-items: center;
+  gap: ${defaultGap};
+`;
+
 export const Box = styled.div`
   display: flex;
   flex-direction: column;
@@ -167,6 +183,9 @@ export const Box = styled.div`
 `;
 
 export const BoxSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: ${paddingHigh};
 `;
 
@@ -190,11 +209,33 @@ export const BoxContent = styled.div`
 
 export const BoxHeader = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: flex-start;
   background: ${colorTransparent};
-  padding: ${paddingDefault};
+  padding: 0;
+  margin: 0;
   width: 100%;
 `;
+
+export const HeaderSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: auto;
+  margin: -10px 0 10px 0;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0;
+`;
+
+export const HeaderButtonWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  background: ${colorTransparent};
+  padding: 0;
+  margin: 0;
+  width: 100%;
+`
 
 export const Divider = styled.div`
   display: flex;
@@ -209,3 +250,38 @@ export const Divider = styled.div`
 export const Spacer = styled.div`
   margin: 3px;
 `;
+
+export const TextHeader = styled.h2`
+  font-size: ${fontSizeH2};
+  margin: 0;
+`;
+
+export const TextTitle = styled.h4`
+  font-size: ${fontSizeH4};
+  margin: 0;
+`;
+
+export const TextSubTitle = styled.h5`
+  font-size: ${fontSizeH5};
+  margin: 0;
+  font-weight: light;
+`;
+
+export const Text = styled.p`
+  font-size: ${fontSize};
+  margin: 0;
+`;
+
+export const SmallText = styled.p`
+  font-size: 8pt;
+  margin: 0;
+`
+
+export const Input = styled.input`
+  font-size: 11pt;
+  border-radius: ${borderRadiusDefault};
+  padding: ${buttonPaddingDefault};
+  border: ${borderDefault};
+  text-align: center;
+  background: ${colorSecondary};
+`
