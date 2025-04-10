@@ -155,11 +155,11 @@ export const Box = styled.div`
   display: flex;
   flex-direction: column;
   padding: ${paddingHigh};
-  margin: ${marginDefault};
+  margin: 0;
   border-radius: ${borderRadiusDefault};
   border: ${borderDefault};
   background: ${colorBoxBackground};
-  width: 40vw;
+  width: 100%;
   min-width: 320px;
   justify-content: flex-start;
   align-items: center;

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ethers, JsonRpcProvider, parseEther, formatEther } from 'ethers';
+import { Box } from '../theme';
+import { Header } from '../components/Header';
 
 function MainPage({ onReset }: { onReset: () => void }) {
   const walletInfo = JSON.parse(localStorage.getItem('walletInfo') || '{}');
@@ -84,7 +86,10 @@ function MainPage({ onReset }: { onReset: () => void }) {
   }, []);
 
   return (
+    <>
+    <Header />
     <div>
+      
       <h1>Main Page</h1>
       <p>Wallet Address: {walletInfo.address}</p>
       <p>Balance: {balance} coins</p>
@@ -126,6 +131,7 @@ function MainPage({ onReset }: { onReset: () => void }) {
         </ul>
       )}
     </div>
+    </>
   );
 }
 
