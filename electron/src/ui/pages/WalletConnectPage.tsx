@@ -16,10 +16,11 @@ function WalletConnectPage({ onWalletSetup }: { onWalletSetup: () => void }) {
 
   const handleImportWallet = async () => {
     try {
-      if (!ethers.isHexString(privateKey.trim(), 32)) {
-        throw new Error("Invalid private key format.");
+      const trimmedKey = privateKey.trim();
+      if (!/^0x[0-9a-fA-F]{64}$/.test(trimmedKey)) {
+        throw new Error("Invalid private key format. Ensure it is a 64-character hex string prefixed with '0x'.");
       }
-      const wallet = new ethers.Wallet(privateKey.trim(), provider);
+      const wallet = new ethers.Wallet(trimmedKey, provider);
       setWalletAddress(wallet.address);
       setError('');
       saveWalletInfo(wallet.address, wallet.privateKey);
