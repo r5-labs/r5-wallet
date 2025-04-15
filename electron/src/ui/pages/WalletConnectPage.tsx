@@ -39,6 +39,7 @@ function WalletConnectPage({ onWalletSetup }: { onWalletSetup: () => void }) {
       ).toString();
       await saveEncryptedWallet(wallet.address, encryptedPrivateKey);
       onWalletSetup(); // Navigate directly to the main page
+      window.location.reload(); // Reload the app
     } catch (err) {
       console.error(err);
       setError(
@@ -62,6 +63,7 @@ function WalletConnectPage({ onWalletSetup }: { onWalletSetup: () => void }) {
       ).toString();
       await saveEncryptedWallet(wallet.address, encryptedPrivateKey);
       onWalletSetup(); // Navigate directly to the main page
+      window.location.reload(); // Reload the app
     } catch (err) {
       setError("Failed to create wallet. Please try again.");
     }
