@@ -78,7 +78,15 @@ export function Header(): any {
             <ButtonRound title="Receive Transaction">
               <ReceiveIcon />
             </ButtonRound>
-            <ButtonRound title="Reset Wallet">
+            <ButtonRound
+              title="Reset Wallet"
+              onClick={() => {
+                if (confirm("Are you sure you want to reset the wallet? This action cannot be undone.")) {
+                  localStorage.clear(); // Clear all local storage
+                  window.location.reload(); // Reload the app to reset state
+                }
+              }}
+            >
               <ResetIcon />
             </ButtonRound>
             <ButtonRound title="Show Private Key">
