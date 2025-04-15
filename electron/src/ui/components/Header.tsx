@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { ethers, JsonRpcProvider, formatEther } from "ethers";
+import CryptoJS from "crypto-js";
 import {
   BoxHeader,
   HeaderSection,
@@ -29,8 +30,16 @@ export function Header(): any {
   let wallet;
 
   try {
-    if (!walletInfo.privateKey || !ethers.isHexString(walletInfo.privateKey, 32)) {
-      throw new Error("Invalid private key format.");
+    if (!walletInfo.privateKey) {
+      const decryptedPrivateKey = CryptoJS.AES.decrypt(
+        walletInfo.encryptedPrivateKey,
+        walletInfo.password || "" // Ensure password is provided
+      ).toString(CryptoJS.enc.Utf8);
+      if (!decryptedPrivateKey || !/^0x[0-9a-fA-F]{64}$/.test(decryptedPrivateKey)) {
+        throw new Error("Invalid private key format.");
+      }
+      walletInfo.privateKey = decryptedPrivateKey;
+      localStorage.setItem("walletInfo", JSON.stringify(walletInfo));
     }
     wallet = new ethers.Wallet(walletInfo.privateKey, provider);
   } catch (error) {
@@ -48,7 +57,7 @@ export function Header(): any {
       const balanceWei = await provider.getBalance(wallet.address);
       setBalance(formatEther(balanceWei));
     } catch (error) {
-      console.error(error);
+      console.error("Failed to fetch balance:", error);
       alert("Failed to fetch balance.");
     }
   };

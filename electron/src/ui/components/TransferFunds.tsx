@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ethers, JsonRpcProvider, parseEther } from "ethers";
+import CryptoJS from "crypto-js";
 import {
   BoxSection,
   ButtonPrimary,
@@ -22,8 +23,16 @@ export function TransferFunds(): any {
   let wallet;
 
   try {
-    if (!walletInfo.privateKey || !ethers.isHexString(walletInfo.privateKey, 32)) {
-      throw new Error("Invalid private key format.");
+    if (!walletInfo.privateKey) {
+      const decryptedPrivateKey = CryptoJS.AES.decrypt(
+        walletInfo.encryptedPrivateKey,
+        walletInfo.password || "" // Ensure password is provided
+      ).toString(CryptoJS.enc.Utf8);
+      if (!decryptedPrivateKey || !/^0x[0-9a-fA-F]{64}$/.test(decryptedPrivateKey)) {
+        throw new Error("Invalid private key format.");
+      }
+      walletInfo.privateKey = decryptedPrivateKey;
+      localStorage.setItem("walletInfo", JSON.stringify(walletInfo));
     }
     wallet = new ethers.Wallet(walletInfo.privateKey, provider);
   } catch (error) {
@@ -50,7 +59,7 @@ export function TransferFunds(): any {
       await tx.wait();
       alert(`Transaction successful! Hash: ${tx.hash}`);
     } catch (error) {
-      console.error(error);
+      console.error("Transaction failed:", error);
       alert("Transaction failed. Please try again.");
     }
   };

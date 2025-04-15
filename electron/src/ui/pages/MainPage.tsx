@@ -1,7 +1,7 @@
 import { Header } from "../components/Header";
 import { MainPageBody } from "../components/MainPageBody";
 
-function MainPage({ onReset }: { onReset: () => void }) {
+function MainPage({ }: { onReset: () => void }) {
   return (
     <>
       <Header />
