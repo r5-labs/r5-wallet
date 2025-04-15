@@ -11,10 +11,10 @@ function WalletConnectPage({ onWalletSetup }: { onWalletSetup: () => void }) {
   const rpcUrl = "https://rpc.r5.network/";
   const provider = new ethers.JsonRpcProvider(rpcUrl);
 
-  const saveEncryptedWallet = async (address: string, encryptedPrivateKey: string, password: string) => {
+  const saveEncryptedWallet = async (address: string, encryptedPrivateKey: string) => {
     localStorage.setItem(
       "walletInfo",
-      JSON.stringify({ address, encryptedPrivateKey, password }) // Store password in walletInfo
+      JSON.stringify({ address, encryptedPrivateKey }) // Remove password from storage
     );
   };
 
@@ -37,7 +37,7 @@ function WalletConnectPage({ onWalletSetup }: { onWalletSetup: () => void }) {
         trimmedKey,
         password
       ).toString();
-      await saveEncryptedWallet(wallet.address, encryptedPrivateKey, password); // Pass password
+      await saveEncryptedWallet(wallet.address, encryptedPrivateKey);
       onWalletSetup(); // Navigate directly to the main page
     } catch (err) {
       console.error(err);
@@ -60,7 +60,7 @@ function WalletConnectPage({ onWalletSetup }: { onWalletSetup: () => void }) {
         wallet.privateKey,
         password
       ).toString();
-      await saveEncryptedWallet(wallet.address, encryptedPrivateKey, password); // Pass password
+      await saveEncryptedWallet(wallet.address, encryptedPrivateKey);
       onWalletSetup(); // Navigate directly to the main page
     } catch (err) {
       setError("Failed to create wallet. Please try again.");

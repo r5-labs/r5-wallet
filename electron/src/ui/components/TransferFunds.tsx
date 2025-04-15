@@ -1,21 +1,19 @@
 import { useState } from "react";
 import { ethers, JsonRpcProvider, parseEther } from "ethers";
-import CryptoJS from "crypto-js";
 import {
   BoxSection,
   ButtonPrimary,
   Input,
   TextSubTitle,
   Text,
-  colorLightGray
+  colorLightGray,
 } from "../theme";
 
 import { LuArrowUpRight } from "react-icons/lu";
 
 const SendIcon = LuArrowUpRight as React.FC<React.PropsWithChildren>;
 
-export function TransferFunds(): any {
-  const walletInfo = JSON.parse(localStorage.getItem("walletInfo") || "{}");
+export function TransferFunds({ decryptedPrivateKey }: { decryptedPrivateKey: string }): any {
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
 
@@ -23,32 +21,9 @@ export function TransferFunds(): any {
   let wallet;
 
   try {
-    console.log("Wallet Info from localStorage:", walletInfo);
-    console.log("Encrypted Private Key:", walletInfo.encryptedPrivateKey);
-    console.log("Password used for decryption:", walletInfo.password || "");
-
-    if (!walletInfo.privateKey) {
-      const decryptedPrivateKey = CryptoJS.AES.decrypt(
-        walletInfo.encryptedPrivateKey,
-        walletInfo.password || "" // Ensure password is provided
-      ).toString(CryptoJS.enc.Utf8);
-
-      console.log("Decrypted Private Key:", decryptedPrivateKey);
-
-      if (!decryptedPrivateKey || !/^0x[0-9a-fA-F]{64}$/.test(decryptedPrivateKey)) {
-        throw new Error("Invalid private key format.");
-      }
-      walletInfo.privateKey = decryptedPrivateKey;
-      localStorage.setItem("walletInfo", JSON.stringify(walletInfo));
-    }
-    wallet = new ethers.Wallet(walletInfo.privateKey, provider);
-    console.log("Wallet successfully created:", wallet);
+    wallet = new ethers.Wallet(decryptedPrivateKey, provider);
   } catch (error) {
-    if (error instanceof Error) {
-      console.error("Failed to create wallet:", error.message);
-    } else {
-      console.error("Failed to create wallet:", error);
-    }
+    console.error("Failed to create wallet:", error);
     alert("Invalid private key. Please reset your wallet.");
     return null; // Prevent rendering if the wallet is invalid
   }
@@ -62,7 +37,7 @@ export function TransferFunds(): any {
     try {
       const tx = await wallet.sendTransaction({
         to: recipient,
-        value: parseEther(amount)
+        value: parseEther(amount),
       });
       await tx.wait();
       alert(`Transaction successful! Hash: ${tx.hash}`);
@@ -84,7 +59,7 @@ export function TransferFunds(): any {
           <Text style={{ marginLeft: "15px" }}>To</Text>
           <Input
             type="text"
-            placeholder="Enter public addres, starting with 0x"
+            placeholder="Enter public address, starting with 0x"
             value={recipient}
             onChange={(e) => setRecipient(e.target.value)}
             style={{ minWidth: "40ch" }}

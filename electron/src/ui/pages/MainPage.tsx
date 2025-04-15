@@ -1,12 +1,16 @@
 import { Header } from "../components/Header";
 import { MainPageBody } from "../components/MainPageBody";
 
-function MainPage({ }: { onReset: () => void }) {
+function MainPage({
+  decryptedPrivateKey,
+}: {
+  onReset: () => void;
+  decryptedPrivateKey: string;
+}) {
   return (
     <>
-      <Header />
-      <MainPageBody />
-      {/* <button onClick={onReset}>Reset Wallet</button> */}
+      <Header decryptedPrivateKey={decryptedPrivateKey} />
+      <MainPageBody decryptedPrivateKey={decryptedPrivateKey} />
     </>
   );
 }

@@ -6,7 +6,8 @@ import CryptoJS from "crypto-js";
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [hasWallet, setHasWallet] = useState(false);
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState(""); // Store password in memory
+  const [decryptedPrivateKey, setDecryptedPrivateKey] = useState(""); // Store decrypted private key in memory
 
   useEffect(() => {
     const walletInfo = localStorage.getItem("walletInfo");
@@ -18,17 +19,14 @@ function App() {
   const handleAuthenticate = () => {
     const walletInfo = JSON.parse(localStorage.getItem("walletInfo") || "{}");
     try {
-      const decryptedPrivateKey = CryptoJS.AES.decrypt(
+      const decryptedKey = CryptoJS.AES.decrypt(
         walletInfo.encryptedPrivateKey,
         password
       ).toString(CryptoJS.enc.Utf8);
-      if (!decryptedPrivateKey || !/^0x[0-9a-fA-F]{64}$/.test(decryptedPrivateKey)) {
+      if (!decryptedKey || !/^0x[0-9a-fA-F]{64}$/.test(decryptedKey)) {
         throw new Error("Invalid password or private key.");
       }
-      localStorage.setItem(
-        "walletInfo",
-        JSON.stringify({ ...walletInfo, privateKey: decryptedPrivateKey })
-      );
+      setDecryptedPrivateKey(decryptedKey); // Store decrypted private key in memory
       setIsAuthenticated(true);
     } catch (error) {
       alert("Incorrect password. Please try again.");
@@ -45,13 +43,18 @@ function App() {
     localStorage.removeItem("walletInfo");
     setHasWallet(false);
     setIsAuthenticated(false);
+    setPassword(""); // Clear password from memory
+    setDecryptedPrivateKey(""); // Clear private key from memory
   };
 
   return (
     <>
       {isAuthenticated ? (
         hasWallet ? (
-          <MainPage onReset={handleReset} />
+          <MainPage
+            onReset={handleReset}
+            decryptedPrivateKey={decryptedPrivateKey} // Pass private key to MainPage
+          />
         ) : (
           <WalletConnectPage onWalletSetup={handleWalletSetup} />
         )
