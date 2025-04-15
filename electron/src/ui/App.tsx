@@ -36,6 +36,7 @@ function App() {
   };
 
   const handleWalletSetup = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for 1 second
     setHasWallet(true);
     setIsAuthenticated(true); // Automatically authenticate after wallet setup
   };

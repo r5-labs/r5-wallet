@@ -23,11 +23,18 @@ export function TransferFunds(): any {
   let wallet;
 
   try {
+    console.log("Wallet Info from localStorage:", walletInfo);
+    console.log("Encrypted Private Key:", walletInfo.encryptedPrivateKey);
+    console.log("Password used for decryption:", walletInfo.password || "");
+
     if (!walletInfo.privateKey) {
       const decryptedPrivateKey = CryptoJS.AES.decrypt(
         walletInfo.encryptedPrivateKey,
         walletInfo.password || "" // Ensure password is provided
       ).toString(CryptoJS.enc.Utf8);
+
+      console.log("Decrypted Private Key:", decryptedPrivateKey);
+
       if (!decryptedPrivateKey || !/^0x[0-9a-fA-F]{64}$/.test(decryptedPrivateKey)) {
         throw new Error("Invalid private key format.");
       }
@@ -35,6 +42,7 @@ export function TransferFunds(): any {
       localStorage.setItem("walletInfo", JSON.stringify(walletInfo));
     }
     wallet = new ethers.Wallet(walletInfo.privateKey, provider);
+    console.log("Wallet successfully created:", wallet);
   } catch (error) {
     if (error instanceof Error) {
       console.error("Failed to create wallet:", error.message);

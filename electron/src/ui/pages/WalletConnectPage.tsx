@@ -12,14 +12,14 @@ function WalletConnectPage({ onWalletSetup }: { onWalletSetup: () => void }) {
   const rpcUrl = "https://rpc.r5.network/";
   const provider = new ethers.JsonRpcProvider(rpcUrl);
 
-  const saveEncryptedWallet = async (address: string, encryptedPrivateKey: string) => {
-    return new Promise<void>((resolve) => {
-      localStorage.setItem(
-        "walletInfo",
-        JSON.stringify({ address, encryptedPrivateKey })
-      );
-      resolve();
-    });
+  const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  const saveEncryptedWallet = async (address: string, encryptedPrivateKey: string, password: string) => {
+    localStorage.setItem(
+      "walletInfo",
+      JSON.stringify({ address, encryptedPrivateKey, password }) // Store password in walletInfo
+    );
+    await delay(1000); // Wait for 1 second after saving
   };
 
   const handleImportWallet = async () => {
@@ -43,7 +43,7 @@ function WalletConnectPage({ onWalletSetup }: { onWalletSetup: () => void }) {
       ).toString();
       setWalletAddress(wallet.address);
       setError("");
-      await saveEncryptedWallet(wallet.address, encryptedPrivateKey);
+      await saveEncryptedWallet(wallet.address, encryptedPrivateKey, password); // Pass password
       onWalletSetup();
       alert(`Wallet imported successfully! Address: ${wallet.address}`);
     } catch (err) {
@@ -70,7 +70,7 @@ function WalletConnectPage({ onWalletSetup }: { onWalletSetup: () => void }) {
       setWalletAddress(wallet.address);
       setPrivateKey(wallet.privateKey);
       setError("");
-      await saveEncryptedWallet(wallet.address, encryptedPrivateKey);
+      await saveEncryptedWallet(wallet.address, encryptedPrivateKey, password); // Pass password
       onWalletSetup();
       alert(
         `New wallet created! Address: ${wallet.address}\nPrivate Key: ${wallet.privateKey}\nPlease save your private key securely.`
