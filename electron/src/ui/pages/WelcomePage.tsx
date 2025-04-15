@@ -48,6 +48,7 @@ function WelcomePage({ onAuthenticate }: { onAuthenticate: () => void }) {
 
   const handleReset = () => {
     localStorage.removeItem('walletPassword');
+    localStorage.removeItem('walletInfo'); // Clear wallet info as well
     setStoredEncryptedPassword('');
     setPassword('');
     setConfirmPassword('');

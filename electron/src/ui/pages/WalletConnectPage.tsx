@@ -57,13 +57,17 @@ function WalletConnectPage({ onWalletSetup }: { onWalletSetup: () => void }) {
     }
 
     try {
+      if (!ethers.isHexString(privateKey.trim(), 32)) {
+        throw new Error("Invalid private key format.");
+      }
       const wallet = new ethers.Wallet(privateKey.trim(), provider);
       setWalletAddress(wallet.address);
       setError('');
       saveWalletInfo(wallet.address, wallet.privateKey, password);
       alert(`Wallet imported successfully! Address: ${wallet.address}`);
     } catch (err) {
-      setError('Invalid private key. Please try again.');
+      console.error(err);
+      setError((err instanceof Error ? err.message : 'Invalid private key. Please try again.'));
     }
   };
 

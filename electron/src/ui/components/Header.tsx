@@ -26,7 +26,22 @@ export function Header(): any {
   const walletInfo = JSON.parse(localStorage.getItem("walletInfo") || "{}");
 
   const provider = new JsonRpcProvider("https://rpc.r5.network/");
-  const wallet = new ethers.Wallet(walletInfo.privateKey, provider);
+  let wallet;
+
+  try {
+    if (!walletInfo.privateKey || !ethers.isHexString(walletInfo.privateKey, 32)) {
+      throw new Error("Invalid private key format.");
+    }
+    wallet = new ethers.Wallet(walletInfo.privateKey, provider);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error("Failed to create wallet:", error.message);
+    } else {
+      console.error("Failed to create wallet:", error);
+    }
+    alert("Invalid private key. Please reset your wallet.");
+    return null; // Prevent rendering if the wallet is invalid
+  }
 
   const fetchBalance = async () => {
     try {
