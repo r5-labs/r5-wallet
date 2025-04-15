@@ -6,20 +6,16 @@ function WalletConnectPage({ onWalletSetup }: { onWalletSetup: () => void }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [privateKey, setPrivateKey] = useState("");
-  const [walletAddress, setWalletAddress] = useState("");
   const [error, setError] = useState("");
 
   const rpcUrl = "https://rpc.r5.network/";
   const provider = new ethers.JsonRpcProvider(rpcUrl);
-
-  const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const saveEncryptedWallet = async (address: string, encryptedPrivateKey: string, password: string) => {
     localStorage.setItem(
       "walletInfo",
       JSON.stringify({ address, encryptedPrivateKey, password }) // Store password in walletInfo
     );
-    await delay(1000); // Wait for 1 second after saving
   };
 
   const handleImportWallet = async () => {
@@ -41,11 +37,8 @@ function WalletConnectPage({ onWalletSetup }: { onWalletSetup: () => void }) {
         trimmedKey,
         password
       ).toString();
-      setWalletAddress(wallet.address);
-      setError("");
       await saveEncryptedWallet(wallet.address, encryptedPrivateKey, password); // Pass password
-      onWalletSetup();
-      alert(`Wallet imported successfully! Address: ${wallet.address}`);
+      onWalletSetup(); // Navigate directly to the main page
     } catch (err) {
       console.error(err);
       setError(
@@ -67,14 +60,8 @@ function WalletConnectPage({ onWalletSetup }: { onWalletSetup: () => void }) {
         wallet.privateKey,
         password
       ).toString();
-      setWalletAddress(wallet.address);
-      setPrivateKey(wallet.privateKey);
-      setError("");
       await saveEncryptedWallet(wallet.address, encryptedPrivateKey, password); // Pass password
-      onWalletSetup();
-      alert(
-        `New wallet created! Address: ${wallet.address}\nPrivate Key: ${wallet.privateKey}\nPlease save your private key securely.`
-      );
+      onWalletSetup(); // Navigate directly to the main page
     } catch (err) {
       setError("Failed to create wallet. Please try again.");
     }
@@ -83,48 +70,35 @@ function WalletConnectPage({ onWalletSetup }: { onWalletSetup: () => void }) {
   return (
     <div>
       <h1>Wallet Connect</h1>
-      {walletAddress ? (
-        <div>
-          <p>Wallet Address: {walletAddress}</p>
-          <p>Private Key: {privateKey}</p>
-          <p style={{ color: "red" }}>
-            Make sure to save your private key securely. You will need it to access
-            your wallet.
-          </p>
-        </div>
-      ) : (
-        <>
-          <div>
-            <h2>Set Password</h2>
-            <input
-              type="password"
-              placeholder="Enter password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <input
-              type="password"
-              placeholder="Confirm password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-          </div>
-          <div>
-            <h2>Import Wallet</h2>
-            <input
-              type="text"
-              placeholder="Enter private key"
-              value={privateKey}
-              onChange={(e) => setPrivateKey(e.target.value)}
-            />
-            <button onClick={handleImportWallet}>Import Wallet</button>
-          </div>
-          <div>
-            <h2>Create New Wallet</h2>
-            <button onClick={handleCreateWallet}>Create Wallet</button>
-          </div>
-        </>
-      )}
+      <div>
+        <h2>Set Password</h2>
+        <input
+          type="password"
+          placeholder="Enter password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <input
+          type="password"
+          placeholder="Confirm password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+        />
+      </div>
+      <div>
+        <h2>Import Wallet</h2>
+        <input
+          type="text"
+          placeholder="Enter private key"
+          value={privateKey}
+          onChange={(e) => setPrivateKey(e.target.value)}
+        />
+        <button onClick={handleImportWallet}>Import Wallet</button>
+      </div>
+      <div>
+        <h2>Create New Wallet</h2>
+        <button onClick={handleCreateWallet}>Create Wallet</button>
+      </div>
       {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
   );
