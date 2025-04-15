@@ -67,7 +67,22 @@ function App() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <button onClick={handleAuthenticate}>Login</button>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <button onClick={handleAuthenticate}>Login</button>
+            <button
+              onClick={() => {
+                if (
+                  confirm(
+                    "Are you sure you want to reset the wallet? This action cannot be undone."
+                  )
+                ) {
+                  handleReset();
+                }
+              }}
+            >
+              Reset Wallet
+            </button>
+          </div>
         </div>
       ) : (
         <WalletConnectPage onWalletSetup={handleWalletSetup} />
