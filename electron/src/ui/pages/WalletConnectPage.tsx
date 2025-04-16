@@ -37,6 +37,38 @@ export default function WalletConnectPage({
     );
   };
 
+  const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setError("");
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const fileContent = event.target?.result as string;
+          const parsed = JSON.parse(fileContent);
+
+          // Check if the necessary fields exist and validate the address format
+          if (!parsed.address || !parsed.encryptedPrivateKey) {
+            throw new Error("Invalid wallet file: missing required fields.");
+          }
+          if (!/^0x[0-9a-fA-F]{40}$/.test(parsed.address)) {
+            throw new Error("Invalid wallet file: invalid address format.");
+          }
+          // Optionally, you can also check that encryptedPrivateKey is a non-empty string
+
+          // Save the parsed file into localStorage
+          localStorage.setItem("walletInfo", JSON.stringify(parsed));
+
+          // Reload so that the App.tsx (unlock page) picks up the walletInfo
+          window.location.reload();
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "File import failed.");
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+
   const handleSetPassword = () => {
     setError("");
     if (password !== confirmPassword) {
@@ -47,7 +79,7 @@ export default function WalletConnectPage({
       setError("Password must be at least 8 characters long.");
       return;
     }
-    setStep(1);
+    setStep(2);
   };
 
   const handleCreateWallet = async () => {
@@ -83,8 +115,31 @@ export default function WalletConnectPage({
 
   return (
     <FullContainerBox style={{ position: "relative", height: "100vh" }}>
+      {/* New Wallet File Import Section */}
+      <StepWrapper active={step === 0} style={{ marginBottom: "20px" }}>
+        <TextSubTitle>
+          Do you have an R5 key wallet file you would like to import?
+        </TextSubTitle>
+        <Input
+          type="file"
+          accept=".key"
+          onChange={handleFileImport}
+          style={{ margin: "20px auto", display: "block" }}
+        />
+        <ButtonPrimary onClick={() => setStep(1)}>
+            I don't have an R5 key wallet file...
+          </ButtonPrimary>
+      </StepWrapper>
+      
+
       {/* Step 0: Set Password */}
-      <StepWrapper active={step === 0}>
+      <StepWrapper active={step === 1}>
+      <ButtonSecondary
+          onClick={() => setStep(0)}
+          style={{ alignSelf: "center", marginBottom: "10px" }}
+        >
+          ← Go Back
+        </ButtonSecondary>
         <TextSubTitle>Let's first set a secure password…</TextSubTitle>
         <Text>
           Your password must have at least 8 characters. Avoid using dates of
@@ -113,9 +168,9 @@ export default function WalletConnectPage({
       </StepWrapper>
 
       {/* Step 1: Choose Import or Create */}
-      <StepWrapper active={step === 1}>
+      <StepWrapper active={step === 2}>
         <ButtonSecondary
-          onClick={() => setStep(0)}
+          onClick={() => setStep(1)}
           style={{ alignSelf: "center", marginBottom: "10px" }}
         >
           ← Go Back
@@ -129,7 +184,7 @@ export default function WalletConnectPage({
         </Text>
         <Sp />
         <BoxContent>
-          <ButtonSecondary onClick={() => setStep(2)}>
+          <ButtonSecondary onClick={() => setStep(3)}>
             Import Wallet
           </ButtonSecondary>
           <ButtonPrimary onClick={handleCreateWallet}>
@@ -138,10 +193,10 @@ export default function WalletConnectPage({
         </BoxContent>
       </StepWrapper>
 
-      {/* Step 2: Import Wallet */}
-      <StepWrapper active={step === 2}>
+      {/* Step 2: Import Wallet via Private Key String */}
+      <StepWrapper active={step === 3}>
         <ButtonSecondary
-          onClick={() => setStep(1)}
+          onClick={() => setStep(2)}
           style={{ alignSelf: "center", marginBottom: "10px" }}
         >
           ← Go Back

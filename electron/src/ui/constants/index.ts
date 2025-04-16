@@ -1,2 +1,6 @@
+export const AppName = "R5 Desktop Wallet"
+export const AppDescription = "A dedicated desktop wallet for the R5 Network."
+export const AppVersion = "1.0.0 Beta"
+export const HelpUrl = "https://r5.network"
 export const RpcUrl = "https://rpc-testnet.r5.network"
 export const ExplorerUrl = "https://explorer-testnet.r5.network"

@@ -15,34 +15,48 @@ import {
   Text,
   colorSemiBlack,
   colorGlassBackground,
+  paddingHigh,
 } from "../theme";
-import { RpcUrl, ExplorerUrl } from "../constants";
+import {
+  RpcUrl,
+  ExplorerUrl,
+  AppName,
+  AppDescription,
+  AppVersion,
+  HelpUrl
+} from "../constants";
 
 import {
   GoArrowDownLeft,
-  GoStop,
+  GoTrash,
   GoArrowUpRight,
   GoKey,
   GoHistory,
   GoUpload,
+  GoInfo
 } from "react-icons/go";
 
 import R5Logo from "../assets/logo_white-transparent.png";
 
+import { QRCodeCanvas } from "qrcode.react";
+
 const ReceiveIcon = GoArrowDownLeft as React.FC<React.PropsWithChildren>;
 const SendIcon = GoArrowUpRight as React.FC<React.PropsWithChildren>;
-const ResetIcon = GoStop as React.FC<React.PropsWithChildren>;
+const ResetIcon = GoTrash as React.FC<React.PropsWithChildren>;
 const PrivateKeyIcon = GoKey as React.FC<React.PropsWithChildren>;
 const HistoryIcon = GoHistory as React.FC<React.PropsWithChildren>;
 const ExportIcon = GoUpload as React.FC<React.PropsWithChildren>;
+const InfoIcon = GoInfo as React.FC<React.PropsWithChildren>;
 
 export function Header({
-  decryptedPrivateKey,
+  decryptedPrivateKey
 }: {
   decryptedPrivateKey: string;
 }): JSX.Element | null {
   const [balance, setBalance] = useState("0");
   const [showPrivateKey, setShowPrivateKey] = useState(false);
+  const [showReceiveQR, setShowReceiveQR] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
 
   const provider = new JsonRpcProvider(RpcUrl);
   let wallet: ethers.Wallet;
@@ -55,15 +69,24 @@ export function Header({
   }
 
   useEffect(() => {
-    provider.getBalance(wallet.address).then((wei) => {
-      setBalance(formatEther(wei));
-    }).catch((err) => {
-      console.error("Failed to fetch balance:", err);
-    });
+    provider
+      .getBalance(wallet.address)
+      .then((wei) => {
+        setBalance(formatEther(wei));
+      })
+      .catch((err) => {
+        console.error("Failed to fetch balance:", err);
+      });
   }, [provider, wallet.address]);
 
   const openTxHistory = () => {
     const url = `${ExplorerUrl}/address/${wallet.address}`;
+    const shell = (window as any).require("electron").shell;
+    shell.openExternal(url);
+  };
+
+  const openHelp = () => {
+    const url = `${HelpUrl}`;
     const shell = (window as any).require("electron").shell;
     shell.openExternal(url);
   };
@@ -104,38 +127,56 @@ export function Header({
             <ButtonRound title="Send Transaction">
               <SendIcon />
             </ButtonRound>
-            <ButtonRound title="Receive Transaction">
+            <ButtonRound
+              title="Receive Transaction"
+              onClick={() => setShowReceiveQR(true)}
+            >
               <ReceiveIcon />
             </ButtonRound>
             <ButtonRound title="Transaction History" onClick={openTxHistory}>
               <HistoryIcon />
             </ButtonRound>
-            <ButtonRound
-              title="Export Wallet File"
-              onClick={exportWalletFile}
-            >
+            <ButtonRound title="Export Wallet File" onClick={exportWalletFile}>
               <ExportIcon />
             </ButtonRound>
             <ButtonRound
               title="Show Private Key"
-              onClick={() => setShowPrivateKey(true)}
+              onClick={() => {
+                if (
+                  confirm(
+                    "Are you sure you want to expose your private key? This can be a security risk."
+                  )
+                ) {
+                  setShowPrivateKey(true);
+                }
+              }}
             >
               <PrivateKeyIcon />
             </ButtonRound>
+
             <ButtonRound
               title="Reset Wallet"
               onClick={() => {
                 if (
                   confirm(
-                    "Are you sure you want to reset the wallet? This action cannot be undone."
+                    "Are you sure you want to reset the wallet? This action cannot be undone. You can make a backup of your current wallet by 'Exporting a Wallet File' before resetting it."
                   )
                 ) {
-                  localStorage.clear();
-                  window.location.reload();
+                  if (
+                    confirm(
+                      "Do you really want to reset your wallet? This may result in PERMANENT loss of access and funds to your existing wallet! Please make sure you have backed up your Private Key and/or your Wallet File."
+                    )
+                  ) {
+                    localStorage.clear();
+                    window.location.reload();
+                  }
                 }
               }}
             >
               <ResetIcon />
+            </ButtonRound>
+            <ButtonRound title="About" onClick={() => setShowInfo(true)}>
+              <InfoIcon />
             </ButtonRound>
           </HeaderButtonWrapper>
         </HeaderSection>
@@ -152,7 +193,7 @@ export function Header({
             zIndex: 1000,
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
+            justifyContent: "center"
           }}
         >
           <div
@@ -166,7 +207,7 @@ export function Header({
               backdropFilter: "blur(5px)",
               WebkitBackdropFilter: "blur(5px)",
               borderRadius: "10px",
-              zIndex: -1,
+              zIndex: -1
             }}
           />
           <div
@@ -179,7 +220,7 @@ export function Header({
               borderRadius: "10px",
               boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
               background: colorGlassBackgroundModal,
-              textAlign: "center",
+              textAlign: "center"
             }}
           >
             <h3 style={{ marginBottom: "-10px", color: colorSemiBlack }}>
@@ -197,12 +238,156 @@ export function Header({
                 borderRadius: borderRadiusDefault,
                 fontFamily: "monospace",
                 fontWeight: "light",
-                color: colorBlack,
+                color: colorBlack
               }}
             >
               {decryptedPrivateKey}
             </Text>
             <ButtonPrimary onClick={() => setShowPrivateKey(false)}>
+              Close
+            </ButtonPrimary>
+          </div>
+        </div>
+      )}
+
+      {showReceiveQR && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 1000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: colorGlassBackground,
+              backdropFilter: "blur(5px)",
+              WebkitBackdropFilter: "blur(5px)",
+              borderRadius: "10px",
+              zIndex: -1
+            }}
+          />
+          <div
+            style={{
+              position: "relative",
+              display: "flex",
+              flexDirection: "column",
+              gap: "10px",
+              padding: "20px",
+              borderRadius: "10px",
+              boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+              background: colorGlassBackgroundModal,
+              textAlign: "center"
+            }}
+          >
+            <h3 style={{ marginBottom: "-10px", color: colorSemiBlack }}>
+              Receive Funds
+            </h3>
+            <Text style={{ marginBottom: "10px", color: colorSemiBlack }}>
+              You can use the QR code below or copy your wallet address.
+            </Text>
+            <div
+              style={{
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
+                margin: "auto",
+                alignItems: "center",
+                justifyItems: "center",
+                textAlign: "center"
+              }}
+            >
+              <div
+                style={{
+                  background: colorWhite,
+                  width: `calc(200px + ${paddingHigh} + ${paddingHigh})`,
+                  padding: "20px 20px 10px 20px",
+                  borderRadius: borderRadiusDefault
+                }}
+              >
+                <QRCodeCanvas value={wallet.address} size={200} />
+              </div>
+            </div>
+
+            <Text
+              style={{
+                marginTop: "10px",
+                color: colorSemiBlack,
+                wordBreak: "break-all"
+              }}
+            >
+              {wallet.address}
+            </Text>
+            <ButtonPrimary onClick={() => setShowReceiveQR(false)}>
+              Close
+            </ButtonPrimary>
+          </div>
+        </div>
+      )}
+
+      {showInfo && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 1000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: colorGlassBackground,
+              backdropFilter: "blur(5px)",
+              WebkitBackdropFilter: "blur(5px)",
+              borderRadius: "10px",
+              zIndex: -1
+            }}
+          />
+          <div
+            style={{
+              position: "relative",
+              display: "flex",
+              flexDirection: "column",
+              gap: "10px",
+              padding: "20px",
+              borderRadius: "10px",
+              boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+              background: colorGlassBackgroundModal,
+              textAlign: "center"
+            }}
+          >
+            <h3 style={{ marginBottom: "-10px", color: colorSemiBlack }}>
+              {AppName}
+            </h3>
+            <Text style={{ marginBottom: "10px", color: colorSemiBlack }}>
+              {AppDescription}
+            </Text>
+            <Text style={{ marginBottom: "10px", color: colorSemiBlack }}>
+              <b>Version:</b> {AppVersion}
+            </Text>
+            <ButtonPrimary onClick={openHelp}>Help & Support</ButtonPrimary>
+            <ButtonPrimary onClick={() => setShowInfo(false)}>
               Close
             </ButtonPrimary>
           </div>
