@@ -8,6 +8,8 @@ export const colorGlassBackground =
   "radial-gradient(circle, rgba(255, 255, 255, 0.075) 0%, rgba(255, 255, 255, 0.03) 100%)";
 export const colorGlassBackgroundModal =
   "radial-gradient(circle, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.5) 100%)";
+export const colorGlassBackgroundBlur = 
+  "rgba(0, 0, 0, 0.5)";
 export const colorGlassBorder = "rgba(255, 255, 255, 0.1)";
 export const colorPrimary = "#459381";
 export const colorSecondary = "#16222B";
@@ -75,14 +77,14 @@ export const ButtonPrimary = styled.button`
   justify-content: center;
   flex-wrap: nowrap;
   align-items: center;
-  cursor: pointer;
+  cursor: default;
   position: relative;
   z-index: 1;
   &:hover {
     background: ${colorAccent};
   }
   &:disabled {
-    cursor: pointer;
+    cursor: default;
   }
   > * {
     user-select: none;
@@ -104,14 +106,14 @@ export const ButtonSecondary = styled.button`
   justify-content: center;
   flex-wrap: nowrap;
   align-items: center;
-  cursor: pointer;
+  cursor: default;
   position: relative;
   z-index: 1;
   &:hover {
     background: ${colorAccent};
   }
   &:disabled {
-    cursor: pointer;
+    cursor: default;
   }
   > * {
     user-select: none;
@@ -134,14 +136,14 @@ export const ButtonRound = styled.button`
   justify-content: center;
   flex-wrap: nowrap;
   align-items: center;
-  cursor: pointer;
+  cursor: default;
   position: relative;
   z-index: 1;
   &:hover {
     background: ${colorGlassBorder};
   }
   &:disabled {
-    cursor: pointer;
+    cursor: default;
   }
   > * {
     user-select: none;
@@ -175,7 +177,7 @@ export const FullPageBox = styled.div`
 export const FullContainerBox = styled.div`
   display: flex;
   flex-direction: column;
-  padding: ${paddingHigh};
+  padding: ${paddingDefault};
   margin: 0;
   border-radius: ${borderRadiusDefault};
   border: 1px solid ${colorGlassBorder};
@@ -207,7 +209,7 @@ export const BoxSection = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: ${paddingHigh};
+  padding: ${paddingDefault};
   gap: 10px;
 `;
 

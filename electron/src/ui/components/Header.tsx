@@ -14,8 +14,8 @@ import {
   ButtonPrimary,
   Text,
   colorSemiBlack,
-  colorGlassBackground,
   paddingHigh,
+  colorGlassBackgroundBlur
 } from "../theme";
 import {
   RpcUrl,
@@ -29,11 +29,14 @@ import {
 import {
   GoArrowDownLeft,
   GoTrash,
-  GoArrowUpRight,
+  //  GoArrowUpRight,
   GoKey,
   GoHistory,
   GoUpload,
-  GoInfo
+  GoInfo,
+  GoSync,
+  GoCopy,
+  GoCheck
 } from "react-icons/go";
 
 import R5Logo from "../assets/logo_white-transparent.png";
@@ -41,12 +44,15 @@ import R5Logo from "../assets/logo_white-transparent.png";
 import { QRCodeCanvas } from "qrcode.react";
 
 const ReceiveIcon = GoArrowDownLeft as React.FC<React.PropsWithChildren>;
-const SendIcon = GoArrowUpRight as React.FC<React.PropsWithChildren>;
+// const SendIcon = GoArrowUpRight as React.FC<React.PropsWithChildren>;
 const ResetIcon = GoTrash as React.FC<React.PropsWithChildren>;
 const PrivateKeyIcon = GoKey as React.FC<React.PropsWithChildren>;
 const HistoryIcon = GoHistory as React.FC<React.PropsWithChildren>;
 const ExportIcon = GoUpload as React.FC<React.PropsWithChildren>;
 const InfoIcon = GoInfo as React.FC<React.PropsWithChildren>;
+const RefreshIcon = GoSync as React.FC<React.PropsWithChildren>;
+const CopyIcon = GoCopy as React.FC<React.PropsWithChildren>;
+const CheckIcon = GoCheck as React.FC<React.PropsWithChildren>;
 
 export function Header({
   decryptedPrivateKey
@@ -57,6 +63,8 @@ export function Header({
   const [showPrivateKey, setShowPrivateKey] = useState(false);
   const [showReceiveQR, setShowReceiveQR] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
   const provider = new JsonRpcProvider(RpcUrl);
   let wallet: ethers.Wallet;
@@ -68,16 +76,29 @@ export function Header({
     return null;
   }
 
-  useEffect(() => {
+  const updateBalance = () => {
     provider
       .getBalance(wallet.address)
       .then((wei) => {
         setBalance(formatEther(wei));
       })
       .catch((err) => {
-        console.error("Failed to fetch balance:", err);
+        console.error("Failed to update balance:", err);
       });
+  };
+
+  useEffect(() => {
+    updateBalance(); // run it immediately
+    const interval = setInterval(updateBalance, 60000); // update every 60 seconds
+    return () => clearInterval(interval);
   }, [provider, wallet.address]);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    updateBalance();
+    // Reset the refresh state after the animation (1s)
+    setTimeout(() => setIsRefreshing(false), 1000);
+  };
 
   const openTxHistory = () => {
     const url = `${ExplorerUrl}/address/${wallet.address}`;
@@ -109,6 +130,18 @@ export function Header({
     URL.revokeObjectURL(url);
   };
 
+  const handleCopy = () => {
+    navigator.clipboard
+      .writeText(wallet.address)
+      .then(() => {
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+      })
+      .catch((err) => {
+        console.error("Failed to copy:", err);
+      });
+  };
+
   return (
     <>
       <BoxHeader>
@@ -119,14 +152,53 @@ export function Header({
           <TextSubTitle>
             R5 {balance}{" "}
             <span style={{ fontSize: "10pt", fontWeight: "300" }}>$0.00</span>
+            <span
+              onClick={handleRefresh}
+              style={{
+                margin: "0 10px",
+                display: "inline-block",
+                width: "12px",
+                height: "12px",
+                cursor: "pointer"
+              }}
+              title="Refresh Balance"
+            >
+              <RefreshIcon
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  animation: isRefreshing ? "spin 1s linear" : undefined
+                }}
+              />
+            </span>
           </TextSubTitle>
-          <SmallText>{wallet.address}</SmallText>
+          <SmallText style={{ display: "flex", alignItems: "center" }}>
+            <span>{wallet.address}</span>
+            <span
+              title="Copy Address"
+              onClick={handleCopy}
+              style={{
+                display: "inline-block",
+                verticalAlign: "middle",
+                marginLeft: "5px",
+                cursor: "pointer"
+              }}
+            >
+              {isCopied ? (
+                <CheckIcon style={{ width: "12px", height: "12px" }} />
+              ) : (
+                <CopyIcon style={{ width: "12px", height: "12px" }} />
+              )}
+            </span>
+          </SmallText>
         </HeaderSection>
         <HeaderSection style={{ width: "100%" }}>
           <HeaderButtonWrapper>
+            {/* /// comment the send button until a dashboard or another main page is made (rn it's redundant)
             <ButtonRound title="Send Transaction">
               <SendIcon />
             </ButtonRound>
+            */}
             <ButtonRound
               title="Receive Transaction"
               onClick={() => setShowReceiveQR(true)}
@@ -203,10 +275,10 @@ export function Header({
               left: 0,
               right: 0,
               bottom: 0,
-              background: colorGlassBackground,
+              background: colorGlassBackgroundBlur,
               backdropFilter: "blur(5px)",
               WebkitBackdropFilter: "blur(5px)",
-              borderRadius: "10px",
+              borderRadius: borderRadiusDefault,
               zIndex: -1
             }}
           />
@@ -217,7 +289,7 @@ export function Header({
               flexDirection: "column",
               gap: "10px",
               padding: "20px",
-              borderRadius: "10px",
+              borderRadius: borderRadiusDefault,
               boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
               background: colorGlassBackgroundModal,
               textAlign: "center"
@@ -271,10 +343,10 @@ export function Header({
               left: 0,
               right: 0,
               bottom: 0,
-              background: colorGlassBackground,
+              background: colorGlassBackgroundBlur,
               backdropFilter: "blur(5px)",
               WebkitBackdropFilter: "blur(5px)",
-              borderRadius: "10px",
+              borderRadius: borderRadiusDefault,
               zIndex: -1
             }}
           />
@@ -285,7 +357,7 @@ export function Header({
               flexDirection: "column",
               gap: "10px",
               padding: "20px",
-              borderRadius: "10px",
+              borderRadius: borderRadiusDefault,
               boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
               background: colorGlassBackgroundModal,
               textAlign: "center"
@@ -357,10 +429,10 @@ export function Header({
               left: 0,
               right: 0,
               bottom: 0,
-              background: colorGlassBackground,
+              background: colorGlassBackgroundBlur,
               backdropFilter: "blur(5px)",
               WebkitBackdropFilter: "blur(5px)",
-              borderRadius: "10px",
+              borderRadius: borderRadiusDefault,
               zIndex: -1
             }}
           />
@@ -371,7 +443,7 @@ export function Header({
               flexDirection: "column",
               gap: "10px",
               padding: "20px",
-              borderRadius: "10px",
+              borderRadius: borderRadiusDefault,
               boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
               background: colorGlassBackgroundModal,
               textAlign: "center"

@@ -11,8 +11,9 @@ function createMainWindow() {
     height: 720,
     resizable: false, // no drag‑to‑resize
     maximizable: true, // but still allow Maximize
-    minimizable: true, // you can keep or remove minimize
-    autoHideMenuBar: true, // hides menu bar; Alt will reveal if you really need it
+    minimizable: true, // can minimise
+    autoHideMenuBar: true,
+    icon: "window-icon.png",
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
@@ -23,7 +24,7 @@ function createMainWindow() {
     mainWindow.loadURL("http://localhost:5123");
   } else {
     mainWindow.loadFile(path.join(app.getAppPath(), "/dist-react/index.html"));
-  }
+  } 
 }
 
 app.whenReady().then(createMainWindow);
