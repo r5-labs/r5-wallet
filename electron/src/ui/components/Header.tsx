@@ -152,11 +152,11 @@ export function Header({
         <HeaderSection>
           <TextSubTitle>
             R5 {balance}{" "}
-            <span style={{ fontSize: "10pt", fontWeight: "300" }}>$0.00</span>
+            {/**<span style={{ fontSize: "10pt", fontWeight: "300" }}>$0.00</span>**/}
             <span
               onClick={handleRefresh}
               style={{
-                margin: "0 10px",
+                margin: "0 5px",
                 display: "inline-block",
                 width: "12px",
                 height: "12px",

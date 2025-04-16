@@ -11,7 +11,7 @@ function createMainWindow() {
         maximizable: true, // but still allow Maximize
         minimizable: true, // can minimise
         autoHideMenuBar: true,
-        icon: "window-icon.png",
+        icon: path.join(app.getAppPath(), "window-icon.png"),
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false

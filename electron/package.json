@@ -1,7 +1,10 @@
 {
   "name": "r5-wallet",
+  "productName": "R5 Desktop Wallet",
+  "description": "A dedicated GUI Desktop Wallet for R5 Network users.",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "author": "R5 Labs",
   "type": "module",
   "main": "dist-electron/main.js",
   "scripts": {
@@ -45,5 +48,14 @@
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.24.1",
     "vite": "^6.2.0"
+  },
+  "build": {
+    "productName": "R5 Desktop Wallet",
+    "win": {
+      "icon": "window-icon.png"
+    },
+    "linux": {
+      "icon": "window-icon.png"
+    }
   }
 }
