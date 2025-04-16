@@ -42,6 +42,7 @@ import {
 import R5Logo from "../assets/logo_white-transparent.png";
 
 import { QRCodeCanvas } from "qrcode.react";
+import { IconType } from "react-icons";
 
 const ReceiveIcon = GoArrowDownLeft as React.FC<React.PropsWithChildren>;
 // const SendIcon = GoArrowUpRight as React.FC<React.PropsWithChildren>;
@@ -50,9 +51,9 @@ const PrivateKeyIcon = GoKey as React.FC<React.PropsWithChildren>;
 const HistoryIcon = GoHistory as React.FC<React.PropsWithChildren>;
 const ExportIcon = GoUpload as React.FC<React.PropsWithChildren>;
 const InfoIcon = GoInfo as React.FC<React.PropsWithChildren>;
-const RefreshIcon = GoSync as React.FC<React.PropsWithChildren>;
-const CopyIcon = GoCopy as React.FC<React.PropsWithChildren>;
-const CheckIcon = GoCheck as React.FC<React.PropsWithChildren>;
+const RefreshIcon: IconType = GoSync;
+const CopyIcon: IconType = GoCopy;
+const CheckIcon: IconType = GoCheck;
 
 export function Header({
   decryptedPrivateKey
