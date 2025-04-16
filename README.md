@@ -46,4 +46,16 @@ npm run dev
 
 ## Building
 
-Building instructions will be posted here in the near future.
+Install all the dependencies with `npm`:
+
+```bash
+npm install
+```
+
+Make sure that all parameters are correct on `/src/ui/constants/index.ts`.
+
+Build to your desired OS using the scripts below:
+
+- `dist:win` for Windows,
+- `dist:mac` for macOS,
+- `dist:linux` for Linux,
