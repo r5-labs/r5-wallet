@@ -4,6 +4,11 @@ export const colorBackground =
   "radial-gradient(circle, rgba(37,55,66,1) 0%, rgba(22,34,43,1) 100%)";
 export const colorBoxBackground =
   "linear-gradient(40deg, #16222B 0%, #21303A 100%)";
+export const colorGlassBackground =
+  "radial-gradient(circle, rgba(255, 255, 255, 0.075) 0%, rgba(255, 255, 255, 0.03) 100%)";
+export const colorGlassBackgroundModal =
+  "radial-gradient(circle, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.5) 100%)";
+export const colorGlassBorder = "rgba(255, 255, 255, 0.1)";
 export const colorPrimary = "#459381";
 export const colorSecondary = "#16222B";
 export const colorAccent = "#0AC18E";
@@ -20,6 +25,7 @@ export const colorLightGray = "#C1C1C1";
 export const colorGray = "#7F7F7F";
 export const colorDarkGray = "#535353";
 export const colorExtraDarkGray = "#535353";
+export const colorSemiBlack = "#333333";
 
 export const fontSizeH1 = "52pt";
 export const fontSizeH2 = "42pt";
@@ -120,8 +126,8 @@ export const ButtonRound = styled.button`
   font-size: ${fontSizeH6};
   text-align: center;
   border-radius: ${borderRadiusRound};
-  border: ${buttonBorder};
-  background: ${colorPrimary};
+  border: 1px solid ${colorGlassBorder};
+  background: ${colorGlassBackground};
   color: ${colorText};
   text-decoration: none;
   display: flex;
@@ -132,7 +138,7 @@ export const ButtonRound = styled.button`
   position: relative;
   z-index: 1;
   &:hover {
-    background: ${colorAccent};
+    background: ${colorGlassBorder};
   }
   &:disabled {
     cursor: pointer;
@@ -154,11 +160,26 @@ export const Link = styled.a`
 export const FullPageBox = styled.div`
   display: flex;
   flex-direction: column;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  width: 100%;
+  height: calc(100vh - ${paddingHigh} - ${paddingHigh});
+  min-width: 320px;
+  justify-content: center;
+  align-items: center;
+  gap: ${defaultGap};
+`;
+
+export const FullContainerBox = styled.div`
+  display: flex;
+  flex-direction: column;
   padding: ${paddingHigh};
   margin: 0;
   border-radius: ${borderRadiusDefault};
-  border: ${borderDefault};
-  background: ${colorBoxBackground};
+  border: 1px solid ${colorGlassBorder};
+  background: ${colorGlassBackground};
   width: 100%;
   height: 100%;
   min-width: 320px;
@@ -187,6 +208,7 @@ export const BoxSection = styled.div`
   flex-direction: column;
   align-items: center;
   padding: ${paddingHigh};
+  gap: 10px;
 `;
 
 export const BoxContentParent = styled.div`
@@ -235,7 +257,7 @@ export const HeaderButtonWrapper = styled.div`
   padding: 0;
   margin: 0;
   width: 100%;
-`
+`;
 
 export const Divider = styled.div`
   display: flex;
@@ -275,13 +297,42 @@ export const Text = styled.p`
 export const SmallText = styled.p`
   font-size: 8pt;
   margin: 0;
-`
+`;
 
 export const Input = styled.input`
   font-size: 11pt;
   border-radius: ${borderRadiusDefault};
   padding: ${buttonPaddingDefault};
-  border: ${borderDefault};
+  border: 1px solid ${colorGlassBorder};
   text-align: center;
-  background: ${colorSecondary};
+  background: ${colorGlassBackground};
+`;
+
+export const Hr = styled.hr`
+  border: none;
+  border-top: 1px solid ${colorGlassBorder};
+  width: 100%;
+  margin: 1em 0;
+`;
+
+export const Sp = styled.div`
+  margin: 10px;
+  width: 100%;
 `
+
+export const StepWrapper = styled.div<{ active: boolean }>`
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  /* fade in/out */
+  opacity: ${({ active }) => (active ? 1 : 0)};
+  transition: opacity 0.5s ease-in-out;
+
+  /* prevent clicks on invisible steps */
+  pointer-events: ${({ active }) => (active ? "auto" : "none")};
+`;

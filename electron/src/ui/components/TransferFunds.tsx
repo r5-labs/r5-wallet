@@ -6,18 +6,23 @@ import {
   Input,
   TextSubTitle,
   Text,
-  colorLightGray,
+  colorLightGray
 } from "../theme";
 
 import { LuArrowUpRight } from "react-icons/lu";
+import { RpcUrl } from "../constants";
 
 const SendIcon = LuArrowUpRight as React.FC<React.PropsWithChildren>;
 
-export function TransferFunds({ decryptedPrivateKey }: { decryptedPrivateKey: string }): any {
+export function TransferFunds({
+  decryptedPrivateKey
+}: {
+  decryptedPrivateKey: string;
+}): any {
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
 
-  const provider = new JsonRpcProvider("https://rpc.r5.network/");
+  const provider = new JsonRpcProvider(RpcUrl);
   let wallet;
 
   try {
@@ -37,7 +42,7 @@ export function TransferFunds({ decryptedPrivateKey }: { decryptedPrivateKey: st
     try {
       const tx = await wallet.sendTransaction({
         to: recipient,
-        value: parseEther(amount),
+        value: parseEther(amount)
       });
       await tx.wait();
       alert(`Transaction successful! Hash: ${tx.hash}`);

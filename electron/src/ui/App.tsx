@@ -2,6 +2,16 @@ import { useState, useEffect } from "react";
 import WalletConnectPage from "./pages/WalletConnectPage";
 import MainPage from "./pages/MainPage";
 import CryptoJS from "crypto-js";
+import {
+  FullPageBox,
+  Input,
+  TextHeader,
+  Text,
+  ButtonPrimary,
+  ButtonSecondary,
+  FullContainerBox
+} from "./theme";
+import R5Logo from "./assets/logo_white-transparent.png";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -49,44 +59,62 @@ function App() {
 
   return (
     <>
-      {isAuthenticated ? (
-        hasWallet ? (
-          <MainPage
-            onReset={handleReset}
-            decryptedPrivateKey={decryptedPrivateKey} // Pass private key to MainPage
-          />
+      <FullPageBox>
+        {isAuthenticated ? (
+          hasWallet ? (
+            <MainPage
+              onReset={handleReset}
+              decryptedPrivateKey={decryptedPrivateKey} // Pass private key to MainPage
+            />
+          ) : (
+            <WalletConnectPage onWalletSetup={handleWalletSetup} />
+          )
+        ) : hasWallet ? (
+          <FullPageBox style={{ minHeight: "100%" }}>
+            <FullContainerBox>
+            <img
+              src={R5Logo}
+              alt="R5 Logo"
+              style={{ width: "96px", height: "96px", margin: "-25px 0" }}
+            />
+            <TextHeader style={{ marginBottom: "-15px" }}>
+              Welcome Back!
+            </TextHeader>
+            <Text style={{ marginBottom: 0 }}>
+              Enter your password to unlock and access your wallet.
+            </Text>
+            <Input
+              type="password"
+              placeholder="Enter your password..."
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{ minWidth: "40ch", margin: "20px" }}
+            />
+            <div style={{ display: "flex", gap: "10px" }}>
+              <ButtonSecondary
+                onClick={() => {
+                  if (
+                    confirm(
+                      "Are you sure you want to reset the wallet? This action cannot be undone."
+                    )
+                  ) {
+                    handleReset();
+                  }
+                }}
+              >
+                Reset Wallet
+              </ButtonSecondary>
+              <ButtonPrimary onClick={handleAuthenticate}>
+                Unlock Wallet
+              </ButtonPrimary>
+            </div>
+            </FullContainerBox>
+          </FullPageBox>
         ) : (
           <WalletConnectPage onWalletSetup={handleWalletSetup} />
-        )
-      ) : hasWallet ? (
-        <div>
-          <h1>Enter Password</h1>
-          <input
-            type="password"
-            placeholder="Enter password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <div style={{ display: "flex", gap: "10px" }}>
-            <button onClick={handleAuthenticate}>Login</button>
-            <button
-              onClick={() => {
-                if (
-                  confirm(
-                    "Are you sure you want to reset the wallet? This action cannot be undone."
-                  )
-                ) {
-                  handleReset();
-                }
-              }}
-            >
-              Reset Wallet
-            </button>
-          </div>
-        </div>
-      ) : (
-        <WalletConnectPage onWalletSetup={handleWalletSetup} />
-      )}
+        )}
+        
+      </FullPageBox>
     </>
   );
 }

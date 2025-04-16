@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, JSX } from "react";
 import { ethers, JsonRpcProvider, formatEther } from "ethers";
 import {
   BoxHeader,
@@ -7,48 +7,84 @@ import {
   SmallText,
   ButtonRound,
   HeaderButtonWrapper,
+  colorGlassBackgroundModal,
+  colorWhite,
+  borderRadiusDefault,
+  colorBlack,
+  ButtonPrimary,
+  Text,
+  colorSemiBlack,
+  colorGlassBackground,
 } from "../theme";
+import { RpcUrl, ExplorerUrl } from "../constants";
 
-import { BsQrCode } from "react-icons/bs";
-import { BsTrash } from "react-icons/bs";
-import { LuArrowUpRight } from "react-icons/lu";
-import { CiLock } from "react-icons/ci";
+import {
+  GoArrowDownLeft,
+  GoStop,
+  GoArrowUpRight,
+  GoKey,
+  GoHistory,
+  GoUpload,
+} from "react-icons/go";
 
 import R5Logo from "../assets/logo_white-transparent.png";
 
-const ReceiveIcon = BsQrCode as React.FC<React.PropsWithChildren>;
-const SendIcon = LuArrowUpRight as React.FC<React.PropsWithChildren>;
-const ResetIcon = BsTrash as React.FC<React.PropsWithChildren>;
-const PrivateKeyIcon = CiLock as React.FC<React.PropsWithChildren>;
+const ReceiveIcon = GoArrowDownLeft as React.FC<React.PropsWithChildren>;
+const SendIcon = GoArrowUpRight as React.FC<React.PropsWithChildren>;
+const ResetIcon = GoStop as React.FC<React.PropsWithChildren>;
+const PrivateKeyIcon = GoKey as React.FC<React.PropsWithChildren>;
+const HistoryIcon = GoHistory as React.FC<React.PropsWithChildren>;
+const ExportIcon = GoUpload as React.FC<React.PropsWithChildren>;
 
-export function Header({ decryptedPrivateKey }: { decryptedPrivateKey: string }): any {
+export function Header({
+  decryptedPrivateKey,
+}: {
+  decryptedPrivateKey: string;
+}): JSX.Element | null {
   const [balance, setBalance] = useState("0");
-  const [showPrivateKey, setShowPrivateKey] = useState(false); // State to toggle private key display
+  const [showPrivateKey, setShowPrivateKey] = useState(false);
 
-  const provider = new JsonRpcProvider("https://rpc.r5.network/");
-  let wallet;
-
+  const provider = new JsonRpcProvider(RpcUrl);
+  let wallet: ethers.Wallet;
   try {
     wallet = new ethers.Wallet(decryptedPrivateKey, provider);
-  } catch (error) {
-    console.error("Failed to create wallet:", error);
+  } catch (e) {
+    console.error("Invalid private key:", e);
     alert("Invalid private key. Please reset your wallet.");
-    return null; // Prevent rendering if the wallet is invalid
+    return null;
   }
 
-  const fetchBalance = async () => {
-    try {
-      const balanceWei = await provider.getBalance(wallet.address);
-      setBalance(formatEther(balanceWei));
-    } catch (error) {
-      console.error("Failed to fetch balance:", error);
-      alert("Failed to fetch balance.");
-    }
+  useEffect(() => {
+    provider.getBalance(wallet.address).then((wei) => {
+      setBalance(formatEther(wei));
+    }).catch((err) => {
+      console.error("Failed to fetch balance:", err);
+    });
+  }, [provider, wallet.address]);
+
+  const openTxHistory = () => {
+    const url = `${ExplorerUrl}/address/${wallet.address}`;
+    const shell = (window as any).require("electron").shell;
+    shell.openExternal(url);
   };
 
-  useEffect(() => {
-    fetchBalance();
-  }, []);
+  const exportWalletFile = () => {
+    const raw = localStorage.getItem("walletInfo");
+    if (!raw) {
+      alert("No wallet to export.");
+      return;
+    }
+    // create a blob and force download
+    const blob = new Blob([raw], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${wallet.address}.key`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <>
@@ -71,6 +107,21 @@ export function Header({ decryptedPrivateKey }: { decryptedPrivateKey: string })
             <ButtonRound title="Receive Transaction">
               <ReceiveIcon />
             </ButtonRound>
+            <ButtonRound title="Transaction History" onClick={openTxHistory}>
+              <HistoryIcon />
+            </ButtonRound>
+            <ButtonRound
+              title="Export Wallet File"
+              onClick={exportWalletFile}
+            >
+              <ExportIcon />
+            </ButtonRound>
+            <ButtonRound
+              title="Show Private Key"
+              onClick={() => setShowPrivateKey(true)}
+            >
+              <PrivateKeyIcon />
+            </ButtonRound>
             <ButtonRound
               title="Reset Wallet"
               onClick={() => {
@@ -79,66 +130,82 @@ export function Header({ decryptedPrivateKey }: { decryptedPrivateKey: string })
                     "Are you sure you want to reset the wallet? This action cannot be undone."
                   )
                 ) {
-                  localStorage.clear(); // Clear all local storage
-                  window.location.reload(); // Reload the app to reset state
+                  localStorage.clear();
+                  window.location.reload();
                 }
               }}
             >
               <ResetIcon />
             </ButtonRound>
-            <ButtonRound
-              title="Show Private Key"
-              onClick={() => setShowPrivateKey(true)} // Show private key pop-up
-            >
-              <PrivateKeyIcon />
-            </ButtonRound>
           </HeaderButtonWrapper>
         </HeaderSection>
       </BoxHeader>
 
-      {/* Pop-up for displaying private key */}
       {showPrivateKey && (
         <div
           style={{
             position: "fixed",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            background: "white",
-            padding: "20px",
-            borderRadius: "10px",
-            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
             zIndex: 1000,
-            textAlign: "center", // Ensure text is centered
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          <h3 style={{ marginBottom: "10px", color: "#333" }}>Your Private Key</h3>
-          <p
+          <div
             style={{
-              wordWrap: "break-word",
-              background: "#f9f9f9",
-              padding: "10px",
-              borderRadius: "5px",
-              fontFamily: "monospace",
-              color: "black",
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: colorGlassBackground,
+              backdropFilter: "blur(5px)",
+              WebkitBackdropFilter: "blur(5px)",
+              borderRadius: "10px",
+              zIndex: -1,
+            }}
+          />
+          <div
+            style={{
+              position: "relative",
+              display: "flex",
+              flexDirection: "column",
+              gap: "10px",
+              padding: "20px",
+              borderRadius: "10px",
+              boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+              background: colorGlassBackgroundModal,
+              textAlign: "center",
             }}
           >
-            {decryptedPrivateKey}
-          </p>
-          <button
-            onClick={() => setShowPrivateKey(false)}
-            style={{
-              marginTop: "10px",
-              padding: "10px 15px",
-              borderRadius: "5px",
-              background: "#459381",
-              color: "white",
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
-            Close
-          </button>
+            <h3 style={{ marginBottom: "-10px", color: colorSemiBlack }}>
+              Your Private Key
+            </h3>
+            <Text style={{ marginBottom: "10px", color: colorSemiBlack }}>
+              <b>Anyone with your private key can control your wallet.</b> Store
+              it in a safe place.
+            </Text>
+            <Text
+              style={{
+                wordWrap: "break-word",
+                background: colorWhite,
+                padding: "10px 15px",
+                borderRadius: borderRadiusDefault,
+                fontFamily: "monospace",
+                fontWeight: "light",
+                color: colorBlack,
+              }}
+            >
+              {decryptedPrivateKey}
+            </Text>
+            <ButtonPrimary onClick={() => setShowPrivateKey(false)}>
+              Close
+            </ButtonPrimary>
+          </div>
         </div>
       )}
     </>

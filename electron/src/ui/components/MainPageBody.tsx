@@ -1,12 +1,16 @@
-import { FullPageBox } from "../theme";
+import { FullContainerBox } from "../theme";
 import { TransferFunds } from "./TransferFunds";
 
-export function MainPageBody({ decryptedPrivateKey }: { decryptedPrivateKey: string }): any {
+export function MainPageBody({
+  decryptedPrivateKey
+}: {
+  decryptedPrivateKey: string;
+}): any {
   return (
     <>
-      <FullPageBox style={{ minHeight: "80vh" }}>
+      <FullContainerBox>
         <TransferFunds decryptedPrivateKey={decryptedPrivateKey} />
-      </FullPageBox>
+      </FullContainerBox>
     </>
   );
 }
