@@ -1,5 +1,0 @@
-python3 -m venv venv
-source venv/bin/activate
-pip install ecdsa cryptography web3 pyqt5
-
-python r5-wallet/r5-wallet.py
