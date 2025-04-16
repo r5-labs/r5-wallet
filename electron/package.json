@@ -55,7 +55,10 @@
       "icon": "window-icon.png"
     },
     "linux": {
-      "icon": "window-icon.png"
+      "icon": "window-icon.png",
+      "target": [
+        "tar.gz"
+      ]
     }
   }
 }
