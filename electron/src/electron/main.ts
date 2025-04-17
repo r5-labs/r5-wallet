@@ -1,6 +1,10 @@
 import { app, BrowserWindow, Menu } from "electron";
 import path from "path";
 import { isDev } from "./util.js";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 function createMainWindow() {
   // Kill the default menu (File/Edit/View/etc)
@@ -15,6 +19,7 @@ function createMainWindow() {
     autoHideMenuBar: true,
     icon: path.join(app.getAppPath(), "window-icon.png"),
     webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true,
       contextIsolation: false
     }

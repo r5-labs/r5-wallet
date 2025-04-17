@@ -1,0 +1,8 @@
+1.0.1 Beta
+- Improved code tidiness and consolidated components.
+- Addressed potential vulnerabilities related to the Electorn API.
+- Improved overall build parametrisation.
+- Added animations to modals and other areas of the UI.
+- Made sutil updates to the UI color scheme.
+- Added "copy to clipboard" button to the "Receive Funds" modal.
+- Refactor the way in which transactions are sent and processed.

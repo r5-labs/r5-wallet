@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { keyframes, css } from "styled-components";
 
 export const colorBackground =
   "radial-gradient(circle, rgba(37,55,66,1) 0%, rgba(22,34,43,1) 100%)";
@@ -13,7 +13,7 @@ export const colorGlassBackgroundBlur =
 export const colorGlassBorder = "rgba(255, 255, 255, 0.1)";
 export const colorPrimary = "#459381";
 export const colorSecondary = "#16222B";
-export const colorAccent = "#0AC18E";
+export const colorAccent = "#31806C";
 export const colorText = "#FFFFFF";
 export const colorBorder = "#21303A";
 export const colorLightBorder = "#2E3F4A";
@@ -61,6 +61,55 @@ export const buttonBorder = `1px solid ${colorTransparent}`;
 export const buttonOutlinedBorder = `1px solid ${colorPrimary}`;
 export const buttonRoundSize = "48px";
 
+// Animations
+
+const fadeIn = keyframes`
+  from {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+`;
+
+export const fadeInUp = keyframes`
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+`;
+
+const fadeOutUp = keyframes`
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+`;
+
+export const spin = keyframes`
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+`;
+
+export const Spinner = styled.div`
+  width: 32px;
+  height: 32px;
+  border: 4px solid ${colorPrimary};
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: ${spin} 1s linear infinite;
+`;
+
 export const ButtonPrimary = styled.button`
   padding: ${buttonPaddingDefault};
   margin: ${marginLow};
@@ -83,8 +132,11 @@ export const ButtonPrimary = styled.button`
   &:hover {
     background: ${colorAccent};
   }
+  &:active {
+    border: none;
+  }
   &:disabled {
-    cursor: default;
+    cursor: not-allowed;
   }
   > * {
     user-select: none;
@@ -112,8 +164,11 @@ export const ButtonSecondary = styled.button`
   &:hover {
     background: ${colorAccent};
   }
+  &:active {
+    border: none;
+  }
   &:disabled {
-    cursor: default;
+    cursor: not-allowed;
   }
   > * {
     user-select: none;
@@ -142,8 +197,11 @@ export const ButtonRound = styled.button`
   &:hover {
     background: ${colorGlassBorder};
   }
+  &:active {
+    border: none;
+  }
   &:disabled {
-    cursor: default;
+    cursor: not-allowed;
   }
   > * {
     user-select: none;
@@ -188,6 +246,7 @@ export const FullContainerBox = styled.div`
   justify-content: center;
   align-items: center;
   gap: ${defaultGap};
+  animation: ${fadeIn} 0.5s ease-out forwards;
 `;
 
 export const Box = styled.div`
@@ -337,4 +396,35 @@ export const StepWrapper = styled.div<{ active: boolean }>`
 
   /* prevent clicks on invisible steps */
   pointer-events: ${({ active }) => (active ? "auto" : "none")};
+`;
+ 
+// Modal Exports
+
+export const ModalBackground = styled.div<{ visible: boolean }>`
+  position: fixed;
+  inset: 0;
+  display: ${({ visible }) => (visible ? "flex" : "none")};
+  align-items: center;
+  justify-content: center;
+  background: ${colorGlassBackgroundBlur};
+  backdrop-filter: blur(5px);
+  border-radius: ${borderRadiusDefault};
+  z-index: 1000;
+`;
+
+export const ModalContainer = styled.div<{ exiting: boolean }>`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  border-radius: ${borderRadiusDefault};
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  background: ${colorGlassBackgroundModal};
+  text-align: center;
+
+  animation: ${({ exiting }) =>
+    exiting
+      ? css`${fadeOutUp} 0.25s forwards`
+      : css`${fadeInUp} 0.25s forwards`};
 `;
