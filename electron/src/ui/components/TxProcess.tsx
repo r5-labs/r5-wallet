@@ -1,4 +1,5 @@
-import React from "react";
+// components/TxProcess.tsx
+import React, { useEffect, useState } from "react";
 import styled, { keyframes, css } from "styled-components";
 import {
   Text,
@@ -13,6 +14,7 @@ import {
   colorSecondary,
   Spinner,
   fadeInUp,
+  fadeOutUp,
   Sp
 } from "../theme";
 import { GoCheck, GoX, GoLinkExternal } from "react-icons/go";
@@ -20,13 +22,17 @@ import { ExplorerUrl } from "../constants";
 
 /* ------------------------------------------------------------
    STAGES
-   0  → “Transaction initiated”
-   1  → “Sent transaction to blockchain”
-   2  → “Waiting for confirmation”
+   0  → “Initiating transaction”
+   1  → “Processing transaction on the blockchain”
+   2  → “Parsing transaction result”
    3  → “Transaction successful / failed”
 -------------------------------------------------------------*/
 
-const Overlay = styled.div`
+/* Overlay just fades opacity */
+const fadeOverlayIn = keyframes`from{opacity:0}to{opacity:1}`;
+const fadeOverlayOut = keyframes`from{opacity:1}to{opacity:0}`;
+
+const Overlay = styled.div<{ $exiting: boolean }>`
   position: fixed;
   inset: 0;
   display: flex;
@@ -35,10 +41,20 @@ const Overlay = styled.div`
   background: ${colorGlassBackgroundBlur};
   backdrop-filter: blur(5px);
   border-radius: ${borderRadiusDefault};
-  z-index: 1000;
+  z-index: 3;
+
+  animation: ${({ $exiting }) =>
+    $exiting
+      ? css`
+          ${fadeOverlayOut} 0.25s forwards
+        `
+      : css`
+          ${fadeOverlayIn} 0.25s forwards
+        `};
 `;
 
-const Container = styled.div`
+/* Container slides up / down */
+const Container = styled.div<{ $exiting: boolean }>`
   background: ${colorGlassBackgroundModal};
   border-radius: ${borderRadiusDefault};
   padding: 40px 20px;
@@ -48,8 +64,18 @@ const Container = styled.div`
   flex-direction: column;
   gap: 15px;
   text-align: left;
+
+  animation: ${({ $exiting }) =>
+    $exiting
+      ? css`
+          ${fadeOutUp} 0.25s forwards
+        `
+      : css`
+          ${fadeInUp} 0.25s forwards
+        `};
 `;
 
+/* Existing bits (unchanged) --------------------------------------------- */
 const zoomIn = keyframes`
   0%   { transform: scale(0.5); opacity: 0; }
   50%  { transform: scale(1.2); opacity: 1; }
@@ -65,7 +91,7 @@ const IconWrapper = styled.div<{ $active: boolean }>`
   animation: ${({ $active }) =>
     $active
       ? css`
-          ${zoomIn} 0.3s ease-out;
+          ${zoomIn} 0.3s ease-out
         `
       : "none"};
 `;
@@ -77,11 +103,12 @@ const StageRow = styled.div<{ $visible: boolean }>`
   animation: ${({ $visible }) =>
     $visible
       ? css`
-          ${fadeInUp} 0.3s ease-out;
+          ${fadeInUp} 0.3s ease-out
         `
       : "none"};
 `;
 
+/* Props ------------------------------------------------------------------ */
 interface TxProcessProps {
   open: boolean;
   stageIndex: 0 | 1 | 2 | 3;
@@ -91,6 +118,7 @@ interface TxProcessProps {
   onClose: () => void;
 }
 
+/* Component -------------------------------------------------------------- */
 export function TxProcess({
   open,
   stageIndex,
@@ -99,8 +127,24 @@ export function TxProcess({
   txHash,
   onClose
 }: TxProcessProps) {
-  if (!open) return null;
+  /* handle enter / exit animation */
+  const [visible, setVisible] = useState(open);
+  const [exiting, setExiting] = useState(false);
 
+  useEffect(() => {
+    if (open) {
+      setVisible(true); // mount immediately
+      setExiting(false);
+    } else if (visible) {
+      setExiting(true); // play exit anim, then unmount
+      const t = setTimeout(() => setVisible(false), 250);
+      return () => clearTimeout(t);
+    }
+  }, [open, visible]);
+
+  if (!visible) return null;
+
+  /* logic reused from previous version */
   const finalVisible = stageIndex === 3;
   const failed = Boolean(error);
   const succeeded = finalVisible && success && !failed;
@@ -122,20 +166,19 @@ export function TxProcess({
     }
   };
 
+  /* render --------------------------------------------------------------- */
   return (
-    <Overlay>
-      <Container>
+    <Overlay $exiting={exiting}>
+      <Container $exiting={exiting}>
         <div style={{ textAlign: "center", margin: "0 auto" }}>
           <h3 style={{ margin: "0 0 10px", color: colorSemiBlack }}>
-            Processing Blockchain Transaction
+            Blockchain Transaction
           </h3>
         </div>
 
         {stageLabels.map((label, idx) => {
-          /* Visibility */
           const isVisible = idx < 3 ? idx <= stageIndex : finalVisible;
 
-          /* Icon */
           let icon: React.ReactNode = null;
           switch (idx) {
             case 0:
@@ -161,7 +204,6 @@ export function TxProcess({
               break;
           }
 
-          /* Active colour & bold label decision */
           const active =
             (idx < 2 && stageIndex > idx) ||
             (idx === 2 && finalVisible) ||
@@ -188,7 +230,6 @@ export function TxProcess({
           );
         })}
 
-        {/* Explorer link – only on confirmed success */}
         {succeeded && (
           <>
             <Sp />
@@ -200,15 +241,11 @@ export function TxProcess({
               }}
               onClick={openExplorer}
             >
-              Open on Explorer{" "}
-              <span>
-                <GoLinkExternal />
-              </span>
+              Open on Explorer <GoLinkExternal />
             </Text>
           </>
         )}
 
-        {/* Done button – always visible at stage 3 */}
         {finalVisible && (
           <ButtonPrimary onClick={onClose} style={{ alignSelf: "center" }}>
             Done

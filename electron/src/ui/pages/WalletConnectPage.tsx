@@ -1,4 +1,5 @@
-import { useState } from "react";
+// components/WalletConnectPage.tsx
+import { useState, useEffect, useRef, useCallback } from "react";
 import { ethers } from "ethers";
 import CryptoJS from "crypto-js";
 import {
@@ -19,57 +20,56 @@ export default function WalletConnectPage({
 }: {
   onWalletSetup: () => void;
 }) {
-  const [step, setStep] = useState(0);
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [privateKey, setPrivateKey] = useState("");
-  const [error, setError] = useState("");
+  /* ------------------------------------------------------------------ */
+  /* State                                                               */
+  /* ------------------------------------------------------------------ */
+  const [step, setStep]               = useState<0 | 1 | 2 | 3>(0);
+  const [password, setPassword]       = useState("");
+  const [confirmPassword, setConfirm] = useState("");
+  const [privateKey, setPrivateKey]   = useState("");
+  const [error, setError]             = useState("");
 
+  /* ------------------------------------------------------------------ */
+  /* Refs for focusing                                                   */
+  /* ------------------------------------------------------------------ */
+  const fileInputRef        = useRef<HTMLInputElement | null>(null);
+  const passwordRef         = useRef<HTMLInputElement | null>(null);
+  const privateKeyInputRef  = useRef<HTMLInputElement | null>(null);
+
+/* Focus the relevant input whenever the step changes */
+useEffect(() => {
+  const refMap: Record<
+  0 | 1 | 2 | 3,
+  React.RefObject<HTMLInputElement | null> | undefined
+> = {
+  0: fileInputRef,
+  1: passwordRef,
+  2: undefined,           // step 2 has no focusable input
+  3: privateKeyInputRef,
+};
+
+  refMap[step]?.current?.focus();
+}, [step]);
+
+  /* ------------------------------------------------------------------ */
+  /* Provider                                                            */
+  /* ------------------------------------------------------------------ */
   const provider = new ethers.JsonRpcProvider(RpcUrl);
 
   const saveEncryptedWallet = async (
     address: string,
-    encryptedPrivateKey: string
+    encryptedPrivateKey: string,
   ) => {
     localStorage.setItem(
       "walletInfo",
-      JSON.stringify({ address, encryptedPrivateKey })
+      JSON.stringify({ address, encryptedPrivateKey }),
     );
   };
 
-  const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setError("");
-    const file = e.target.files && e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        try {
-          const fileContent = event.target?.result as string;
-          const parsed = JSON.parse(fileContent);
-
-          // Check if the necessary fields exist and validate the address format
-          if (!parsed.address || !parsed.encryptedPrivateKey) {
-            throw new Error("Invalid wallet file: missing required fields.");
-          }
-          if (!/^0x[0-9a-fA-F]{40}$/.test(parsed.address)) {
-            throw new Error("Invalid wallet file: invalid address format.");
-          }
-          // Optionally, you can also check that encryptedPrivateKey is a non-empty string
-
-          // Save the parsed file into localStorage
-          localStorage.setItem("walletInfo", JSON.stringify(parsed));
-
-          // Reload so that the App.tsx (unlock page) picks up the walletInfo
-          window.location.reload();
-        } catch (err) {
-          setError(err instanceof Error ? err.message : "File import failed.");
-        }
-      };
-      reader.readAsText(file);
-    }
-  };
-
-  const handleSetPassword = () => {
+  /* ------------------------------------------------------------------ */
+  /* STEP ACTIONS                                                        */
+  /* ------------------------------------------------------------------ */
+  const handleSetPassword = useCallback(() => {
     setError("");
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
@@ -80,30 +80,27 @@ export default function WalletConnectPage({
       return;
     }
     setStep(2);
-  };
+  }, [password, confirmPassword]);
 
-  const handleCreateWallet = async () => {
+  const handleCreateWallet = useCallback(async () => {
     try {
-      const wallet = ethers.Wallet.createRandom().connect(provider);
-      const encrypted = CryptoJS.AES.encrypt(
-        wallet.privateKey,
-        password
-      ).toString();
+      const wallet    = ethers.Wallet.createRandom().connect(provider);
+      const encrypted = CryptoJS.AES.encrypt(wallet.privateKey, password).toString();
       await saveEncryptedWallet(wallet.address, encrypted);
       onWalletSetup();
       window.location.reload();
     } catch {
       setError("Failed to create wallet. Please try again.");
     }
-  };
+  }, [password]);
 
-  const handleImportWallet = async () => {
+  const handleImportWallet = useCallback(async () => {
     try {
       const trimmed = privateKey.trim();
       if (!/^0x[0-9a-fA-F]{64}$/.test(trimmed)) {
         throw new Error("Invalid private key format.");
       }
-      const wallet = new ethers.Wallet(trimmed, provider);
+      const wallet    = new ethers.Wallet(trimmed, provider);
       const encrypted = CryptoJS.AES.encrypt(trimmed, password).toString();
       await saveEncryptedWallet(wallet.address, encrypted);
       onWalletSetup();
@@ -111,12 +108,79 @@ export default function WalletConnectPage({
     } catch (err) {
       setError(err instanceof Error ? err.message : "Import failed.");
     }
+  }, [privateKey, password]);
+
+  /* ------------------------------------------------------------------ */
+  /* File import                                                         */
+  /* ------------------------------------------------------------------ */
+  const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setError("");
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const parsed = JSON.parse(event.target?.result as string);
+        if (!parsed.address || !parsed.encryptedPrivateKey)
+          throw new Error("Invalid wallet file: missing required fields.");
+        if (!/^0x[0-9a-fA-F]{40}$/.test(parsed.address))
+          throw new Error("Invalid wallet file: invalid address format.");
+
+        localStorage.setItem("walletInfo", JSON.stringify(parsed));
+        window.location.reload(); // App will show password screen
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "File import failed.");
+      }
+    };
+    reader.readAsText(file);
   };
 
+  /* ------------------------------------------------------------------ */
+  /* Keyboard shortcuts: Enter / Esc                                     */
+  /* ------------------------------------------------------------------ */
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Enter") {
+        switch (step) {
+          case 0:
+            setStep(1);
+            break;
+          case 1:
+            handleSetPassword();
+            break;
+          case 2:
+            handleCreateWallet(); // default action for step 2
+            break;
+          case 3:
+            handleImportWallet();
+            break;
+        }
+      } else if (e.key === "Escape") {
+        switch (step) {
+          case 1:
+            setStep(0);
+            break;
+          case 2:
+            setStep(1);
+            break;
+          case 3:
+            setStep(2);
+            break;
+        }
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [step, handleSetPassword, handleCreateWallet, handleImportWallet]);
+
+  /* ------------------------------------------------------------------ */
+  /* Render                                                              */
+  /* ------------------------------------------------------------------ */
   return (
     <FullContainerBox style={{ position: "relative", height: "100vh" }}>
-      {/* New Wallet File Import Section */}
-      <StepWrapper active={step === 0} style={{ marginBottom: "20px" }}>
+      {/* STEP 0: Import .key file */}
+      <StepWrapper $active={step === 0} style={{ marginBottom: "20px" }}>
         <TextSubTitle>
           Do you have an R5 key wallet file you would like to import?
         </TextSubTitle>
@@ -127,14 +191,13 @@ export default function WalletConnectPage({
           style={{ margin: "20px auto", display: "block" }}
         />
         <ButtonPrimary onClick={() => setStep(1)}>
-            I don't have an R5 key wallet file...
-          </ButtonPrimary>
+          I don't have an R5 key wallet file…
+        </ButtonPrimary>
       </StepWrapper>
-      
 
-      {/* Step 0: Set Password */}
-      <StepWrapper active={step === 1}>
-      <ButtonSecondary
+      {/* STEP 1: Set password */}
+      <StepWrapper $active={step === 1}>
+        <ButtonSecondary
           onClick={() => setStep(0)}
           style={{ alignSelf: "center", marginBottom: "10px" }}
         >
@@ -148,18 +211,19 @@ export default function WalletConnectPage({
         <Sp />
         <BoxContent>
           <Input
+            ref={passwordRef}
             type="password"
             placeholder="Enter password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            style={{ minWidth: "40ch" }}
+            style={{ minWidth: "40ch", zIndex: '1000' }}
           />
           <Input
             type="password"
             placeholder="Confirm password"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            style={{ minWidth: "40ch" }}
+            onChange={(e) => setConfirm(e.target.value)}
+            style={{ minWidth: "40ch", zIndex: '1000' }}
           />
         </BoxContent>
         <ButtonPrimary onClick={handleSetPassword}>
@@ -167,8 +231,8 @@ export default function WalletConnectPage({
         </ButtonPrimary>
       </StepWrapper>
 
-      {/* Step 1: Choose Import or Create */}
-      <StepWrapper active={step === 2}>
+      {/* STEP 2: Choose create or import */}
+      <StepWrapper $active={step === 2}>
         <ButtonSecondary
           onClick={() => setStep(1)}
           style={{ alignSelf: "center", marginBottom: "10px" }}
@@ -193,8 +257,8 @@ export default function WalletConnectPage({
         </BoxContent>
       </StepWrapper>
 
-      {/* Step 2: Import Wallet via Private Key String */}
-      <StepWrapper active={step === 3}>
+      {/* STEP 3: Import via private key */}
+      <StepWrapper $active={step === 3}>
         <ButtonSecondary
           onClick={() => setStep(2)}
           style={{ alignSelf: "center", marginBottom: "10px" }}
@@ -208,6 +272,7 @@ export default function WalletConnectPage({
         </Text>
         <Sp />
         <Input
+          ref={privateKeyInputRef}
           type="text"
           placeholder="Enter private key"
           value={privateKey}
@@ -219,6 +284,7 @@ export default function WalletConnectPage({
         </ButtonPrimary>
       </StepWrapper>
 
+      {/* Error banner */}
       {error && (
         <p style={{ position: "absolute", bottom: 20, color: "red" }}>
           {error}

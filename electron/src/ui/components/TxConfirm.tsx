@@ -1,5 +1,5 @@
 import { ButtonPrimary, BoxContent, Text, colorSemiBlack } from "../theme";
-import { Modal } from "./Modal";
+import { ModalInner } from "./ModalInner";
 
 interface TxConfirmProps {
   open: boolean;
@@ -19,10 +19,8 @@ export function TxConfirm({
   onConfirm
 }: TxConfirmProps) {
   return (
-    <Modal open={open} onClose={onCancel}>
-      <h3 style={{ color: colorSemiBlack }}>
-        Confirm Transaction
-      </h3>
+    <ModalInner open={open} onClose={onCancel}>
+      <h3 style={{ color: colorSemiBlack }}>Confirm Transaction</h3>
       <Text style={{ color: colorSemiBlack }}>
         Do you confirm sending <b>{amount} R5</b> to <b>{recipient}</b>?
       </Text>
@@ -33,6 +31,6 @@ export function TxConfirm({
         <ButtonPrimary onClick={onCancel}>Cancel</ButtonPrimary>
         <ButtonPrimary onClick={onConfirm}>Confirm & Proceed</ButtonPrimary>
       </BoxContent>
-    </Modal>
+    </ModalInner>
   );
 }

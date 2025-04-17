@@ -6,7 +6,7 @@ import {
   parseEther,
   parseUnits,
   formatUnits,
-  formatEther,
+  formatEther
 } from "ethers";
 import {
   BoxSection,
@@ -17,42 +17,36 @@ import {
   TextSubTitle,
   Text,
   colorLightGray,
-  SmallText,
+  SmallText
 } from "../theme";
 import { LuArrowUpRight } from "react-icons/lu";
 import { RpcUrl } from "../constants";
 import { TxConfirm } from "./TxConfirm";
 import { FullPageLoader } from "./FullPageLoader";
 import { TxProcess } from "./TxProcess";
-import { useTxLifecycle } from "../hooks/useTxLifecycle";   // ← NEW
+import { useTxLifecycle } from "../hooks/useTxLifecycle";
 
 const SendIcon = LuArrowUpRight;
 
 export function TransferFunds({
-  decryptedPrivateKey,
+  decryptedPrivateKey
 }: {
   decryptedPrivateKey: string;
 }): JSX.Element | null {
-  /* ------------------------------------------------------------------ */
-  /* Form state                                                          */
-  /* ------------------------------------------------------------------ */
-  const [recipient, setRecipient]     = useState("");
-  const [amount,    setAmount]        = useState("");
-  const [gasPrice,  setGasPrice]      = useState("");
-  const [maxGas,    setMaxGas]        = useState("");
+  /* Form state */
+  const [recipient, setRecipient] = useState("");
+  const [amount, setAmount] = useState("");
+  const [gasPrice, setGasPrice] = useState("");
+  const [maxGas, setMaxGas] = useState("");
   const [defaultGasPrice, setDefaultGasPrice] = useState("");
-  const [defaultMaxGas,   setDefaultMaxGas]   = useState("");
+  const [defaultMaxGas, setDefaultMaxGas] = useState("");
 
-  /* ------------------------------------------------------------------ */
-  /* Modal flags                                                         */
-  /* ------------------------------------------------------------------ */
-  const [loadingModal,     setLoadingModal]     = useState(false);
+  /* Modal flags */
+  const [loadingModal, setLoadingModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [processOpen,      setProcessOpen]      = useState(false);
+  const [processOpen, setProcessOpen] = useState(false);
 
-  /* ------------------------------------------------------------------ */
-  /* Ethereum‑side                                                      */
-  /* ------------------------------------------------------------------ */
+  /* Ethereum */
   const provider = new JsonRpcProvider(RpcUrl);
   let wallet: ethers.Wallet;
   try {
@@ -63,32 +57,28 @@ export function TransferFunds({
     return null;
   }
 
-  /* ------------------------------------------------------------------ */
-  /* Tx lifecycle hook (replaces previous stage logic)                   */
-  /* ------------------------------------------------------------------ */
+  /* Tx lifecycle */
   const {
     stageIndex,
     success,
     error,
     txHash,
     sendTx,
-    reset: resetLifecycle,
+    reset: resetLifecycle
   } = useTxLifecycle(provider);
 
-  /* ------------------------------------------------------------------ */
-  /* Helpers                                                             */
-  /* ------------------------------------------------------------------ */
+  /* Helpers */
   const calculateDefaultGas = async () => {
     if (!recipient || !amount) {
       alert("Enter recipient and amount to calculate gas.");
       return null;
     }
     try {
-      const feeData      = await provider.getFeeData();
+      const feeData = await provider.getFeeData();
       if (!feeData.gasPrice) throw new Error("Gas price unavailable");
       const estimatedGas = await wallet.estimateGas({
         to: recipient,
-        value: parseEther(amount),
+        value: parseEther(amount)
       });
       const gp = formatUnits(feeData.gasPrice, "gwei");
       const gl = estimatedGas.toString();
@@ -114,9 +104,7 @@ export function TransferFunds({
     }
   };
 
-  /* ------------------------------------------------------------------ */
-  /* UI actions                                                          */
-  /* ------------------------------------------------------------------ */
+  /* Actions */
   const handleSendCoins = async () => {
     if (!recipient || !amount) {
       alert("Please fill recipient and amount.");
@@ -140,37 +128,42 @@ export function TransferFunds({
       wallet.sendTransaction({
         to: recipient,
         value: parseEther(amount),
-        gasPrice: parseUnits(
-          gasPrice || defaultGasPrice,
-          "gwei",
-        ),
-        gasLimit: BigInt(maxGas || defaultMaxGas),
-      }),
+        gasPrice: parseUnits(gasPrice || defaultGasPrice, "gwei"),
+        gasLimit: BigInt(maxGas || defaultMaxGas)
+      })
     );
   };
 
+  /* ← UPDATED: resets inputs + tx lifecycle */
   const closeProcess = () => {
     setProcessOpen(false);
-    resetLifecycle(); // resets hook state for the next tx
+    resetLifecycle(); // clear TxProcess state
+
+    /* clear form inputs & gas defaults */
+    setRecipient("");
+    setAmount("");
+    setGasPrice("");
+    setMaxGas("");
+    setDefaultGasPrice("");
+    setDefaultMaxGas("");
   };
 
-  /* ------------------------------------------------------------------ */
-  /* Render                                                              */
-  /* ------------------------------------------------------------------ */
+  /* Render */
   return (
     <>
       <BoxSection style={{ gap: "5px" }}>
         <SendIcon />
         <TextSubTitle>Send Transaction</TextSubTitle>
         <Text style={{ margin: "auto", color: colorLightGray }}>
-          Double‑check the address and amount.
+          Double‑check the address and amount before confirming your
+          transaction.
         </Text>
 
         <BoxSection style={{ gap: "10px", alignItems: "flex-start" }}>
           <Text style={{ marginLeft: "15px" }}>To</Text>
           <Input
             type="text"
-            placeholder="0x..."
+            placeholder="Enter public address, starting with 0x..."
             value={recipient}
             onChange={(e) => setRecipient(e.target.value)}
             style={{ minWidth: "40ch", width: "100%" }}
@@ -179,7 +172,7 @@ export function TransferFunds({
           <Text style={{ marginLeft: "15px" }}>R5 Amount</Text>
           <Input
             type="number"
-            placeholder="Amount"
+            placeholder="Enter the amount to send..."
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             style={{ minWidth: "40ch", width: "100%" }}
@@ -208,16 +201,15 @@ export function TransferFunds({
                 />
               </div>
             </BoxContent>
-            <SmallText>* leave blank for auto</SmallText>
+            <SmallText>
+              * Leave blank to calculate the gas parameters automatically.
+            </SmallText>
             <ButtonSecondary onClick={calculateDefaultGas}>
-              Reset Gas
+              Reset Gas Calculation
             </ButtonSecondary>
           </BoxSection>
 
-          <ButtonPrimary
-            onClick={handleSendCoins}
-            style={{ width: "100%" }}
-          >
+          <ButtonPrimary onClick={handleSendCoins} style={{ width: "100%" }}>
             Send Transaction
           </ButtonPrimary>
         </BoxSection>

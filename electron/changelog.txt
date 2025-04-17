@@ -6,3 +6,7 @@
 - Made sutil updates to the UI color scheme.
 - Added "copy to clipboard" button to the "Receive Funds" modal.
 - Refactor the way in which transactions are sent and processed.
+- Added "Lock Wallet" button on header.
+- Main inputs now accept "Enter" to proceed.
+- User now can navigate through modals using "Enter" and "Esc".
+- Added context isolation for more security.

@@ -1,3 +1,4 @@
+// components/Header.tsx
 import { useState, useEffect } from "react";
 import { ethers, JsonRpcProvider, formatEther } from "ethers";
 import {
@@ -18,7 +19,8 @@ import {
   GoInfo,
   GoSync,
   GoCopy,
-  GoCheck
+  GoCheck,
+  GoLock
 } from "react-icons/go";
 import R5Logo from "../assets/logo_white-transparent.png";
 
@@ -26,6 +28,7 @@ import { ReceiveFunds } from "./ReceiveFunds";
 import { PrivateKey } from "./PrivateKey";
 import { About } from "./About";
 
+/* Icon aliases for readability */
 const ReceiveIcon = GoArrowDownLeft;
 const ResetIcon = GoTrash;
 const PrivateKeyIcon = GoKey;
@@ -35,12 +38,16 @@ const InfoIcon = GoInfo;
 const RefreshIcon = GoSync;
 const CopyIcon = GoCopy;
 const CheckIcon = GoCheck;
+const LockIcon = GoLock;
 
 export function Header({
   decryptedPrivateKey
 }: {
   decryptedPrivateKey: string;
 }) {
+  /* ------------------------------------------------------------------ */
+  /* State                                                               */
+  /* ------------------------------------------------------------------ */
   const [balance, setBalance] = useState("0");
   const [showPrivateKey, setShowPrivateKey] = useState(false);
   const [showReceiveQR, setShowReceiveQR] = useState(false);
@@ -48,6 +55,9 @@ export function Header({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
+  /* ------------------------------------------------------------------ */
+  /* Ethereum side                                                      */
+  /* ------------------------------------------------------------------ */
   const provider = new JsonRpcProvider(RpcUrl);
   let wallet: ethers.Wallet;
   try {
@@ -67,19 +77,23 @@ export function Header({
 
   useEffect(() => {
     updateBalance();
-    const interval = setInterval(updateBalance, 60000);
-    return () => clearInterval(interval);
+    const id = setInterval(updateBalance, 60_000);
+    return () => clearInterval(id);
   }, [provider, wallet.address]);
 
+  /* ------------------------------------------------------------------ */
+  /* Button handlers                                                    */
+  /* ------------------------------------------------------------------ */
   const handleRefresh = () => {
     setIsRefreshing(true);
     updateBalance();
-    setTimeout(() => setIsRefreshing(false), 1000);
+    setTimeout(() => setIsRefreshing(false), 1_000);
   };
 
   const openTxHistory = () => {
-    const url = `${ExplorerUrl}/address/${wallet.address}`;
-    (window as any).require("electron").shell.openExternal(url);
+    (window as any)
+      .require("electron")
+      .shell.openExternal(`${ExplorerUrl}/address/${wallet.address}`);
   };
 
   const exportWalletFile = () => {
@@ -101,20 +115,39 @@ export function Header({
       .writeText(wallet.address)
       .then(() => {
         setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 2000);
+        setTimeout(() => setIsCopied(false), 2_000);
       })
       .catch((err) => console.error("Failed to copy:", err));
+  };
+
+  /** Lock the wallet: keep encrypted JSON, drop any decrypted/session
+   *  data, and reload so the app shows the password screen again. */
+  const handleLockWallet = () => {
+    /* Clear anything that might hold plaintext keys */
+    sessionStorage.clear();
+    /* Reload the renderer – React will mount at the login page */
+    window.location.reload();
+  };
+
+  const handleResetWallet = () => {
+    sessionStorage.clear();
+    window.location.reload();
+    localStorage.clear();
+    window.location.reload();
   };
 
   return (
     <>
       <BoxHeader>
+        {/* Logo */}
         <HeaderSection>
           <img src={R5Logo} width={64} height={64} />
         </HeaderSection>
+
+        {/* Balance & address */}
         <HeaderSection>
           <TextSubTitle>
-            R5 {balance}{" "}
+            R5 {balance}
             <span
               onClick={handleRefresh}
               style={{
@@ -150,6 +183,8 @@ export function Header({
             </span>
           </SmallText>
         </HeaderSection>
+
+        {/* Buttons */}
         <HeaderSection style={{ width: "100%" }}>
           <HeaderButtonWrapper>
             <ButtonRound
@@ -158,38 +193,56 @@ export function Header({
             >
               <ReceiveIcon />
             </ButtonRound>
+
             <ButtonRound title="Transaction History" onClick={openTxHistory}>
               <HistoryIcon />
             </ButtonRound>
+
             <ButtonRound title="Export Wallet File" onClick={exportWalletFile}>
               <ExportIcon />
             </ButtonRound>
+
             <ButtonRound
               title="Show Private Key"
               onClick={() =>
-                window.confirm("Expose private key? Make sure you are doing this on a safe environment.") && setShowPrivateKey(true)
+                window.confirm(
+                  "Expose private key? Make sure you are doing this in a safe environment."
+                ) && setShowPrivateKey(true)
               }
             >
               <PrivateKeyIcon />
             </ButtonRound>
+
             <ButtonRound
               title="Reset Wallet"
               onClick={() => {
-                if (window.confirm("Reset wallet? This is irreversible.")) {
-                  localStorage.clear();
-                  window.location.reload();
+                if (
+                  window.confirm(
+                    "Are you sure you want to reset your wallet? This action cannot be undone."
+                  ) &&
+                  window.confirm(
+                    "Please make sure you have backed up your wallet file before proceeding. Do you confirm?"
+                  )
+                ) {
+                  handleResetWallet();
                 }
               }}
             >
               <ResetIcon />
             </ButtonRound>
+
             <ButtonRound title="About" onClick={() => setShowInfo(true)}>
               <InfoIcon />
+            </ButtonRound>
+
+            <ButtonRound title="Lock Wallet" onClick={handleLockWallet}>
+              <LockIcon />
             </ButtonRound>
           </HeaderButtonWrapper>
         </HeaderSection>
       </BoxHeader>
 
+      {/* Modals */}
       <ReceiveFunds
         open={showReceiveQR}
         onClose={() => setShowReceiveQR(false)}

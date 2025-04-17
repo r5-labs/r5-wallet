@@ -8,8 +8,7 @@ export const colorGlassBackground =
   "radial-gradient(circle, rgba(255, 255, 255, 0.075) 0%, rgba(255, 255, 255, 0.03) 100%)";
 export const colorGlassBackgroundModal =
   "radial-gradient(circle, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.5) 100%)";
-export const colorGlassBackgroundBlur = 
-  "rgba(0, 0, 0, 0.5)";
+export const colorGlassBackgroundBlur = "rgba(0, 0, 0, 0.5)";
 export const colorGlassBorder = "rgba(255, 255, 255, 0.1)";
 export const colorPrimary = "#459381";
 export const colorSecondary = "#16222B";
@@ -85,7 +84,7 @@ export const fadeInUp = keyframes`
   }
 `;
 
-const fadeOutUp = keyframes`
+export const fadeOutUp = keyframes`
   from {
     transform: translateY(0);
     opacity: 1;
@@ -288,6 +287,7 @@ export const BoxContent = styled.div`
   justify-content: center;
   align-items: center;
   gap: ${defaultGap};
+  z-index: 2;
 `;
 
 export const BoxHeader = styled.div`
@@ -367,6 +367,7 @@ export const Input = styled.input`
   border: 1px solid ${colorGlassBorder};
   text-align: center;
   background: ${colorGlassBackground};
+  z-index: 2;
 `;
 
 export const Hr = styled.hr`
@@ -379,25 +380,30 @@ export const Hr = styled.hr`
 export const Sp = styled.div`
   margin: 10px;
   width: 100%;
-`
+`;
 
-export const StepWrapper = styled.div<{ active: boolean }>`
+export const StepWrapper = styled.div<{ $active: boolean }>`
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  display: flex;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: ${({ $active }) => ($active ? "flex" : "none")};
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 10px;
 
   /* fade in/out */
-  opacity: ${({ active }) => (active ? 1 : 0)};
+  opacity: ${({ $active }) => ($active ? 1 : 0)};
   transition: opacity 0.5s ease-in-out;
 
   /* prevent clicks on invisible steps */
-  pointer-events: ${({ active }) => (active ? "auto" : "none")};
+  pointer-events: ${({ $active }) => ($active ? "auto" : "none")};
+
+  z-index: ${({ $active }) => ($active ? 1 : -1)};
 `;
- 
+
 // Modal Exports
 
 export const ModalBackground = styled.div<{ visible: boolean }>`
@@ -408,8 +414,8 @@ export const ModalBackground = styled.div<{ visible: boolean }>`
   justify-content: center;
   background: ${colorGlassBackgroundBlur};
   backdrop-filter: blur(5px);
-  border-radius: ${borderRadiusDefault};
-  z-index: 1000;
+  border-radius: 0;
+  z-index: 3;
 `;
 
 export const ModalContainer = styled.div<{ exiting: boolean }>`
@@ -419,12 +425,16 @@ export const ModalContainer = styled.div<{ exiting: boolean }>`
   gap: 10px;
   padding: 20px;
   border-radius: ${borderRadiusDefault};
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   background: ${colorGlassBackgroundModal};
   text-align: center;
 
   animation: ${({ exiting }) =>
     exiting
-      ? css`${fadeOutUp} 0.25s forwards`
-      : css`${fadeInUp} 0.25s forwards`};
+      ? css`
+          ${fadeOutUp} 0.25s forwards
+        `
+      : css`
+          ${fadeInUp} 0.25s forwards
+        `};
 `;

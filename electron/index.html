@@ -4,6 +4,15 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="window-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy"
+      content="
+        default-src 'self';
+        script-src  'self';
+        style-src   'self' 'unsafe-inline';
+        img-src     'self' data:;
+        connect-src 'self' http://localhost:5123 ws://localhost:5123 https://rpc.r5.network https://rpc-testnet.r5.network;
+        font-src    'self';
+      ">
     <title>R5 Desktop Wallet</title>
   </head>
   <body>
