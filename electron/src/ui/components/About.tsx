@@ -7,11 +7,7 @@ interface AboutProps {
   onClose: () => void;
 }
 
-const openHelp = () => {
-    const url = `${HelpUrl}`;
-    const shell = (window as any).require("electron").shell;
-    shell.openExternal(url);
-  };
+const openHelp = () => window.open(HelpUrl);
 
 export function About({ open, onClose }: AboutProps) {
   return (

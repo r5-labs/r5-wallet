@@ -1,0 +1,1 @@
+cp preload.js ../../dist‑electron/preload.js

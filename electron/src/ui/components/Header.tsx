@@ -90,12 +90,6 @@ export function Header({
     setTimeout(() => setIsRefreshing(false), 1_000);
   };
 
-  const openTxHistory = () => {
-    (window as any)
-      .require("electron")
-      .shell.openExternal(`${ExplorerUrl}/address/${wallet.address}`);
-  };
-
   const exportWalletFile = () => {
     const raw = localStorage.getItem("walletInfo");
     if (!raw) return alert("No wallet to export.");
@@ -194,9 +188,11 @@ export function Header({
               <ReceiveIcon />
             </ButtonRound>
 
-            <ButtonRound title="Transaction History" onClick={openTxHistory}>
+            <a href={ExplorerUrl + '/address/' +wallet.address} target="_blank" rel="noopener">
+            <ButtonRound title="Transaction History">
               <HistoryIcon />
             </ButtonRound>
+            </a>
 
             <ButtonRound title="Export Wallet File" onClick={exportWalletFile}>
               <ExportIcon />
