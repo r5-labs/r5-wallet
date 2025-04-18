@@ -15,6 +15,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "transpile:electron": "tsc --project src/electron/tsconfig.json",
+    "dist:gen64": "npm run transpile:electron && npm run build && electron-builder --x64",
+    "dist:arm": "npm run transpile:electron && npm run build && electron-builder --arm64",
     "dist:mac": "npm run transpile:electron && npm run build && electron-builder --mac --arm64",
     "dist:win": "npm run transpile:electron && npm run build && electron-builder --win --x64",
     "dist:linux": "npm run transpile:electron && npm run build && electron-builder --linux --x64"
@@ -51,14 +53,17 @@
   },
   "build": {
     "productName": "R5 Desktop Wallet",
+    "icon": "window-icon",
     "win": {
       "icon": "window-icon.png"
     },
     "linux": {
       "icon": "window-icon.png",
-      "target": [
-        "tar.gz"
-      ]
+      "target": [ "tar.gz" ]
+    },
+    "mac": {
+      "icon": "window-icon.icns",
+      "target": [ "dmg", "zip" ]
     }
   }
 }

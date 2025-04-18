@@ -1,4 +1,3 @@
-// components/WalletConnectPage.tsx
 import { useState, useEffect, useRef, useCallback } from "react";
 import styled, { css } from "styled-components";
 import { ethers } from "ethers";

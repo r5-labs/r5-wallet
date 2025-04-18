@@ -1,4 +1,3 @@
-// components/TransferFunds.tsx
 import { JSX, useState } from "react";
 import {
   ethers,

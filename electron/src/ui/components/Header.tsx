@@ -1,4 +1,3 @@
-// components/Header.tsx
 import { useState, useEffect } from "react";
 import { ethers, JsonRpcProvider, formatEther } from "ethers";
 import {

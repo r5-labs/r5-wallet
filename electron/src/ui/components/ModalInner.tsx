@@ -1,4 +1,3 @@
-// components/Modal.tsx
 import { useState, useEffect } from "react";
 import { borderRadiusDefault, ModalBackground, ModalContainer } from "../theme";
 
