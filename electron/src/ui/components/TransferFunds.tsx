@@ -16,8 +16,10 @@ import {
   Input,
   TextSubTitle,
   Text,
+  TextTitle,
   colorLightGray,
-  SmallText
+  SmallText,
+  colorSemiBlack
 } from "../theme";
 import { LuArrowUpRight } from "react-icons/lu";
 import { RpcUrl } from "../constants";
@@ -25,6 +27,7 @@ import { TxConfirm } from "./TxConfirm";
 import { FullPageLoader } from "./FullPageLoader";
 import { TxProcess } from "./TxProcess";
 import { useTxLifecycle } from "../hooks/useTxLifecycle";
+import { ModalInner } from "./ModalInner";
 
 const SendIcon = LuArrowUpRight;
 
@@ -46,6 +49,10 @@ export function TransferFunds({
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [processOpen, setProcessOpen] = useState(false);
 
+  /* New: gas/error modal state */
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
   /* RPC */
   const provider = new JsonRpcProvider(RpcUrl);
   let wallet: ethers.Wallet;
@@ -53,7 +60,8 @@ export function TransferFunds({
     wallet = new ethers.Wallet(decryptedPrivateKey, provider);
   } catch (err) {
     console.error("Failed to create wallet:", err);
-    alert("Invalid private key. Please reset your wallet.");
+    setErrorMsg("Invalid private key. Please reset your wallet.");
+    setShowErrorModal(true);
     return null;
   }
 
@@ -70,7 +78,8 @@ export function TransferFunds({
   /* Helpers */
   const calculateDefaultGas = async () => {
     if (!recipient || !amount) {
-      alert("Enter recipient and amount to calculate gas.");
+      setErrorMsg("Entering the recipient and amount of coins to send is required to calculate gas. You can leave the gas fields blank to calculate it automatically.");
+      setShowErrorModal(true);
       return null;
     }
     try {
@@ -89,7 +98,8 @@ export function TransferFunds({
       return { gasPrice: gp, maxGas: gl };
     } catch (err) {
       console.error("Gas calc failed:", err);
-      alert("Failed to calculate gas.");
+      setErrorMsg("Failed to calculate gas.");
+      setShowErrorModal(true);
       return null;
     }
   };
@@ -107,7 +117,8 @@ export function TransferFunds({
   /* Actions */
   const handleSendCoins = async () => {
     if (!recipient || !amount) {
-      alert("Please fill recipient and amount.");
+      setErrorMsg("Please fill recipient and amount.");
+      setShowErrorModal(true);
       return;
     }
     const gasParams = await calculateDefaultGas();
@@ -215,9 +226,10 @@ export function TransferFunds({
         </BoxSection>
       </BoxSection>
 
-      {/* Modals */}
+      {/* Loading spinner */}
       <FullPageLoader open={loadingModal} />
 
+      {/* Confirm transaction */}
       <TxConfirm
         open={showConfirmModal}
         amount={amount}
@@ -227,6 +239,7 @@ export function TransferFunds({
         onConfirm={confirmAndSend}
       />
 
+      {/* Transaction progress */}
       <TxProcess
         open={processOpen}
         stageIndex={stageIndex}
@@ -235,6 +248,19 @@ export function TransferFunds({
         txHash={txHash}
         onClose={closeProcess}
       />
+
+      {/* Gas/error modal */}
+      <ModalInner open={showErrorModal} onClose={() => setShowErrorModal(false)}>
+        <TextTitle style={{ color: colorSemiBlack }}>Gas Calculation Error</TextTitle>
+        <Text style={{ marginBottom: 16, color: colorSemiBlack }}>
+          {errorMsg}
+        </Text>
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <ButtonPrimary onClick={() => setShowErrorModal(false)}>
+            OK
+          </ButtonPrimary>
+        </div>
+      </ModalInner>
     </>
   );
 }

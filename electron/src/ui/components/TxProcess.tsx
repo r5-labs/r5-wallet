@@ -4,7 +4,6 @@ import styled, { keyframes, css } from "styled-components";
 import {
   Text,
   ButtonPrimary,
-  colorGlassBackgroundBlur,
   colorGlassBackgroundModal,
   borderRadiusDefault,
   colorSemiBlack,
@@ -38,8 +37,8 @@ const Overlay = styled.div<{ $exiting: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${colorGlassBackgroundBlur};
-  backdrop-filter: blur(5px);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: none;
   border-radius: ${borderRadiusDefault};
   z-index: 3;
 
@@ -55,7 +54,7 @@ const Overlay = styled.div<{ $exiting: boolean }>`
 
 /* Container slides up / down */
 const Container = styled.div<{ $exiting: boolean }>`
-  background: ${colorGlassBackgroundModal};
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.65) 100%);
   border-radius: ${borderRadiusDefault};
   padding: 40px 20px;
   width: 90%;
@@ -158,14 +157,6 @@ export function TxProcess({
       : `Transaction successful${txHash ? `, your receipt is ${txHash}` : ""}`
   ] as const;
 
-  const openExplorer = () => {
-    if (succeeded && txHash) {
-      const url = `${ExplorerUrl}/tx/${txHash}`;
-      const shell = (window as any).require("electron").shell;
-      shell.openExternal(url);
-    }
-  };
-
   /* render --------------------------------------------------------------- */
   return (
     <Overlay $exiting={exiting}>
@@ -239,7 +230,12 @@ export function TxProcess({
                 cursor: "pointer",
                 margin: "auto"
               }}
-              onClick={openExplorer}
+              onClick={() =>
+                window.open(
+                  `${ExplorerUrl}/tx/${txHash}`,
+                  "_blank"
+                )
+              }
             >
               Open on Explorer <GoLinkExternal />
             </Text>

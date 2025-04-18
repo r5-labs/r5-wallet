@@ -248,12 +248,17 @@ export function Header({
               <ReceiveIcon />
             </ButtonRound>
 
-            <ButtonRound title="Transaction History" onClick={() => window.open(
-  `${ExplorerUrl}/address/${wallet.address}`,
-  "_blank"
-)}>
-  <HistoryIcon />
-</ButtonRound>
+            <ButtonRound
+              title="Transaction History"
+              onClick={() =>
+                window.open(
+                  `${ExplorerUrl}/address/${wallet.address}`,
+                  "_blank"
+                )
+              }
+            >
+              <HistoryIcon />
+            </ButtonRound>
 
             <ButtonRound title="Export Wallet File" onClick={exportWalletFile}>
               <ExportIcon />

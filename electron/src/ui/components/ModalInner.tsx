@@ -29,7 +29,14 @@ export function ModalInner({ open, onClose, children }: ModalProps) {
   if (!visible) return null;
 
   return (
-    <ModalBackground visible style={{ borderRadius: borderRadiusDefault }}>
+    <ModalBackground
+      visible
+      style={{
+        borderRadius: borderRadiusDefault,
+        background: "rgba(0, 0, 0, 0.75",
+        backdropFilter: "none"
+      }}
+    >
       {/* 1) backdrop click catcher: below the modal */}
       <div
         style={{
@@ -41,7 +48,16 @@ export function ModalInner({ open, onClose, children }: ModalProps) {
       />
 
       {/* 2) modal card: above the backdrop */}
-      <ModalContainer exiting={exiting} style={{ zIndex: 1 }}>
+      <ModalContainer
+        exiting={exiting}
+        style={{
+          zIndex: 1,
+          borderRadius: borderRadiusDefault,
+          background:
+            "radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.65) 100%)",
+          backdropFilter: "none"
+        }}
+      >
         {children}
       </ModalContainer>
     </ModalBackground>
