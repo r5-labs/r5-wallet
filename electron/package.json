@@ -11,7 +11,7 @@
     "dev:react": "vite",
     "dev": "npm-run-all --parallel dev:react dev:electron",
     "dev:electron": "npm run transpile:electron && cross-env NODE_ENV=development electron .",
-    "build": "tsc -b && vite build && cp src/electron/preload.js dist‑electron/preload.js",
+    "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "transpile:electron": "tsc --project src/electron/tsconfig.json",

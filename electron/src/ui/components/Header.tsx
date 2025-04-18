@@ -7,7 +7,12 @@ import {
   TextSubTitle,
   SmallText,
   ButtonRound,
-  HeaderButtonWrapper
+  HeaderButtonWrapper,
+  ButtonPrimary,
+  ButtonSecondary,
+  colorSemiBlack,
+  TextTitle,
+  Text
 } from "../theme";
 import { RpcUrl, ExplorerUrl } from "../constants";
 import {
@@ -27,6 +32,7 @@ import R5Logo from "../assets/logo_white-transparent.png";
 import { ReceiveFunds } from "./ReceiveFunds";
 import { PrivateKey } from "./PrivateKey";
 import { About } from "./About";
+import { Modal } from "./Modal";
 
 /* Icon aliases for readability */
 const ReceiveIcon = GoArrowDownLeft;
@@ -54,9 +60,11 @@ export function Header({
   const [showInfo, setShowInfo] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+  const [showConfirmPkModal, setShowConfirmPkModal] = useState(false);
+  const [showConfirmResetModal, setShowConfirmResetModal] = useState(false);
 
   /* ------------------------------------------------------------------ */
-  /* Ethereum side                                                      */
+  /* Blockchain side                                                    */
   /* ------------------------------------------------------------------ */
   const provider = new JsonRpcProvider(RpcUrl);
   let wallet: ethers.Wallet;
@@ -132,6 +140,58 @@ export function Header({
 
   return (
     <>
+      {/* Confirm: expose private key */}
+      <Modal
+        open={showConfirmPkModal}
+        onClose={() => setShowConfirmPkModal(false)}
+      >
+        <TextTitle style={{ color: colorSemiBlack }}>
+          Expose Private Key?
+        </TextTitle>
+        <Text style={{ color: colorSemiBlack }}>
+          This will display your raw private key on‑screen. Only proceed if
+          you’re in a secure environment and have no one looking over your
+          shoulder.
+        </Text>
+        <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
+          <ButtonSecondary onClick={() => setShowConfirmPkModal(false)}>
+            Cancel
+          </ButtonSecondary>
+          <ButtonPrimary
+            onClick={() => {
+              setShowConfirmPkModal(false);
+              setShowPrivateKey(true);
+            }}
+          >
+            Show Private Key
+          </ButtonPrimary>
+        </div>
+      </Modal>
+
+      {/* Confirm: reset wallet */}
+      <Modal
+        open={showConfirmResetModal}
+        onClose={() => setShowConfirmResetModal(false)}
+      >
+        <TextTitle style={{ color: colorSemiBlack }}>Reset Wallet?</TextTitle>
+        <Text style={{ color: colorSemiBlack }}>
+          This will delete all locally‑stored wallet data. Make sure you’ve
+          exported a backup before continuing. This action cannot be undone.
+        </Text>
+        <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
+          <ButtonSecondary onClick={() => setShowConfirmResetModal(false)}>
+            Cancel
+          </ButtonSecondary>
+          <ButtonPrimary
+            onClick={() => {
+              setShowConfirmResetModal(false);
+              handleResetWallet();
+            }}
+          >
+            Reset Wallet
+          </ButtonPrimary>
+        </div>
+      </Modal>
       <BoxHeader>
         {/* Logo */}
         <HeaderSection>
@@ -188,11 +248,12 @@ export function Header({
               <ReceiveIcon />
             </ButtonRound>
 
-            <a href={ExplorerUrl + '/address/' +wallet.address} target="_blank" rel="noopener">
-            <ButtonRound title="Transaction History">
-              <HistoryIcon />
-            </ButtonRound>
-            </a>
+            <ButtonRound title="Transaction History" onClick={() => window.open(
+  `${ExplorerUrl}/address/${wallet.address}`,
+  "_blank"
+)}>
+  <HistoryIcon />
+</ButtonRound>
 
             <ButtonRound title="Export Wallet File" onClick={exportWalletFile}>
               <ExportIcon />
@@ -200,29 +261,14 @@ export function Header({
 
             <ButtonRound
               title="Show Private Key"
-              onClick={() =>
-                window.confirm(
-                  "Expose private key? Make sure you are doing this in a safe environment."
-                ) && setShowPrivateKey(true)
-              }
+              onClick={() => setShowConfirmPkModal(true)}
             >
               <PrivateKeyIcon />
             </ButtonRound>
 
             <ButtonRound
               title="Reset Wallet"
-              onClick={() => {
-                if (
-                  window.confirm(
-                    "Are you sure you want to reset your wallet? This action cannot be undone."
-                  ) &&
-                  window.confirm(
-                    "Please make sure you have backed up your wallet file before proceeding. Do you confirm?"
-                  )
-                ) {
-                  handleResetWallet();
-                }
-              }}
+              onClick={() => setShowConfirmResetModal(true)}
             >
               <ResetIcon />
             </ButtonRound>

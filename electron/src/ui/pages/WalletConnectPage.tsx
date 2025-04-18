@@ -1,5 +1,6 @@
 // components/WalletConnectPage.tsx
 import { useState, useEffect, useRef, useCallback } from "react";
+import styled, { css } from "styled-components";
 import { ethers } from "ethers";
 import CryptoJS from "crypto-js";
 import {
@@ -12,8 +13,17 @@ import {
   BoxContent,
   Sp,
   StepWrapper,
+  fadeIn,
+  fadeOut,
 } from "../theme";
 import { RpcUrl } from "../constants";
+
+const AnimatedStep = styled(StepWrapper)<{ $active: boolean }>`
+  animation: ${({ $active }) =>
+    $active
+      ? css`${fadeIn} 0.5s forwards`
+      : css`${fadeOut} 0.5s forwards`};
+`;
 
 export default function WalletConnectPage({
   onWalletSetup,
@@ -23,33 +33,31 @@ export default function WalletConnectPage({
   /* ------------------------------------------------------------------ */
   /* State                                                               */
   /* ------------------------------------------------------------------ */
-  const [step, setStep]               = useState<0 | 1 | 2 | 3>(0);
-  const [password, setPassword]       = useState("");
+  const [step, setStep] = useState<0 | 1 | 2 | 3>(0);
+  const [password, setPassword] = useState("");
   const [confirmPassword, setConfirm] = useState("");
-  const [privateKey, setPrivateKey]   = useState("");
-  const [error, setError]             = useState("");
+  const [privateKey, setPrivateKey] = useState("");
+  const [error, setError] = useState("");
 
   /* ------------------------------------------------------------------ */
   /* Refs for focusing                                                   */
   /* ------------------------------------------------------------------ */
-  const fileInputRef        = useRef<HTMLInputElement | null>(null);
-  const passwordRef         = useRef<HTMLInputElement | null>(null);
-  const privateKeyInputRef  = useRef<HTMLInputElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const passwordRef = useRef<HTMLInputElement | null>(null);
+  const privateKeyInputRef = useRef<HTMLInputElement | null>(null);
 
-/* Focus the relevant input whenever the step changes */
-useEffect(() => {
-  const refMap: Record<
-  0 | 1 | 2 | 3,
-  React.RefObject<HTMLInputElement | null> | undefined
-> = {
-  0: fileInputRef,
-  1: passwordRef,
-  2: undefined,           // step 2 has no focusable input
-  3: privateKeyInputRef,
-};
-
-  refMap[step]?.current?.focus();
-}, [step]);
+  useEffect(() => {
+    const refMap: Record<
+      0 | 1 | 2 | 3,
+      React.RefObject<HTMLInputElement | null> | undefined
+    > = {
+      0: fileInputRef,
+      1: passwordRef,
+      2: undefined,
+      3: privateKeyInputRef,
+    };
+    refMap[step]?.current?.focus();
+  }, [step]);
 
   /* ------------------------------------------------------------------ */
   /* Provider                                                            */
@@ -58,11 +66,11 @@ useEffect(() => {
 
   const saveEncryptedWallet = async (
     address: string,
-    encryptedPrivateKey: string,
+    encryptedPrivateKey: string
   ) => {
     localStorage.setItem(
       "walletInfo",
-      JSON.stringify({ address, encryptedPrivateKey }),
+      JSON.stringify({ address, encryptedPrivateKey })
     );
   };
 
@@ -84,15 +92,18 @@ useEffect(() => {
 
   const handleCreateWallet = useCallback(async () => {
     try {
-      const wallet    = ethers.Wallet.createRandom().connect(provider);
-      const encrypted = CryptoJS.AES.encrypt(wallet.privateKey, password).toString();
+      const wallet = ethers.Wallet.createRandom().connect(provider);
+      const encrypted = CryptoJS.AES.encrypt(
+        wallet.privateKey,
+        password
+      ).toString();
       await saveEncryptedWallet(wallet.address, encrypted);
       onWalletSetup();
       window.location.reload();
     } catch {
       setError("Failed to create wallet. Please try again.");
     }
-  }, [password]);
+  }, [password, provider, onWalletSetup]);
 
   const handleImportWallet = useCallback(async () => {
     try {
@@ -100,7 +111,7 @@ useEffect(() => {
       if (!/^0x[0-9a-fA-F]{64}$/.test(trimmed)) {
         throw new Error("Invalid private key format.");
       }
-      const wallet    = new ethers.Wallet(trimmed, provider);
+      const wallet = new ethers.Wallet(trimmed, provider);
       const encrypted = CryptoJS.AES.encrypt(trimmed, password).toString();
       await saveEncryptedWallet(wallet.address, encrypted);
       onWalletSetup();
@@ -108,7 +119,7 @@ useEffect(() => {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Import failed.");
     }
-  }, [privateKey, password]);
+  }, [privateKey, password, provider, onWalletSetup]);
 
   /* ------------------------------------------------------------------ */
   /* File import                                                         */
@@ -128,7 +139,7 @@ useEffect(() => {
           throw new Error("Invalid wallet file: invalid address format.");
 
         localStorage.setItem("walletInfo", JSON.stringify(parsed));
-        window.location.reload(); // App will show password screen
+        window.location.reload();
       } catch (err) {
         setError(err instanceof Error ? err.message : "File import failed.");
       }
@@ -137,7 +148,7 @@ useEffect(() => {
   };
 
   /* ------------------------------------------------------------------ */
-  /* Keyboard shortcuts: Enter / Esc                                     */
+  /* Keyboard shortcuts                                                  */
   /* ------------------------------------------------------------------ */
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -150,7 +161,7 @@ useEffect(() => {
             handleSetPassword();
             break;
           case 2:
-            handleCreateWallet(); // default action for step 2
+            handleCreateWallet();
             break;
           case 3:
             handleImportWallet();
@@ -180,7 +191,7 @@ useEffect(() => {
   return (
     <FullContainerBox style={{ position: "relative", height: "100vh" }}>
       {/* STEP 0: Import .key file */}
-      <StepWrapper $active={step === 0} style={{ marginBottom: "20px" }}>
+      <AnimatedStep $active={step === 0} style={{ marginBottom: "20px" }}>
         <TextSubTitle>
           Do you have an R5 key wallet file you would like to import?
         </TextSubTitle>
@@ -189,14 +200,15 @@ useEffect(() => {
           accept=".key"
           onChange={handleFileImport}
           style={{ margin: "20px auto", display: "block" }}
+          ref={fileInputRef}
         />
         <ButtonPrimary onClick={() => setStep(1)}>
           I don't have an R5 key wallet file…
         </ButtonPrimary>
-      </StepWrapper>
+      </AnimatedStep>
 
       {/* STEP 1: Set password */}
-      <StepWrapper $active={step === 1}>
+      <AnimatedStep $active={step === 1}>
         <ButtonSecondary
           onClick={() => setStep(0)}
           style={{ alignSelf: "center", marginBottom: "10px" }}
@@ -206,7 +218,7 @@ useEffect(() => {
         <TextSubTitle>Let's first set a secure password…</TextSubTitle>
         <Text>
           Your password must have at least 8 characters. Avoid using dates of
-          birth, your own name, or passwords that may be easy to guess.
+          birth or easy‑to‑guess words.
         </Text>
         <Sp />
         <BoxContent>
@@ -216,23 +228,23 @@ useEffect(() => {
             placeholder="Enter password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            style={{ minWidth: "40ch", zIndex: '1000' }}
+            style={{ minWidth: "40ch", zIndex: 1000 }}
           />
           <Input
             type="password"
             placeholder="Confirm password"
             value={confirmPassword}
             onChange={(e) => setConfirm(e.target.value)}
-            style={{ minWidth: "40ch", zIndex: '1000' }}
+            style={{ minWidth: "40ch", zIndex: 1000 }}
           />
         </BoxContent>
         <ButtonPrimary onClick={handleSetPassword}>
           Set Wallet Password
         </ButtonPrimary>
-      </StepWrapper>
+      </AnimatedStep>
 
       {/* STEP 2: Choose create or import */}
-      <StepWrapper $active={step === 2}>
+      <AnimatedStep $active={step === 2}>
         <ButtonSecondary
           onClick={() => setStep(1)}
           style={{ alignSelf: "center", marginBottom: "10px" }}
@@ -255,10 +267,10 @@ useEffect(() => {
             Create Wallet
           </ButtonPrimary>
         </BoxContent>
-      </StepWrapper>
+      </AnimatedStep>
 
       {/* STEP 3: Import via private key */}
-      <StepWrapper $active={step === 3}>
+      <AnimatedStep $active={step === 3}>
         <ButtonSecondary
           onClick={() => setStep(2)}
           style={{ alignSelf: "center", marginBottom: "10px" }}
@@ -282,7 +294,7 @@ useEffect(() => {
         <ButtonPrimary onClick={handleImportWallet}>
           Import Wallet
         </ButtonPrimary>
-      </StepWrapper>
+      </AnimatedStep>
 
       {/* Error banner */}
       {error && (

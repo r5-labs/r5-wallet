@@ -26,6 +26,22 @@ function createMainWindow() {
     }
   });
 
+  mainWindow.webContents.setWindowOpenHandler(({ }) => {
+    return {
+      action: "allow",
+      overrideBrowserWindowOptions: {
+        show: false
+      }
+    };
+  });
+
+  app.on("browser-window-created", (_e, window) => {
+    if (window !== mainWindow) {
+      window.maximize();
+      window.show();
+    }
+  });
+
   if (isDev()) {
     mainWindow.loadURL("http://localhost:5123");
   } else {

@@ -46,7 +46,7 @@ export function TransferFunds({
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [processOpen, setProcessOpen] = useState(false);
 
-  /* Ethereum */
+  /* RPC */
   const provider = new JsonRpcProvider(RpcUrl);
   let wallet: ethers.Wallet;
   try {

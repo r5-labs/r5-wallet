@@ -62,7 +62,7 @@ export const buttonRoundSize = "48px";
 
 // Animations
 
-const fadeIn = keyframes`
+export const fadeIn = keyframes`
   from {
     transform: translateY(0);
     opacity: 0;
@@ -70,6 +70,17 @@ const fadeIn = keyframes`
   to {
     transform: translateY(0);
     opacity: 1;
+  }
+`;
+
+export const fadeOut = keyframes`
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 0;
   }
 `;
 
@@ -144,13 +155,14 @@ export const ButtonPrimary = styled.button`
 
 export const ButtonSecondary = styled.button`
   padding: ${buttonPaddingDefault};
+  margin: ${marginLow};
   width: ${buttonWidthDefault};
   font-weight: ${fontWeight};
   font-size: ${fontSizeH6};
   text-align: center;
   border-radius: ${borderRadiusRound};
-  border: ${buttonOutlinedBorder};
-  background: ${colorTransparent};
+  border: ${buttonBorder};
+  background: ${colorPrimary};
   color: ${colorText};
   text-decoration: none;
   display: flex;

@@ -10,3 +10,5 @@
 - Main inputs now accept "Enter" to proceed.
 - User now can navigate through modals using "Enter" and "Esc".
 - Added context isolation for more security.
+- Added updater module.
+- Fixed bugs where sometimes inputs froze on Windows devices.
