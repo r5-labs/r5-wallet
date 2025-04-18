@@ -59,4 +59,3 @@ Build to your desired OS using the scripts below:
 - `dist:win` for Windows,
 - `dist:mac` for macOS,
 - `dist:linux` for Linux,
-
