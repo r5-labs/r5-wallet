@@ -214,7 +214,7 @@ export default function WalletConnectPage({
         >
           ← Go Back
         </ButtonSecondary>
-        <TextSubTitle>Let's first set a secure password…</TextSubTitle>
+        <TextSubTitle>First, let's set a secure password…</TextSubTitle>
         <Text>
           Your password must have at least 8 characters. Avoid using dates of
           birth or easy‑to‑guess words.
