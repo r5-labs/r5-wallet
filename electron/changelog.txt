@@ -1,4 +1,4 @@
-1.0.1 Beta
+1.0.1-beta
 - Improved code tidiness and consolidated components.
 - Addressed potential vulnerabilities related to the Electron API.
 - Improved overall build parametrisation.
@@ -12,3 +12,7 @@
 - Added context isolation for more security.
 - Added updater module.
 - Fixed bugs where sometimes inputs froze on Windows devices.
+
+1.0.2-beta
+- Fixed grammar on welcome page.
+- Adjusted minor UI inconsistencies across the app.

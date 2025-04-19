@@ -3,7 +3,7 @@
   "productName": "R5 Desktop Wallet",
   "description": "A dedicated GUI Desktop Wallet for R5 Network users.",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "R5 Labs",
   "type": "module",
   "main": "dist-electron/main.js",
