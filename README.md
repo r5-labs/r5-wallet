@@ -1,5 +1,7 @@
 # R5 GUI Desktop Wallet
 
+![R5 Wallet](img/snapshot.png)
+
 Open source development repository of the R5 GUI Desktop Wallet.
 
 ## Python Wallet
