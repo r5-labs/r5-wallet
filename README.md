@@ -2,7 +2,9 @@
 
 ![R5 Wallet](img/snapshot.png)
 
-Open source development repository of the R5 GUI Desktop Wallet.
+Open source and community-maintained development repository of the R5 GUI Desktop Wallet.
+
+The R5 Desktop Wallet is a community effort that aims to strengthen the R5 ecosystem and general access by implementing independent, verifiable, and open source code that allow users to connect and use the R5 blockchain.
 
 ## Python Wallet
 
