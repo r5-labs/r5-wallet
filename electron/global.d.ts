@@ -2,6 +2,7 @@ export interface ElectronAPI {
   shell: {
     openExternal: (url: string) => Promise<void>;
   };
+  openExternal: (url: string) => void;
 }
 
 declare global {

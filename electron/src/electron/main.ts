@@ -19,7 +19,7 @@ function createMainWindow() {
     autoHideMenuBar: true,
     icon: path.join(app.getAppPath(), "window-icon.png"),
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
+      preload: path.join(__dirname, "preload.cjs"),
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: false

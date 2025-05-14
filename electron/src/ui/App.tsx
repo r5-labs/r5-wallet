@@ -21,6 +21,7 @@ import { Modal } from "./components/Modal";
 import { getCurrentVersion } from "./utils/getCurrentVersion";
 import { useLatestRelease } from "./hooks/useLatestRelease";
 import { AppVersion, UpdateDownloadUrl } from "./constants";
+import { Web3Provider } from "./contexts/Web3Context";
 
 function App() {
   /* ------------------------------------------------------------------ */
@@ -91,11 +92,11 @@ function App() {
   /* Handlers                                                            */
   /* ------------------------------------------------------------------ */
   const requestWalletReset = () => setShowResetModal(true);
-  
+
   const wrongPassword = (_msg = "Incorrect password. Please try again.") => {
     setShowWrongPwModal(true);
   };
-  
+
   const handleAuthenticate = () => {
     const walletInfo = JSON.parse(localStorage.getItem("walletInfo") || "{}");
     try {
@@ -103,11 +104,11 @@ function App() {
         walletInfo.encryptedPrivateKey,
         password
       ).toString(CryptoJS.enc.Utf8);
-  
+
       if (!/^0x[0-9a-fA-F]{64}$/.test(decrypted)) {
         throw new Error("Invalid password or private key.");
       }
-  
+
       setDecryptedPrivateKey(decrypted);
       setIsAuthenticated(true);
     } catch (err: any) {
@@ -131,104 +132,106 @@ function App() {
   };
 
   /* ------------------------------------------------------------------ */
-/* Render                                                              */
-/* ------------------------------------------------------------------ */
-return (
-  <FullPageBox>
-    {/* Update available */}
-    <Modal open={showUpdateModal} onClose={dismissRelease}>
-      <TextTitle style={{ color: colorSemiBlack }}>Update Available</TextTitle>
-      <Text style={{ color: colorSemiBlack }}>
-        You’re running <strong>{currentVersion}</strong>; version{" "}
-        <strong>{latest?.tag}</strong> is the currently recommended release.
-        Please update your wallet to get the latest security patches and
-        features. Full changelog on the{" "}
-        <a href={UpdateDownloadUrl} target="_blank" rel="noopener">
-          release page
-        </a>.
-      </Text>
-      <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
-        <ButtonPrimary onClick={dismissRelease}>Remind Me Later</ButtonPrimary>
-        <a href={UpdateDownloadUrl} target="_blank" rel="noopener">
-          <ButtonPrimary>Download {latest?.tag}</ButtonPrimary>
-        </a>
-      </div>
-    </Modal>
+  /* Render                                                              */
+  /* ------------------------------------------------------------------ */
+  return (
+    <Web3Provider>
+      <FullPageBox>
+        {/* Update available */}
+        <Modal open={showUpdateModal} onClose={dismissRelease}>
+          <TextTitle style={{ color: colorSemiBlack }}>Update Available</TextTitle>
+          <Text style={{ color: colorSemiBlack }}>
+            You’re running <strong>{currentVersion}</strong>; version{" "}
+            <strong>{latest?.tag}</strong> is the currently recommended release.
+            Please update your wallet to get the latest security patches and
+            features. Full changelog on the{" "}
+            <a href={UpdateDownloadUrl} target="_blank" rel="noopener">
+              release page
+            </a>.
+          </Text>
+          <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
+            <ButtonPrimary onClick={dismissRelease}>Remind Me Later</ButtonPrimary>
+            <a href={UpdateDownloadUrl} target="_blank" rel="noopener">
+              <ButtonPrimary>Download {latest?.tag}</ButtonPrimary>
+            </a>
+          </div>
+        </Modal>
 
-    {/* Confirm: reset wallet */}
-    <Modal open={showResetModal} onClose={() => setShowResetModal(false)}>
-      <TextTitle style={{ color: colorSemiBlack }}>Reset Wallet?</TextTitle>
-      <Text style={{ color: colorSemiBlack }}>
-        This will <strong>delete your local wallet data</strong>. Make sure
-        you’ve exported a backup first. This action cannot be undone.
-      </Text>
-      <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
-        <ButtonSecondary onClick={() => setShowResetModal(false)}>
-          Cancel
-        </ButtonSecondary>
-        <ButtonPrimary
-          onClick={() => {
-            handleReset();
-            setShowResetModal(false);
-          }}
-        >
-          Confirm & Reset Wallet
-        </ButtonPrimary>
-      </div>
-    </Modal>
-
-    {/* Info: wrong password */}
-    <Modal open={showWrongPwModal} onClose={() => setShowWrongPwModal(false)}>
-      <TextTitle style={{ color: colorSemiBlack }}>Authentication Failed</TextTitle>
-      <Text style={{ color: colorSemiBlack }}>Wrong password. Please try again.</Text>
-      <div style={{ display: "flex", justifyContent: "center" }}>
-        <ButtonPrimary onClick={() => setShowWrongPwModal(false)}>Try Again</ButtonPrimary>
-      </div>
-    </Modal>
-
-    {/* Main UI */}
-    {isAuthenticated ? (
-      <MainPage onReset={handleReset} decryptedPrivateKey={decryptedKey} />
-    ) : hasWallet ? (
-      <FullPageBox style={{ minHeight: "100%" }}>
-        <FullContainerBox>
-          <img
-            src={R5Logo}
-            alt="R5 Logo"
-            style={{ width: 96, height: 96, margin: "-25px 0" }}
-          />
-          <TextHeader style={{ marginBottom: -15 }}>Welcome Back!</TextHeader>
-          <Text>Enter your password to unlock and access your wallet.</Text>
-
-          <Input
-            ref={passwordInputRef}
-            type="password"
-            placeholder="Enter your password…"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleAuthenticate()}
-            style={{ minWidth: "40ch", margin: "20px 0" }}
-          />
-
-          <div style={{ display: "flex", gap: 10 }}>
-            <ButtonSecondary onClick={requestWalletReset}>
-              Reset Wallet
+        {/* Confirm: reset wallet */}
+        <Modal open={showResetModal} onClose={() => setShowResetModal(false)}>
+          <TextTitle style={{ color: colorSemiBlack }}>Reset Wallet?</TextTitle>
+          <Text style={{ color: colorSemiBlack }}>
+            This will <strong>delete your local wallet data</strong>. Make sure
+            you’ve exported a backup first. This action cannot be undone.
+          </Text>
+          <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
+            <ButtonSecondary onClick={() => setShowResetModal(false)}>
+              Cancel
             </ButtonSecondary>
-            <ButtonPrimary onClick={handleAuthenticate}>
-              Unlock Wallet
+            <ButtonPrimary
+              onClick={() => {
+                handleReset();
+                setShowResetModal(false);
+              }}
+            >
+              Confirm & Reset Wallet
             </ButtonPrimary>
           </div>
+        </Modal>
 
-          <SmallText style={{ color: colorGray, marginTop: 10 }}>
-            {AppVersion}
-          </SmallText>
-        </FullContainerBox>
+        {/* Info: wrong password */}
+        <Modal open={showWrongPwModal} onClose={() => setShowWrongPwModal(false)}>
+          <TextTitle style={{ color: colorSemiBlack }}>Authentication Failed</TextTitle>
+          <Text style={{ color: colorSemiBlack }}>Wrong password. Please try again.</Text>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <ButtonPrimary onClick={() => setShowWrongPwModal(false)}>Try Again</ButtonPrimary>
+          </div>
+        </Modal>
+
+        {/* Main UI */}
+        {isAuthenticated ? (
+          <MainPage onReset={handleReset} decryptedPrivateKey={decryptedKey} />
+        ) : hasWallet ? (
+          <FullPageBox style={{ minHeight: "100%" }}>
+            <FullContainerBox>
+              <img
+                src={R5Logo}
+                alt="R5 Logo"
+                style={{ width: 96, height: 96, margin: "-25px 0" }}
+              />
+              <TextHeader style={{ marginBottom: -15 }}>Welcome Back!</TextHeader>
+              <Text>Enter your password to unlock and access your wallet.</Text>
+
+              <Input
+                ref={passwordInputRef}
+                type="password"
+                placeholder="Enter your password…"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleAuthenticate()}
+                style={{ minWidth: "40ch", margin: "20px 0" }}
+              />
+
+              <div style={{ display: "flex", gap: 10 }}>
+                <ButtonSecondary onClick={requestWalletReset}>
+                  Reset Wallet
+                </ButtonSecondary>
+                <ButtonPrimary onClick={handleAuthenticate}>
+                  Unlock Wallet
+                </ButtonPrimary>
+              </div>
+
+              <SmallText style={{ color: colorGray, marginTop: 10 }}>
+                {AppVersion}
+              </SmallText>
+            </FullContainerBox>
+          </FullPageBox>
+        ) : (
+          <WalletConnectPage onWalletSetup={handleWalletSetup} />
+        )}
       </FullPageBox>
-    ) : (
-      <WalletConnectPage onWalletSetup={handleWalletSetup} />
-    )}
-  </FullPageBox>
-);
+    </Web3Provider>
+  );
 }
 
 export default App;

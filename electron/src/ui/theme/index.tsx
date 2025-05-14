@@ -310,6 +310,7 @@ export const BoxHeader = styled.div`
   padding: 0;
   margin: 0;
   width: 100%;
+  box-sizing: border-box;
 `;
 
 export const HeaderSection = styled.div`
@@ -320,6 +321,7 @@ export const HeaderSection = styled.div`
   justify-content: center;
   align-items: flex-start;
   gap: 0;
+  box-sizing: border-box;
 `;
 
 export const HeaderButtonWrapper = styled.div`
@@ -330,6 +332,7 @@ export const HeaderButtonWrapper = styled.div`
   padding: 0;
   margin: 0;
   width: 100%;
+  box-sizing: border-box;
 `;
 
 export const Divider = styled.div`
@@ -340,31 +343,37 @@ export const Divider = styled.div`
   margin: ${marginZero};
   border-bottom: ${borderLight};
   width: 100%;
+  box-sizing: border-box;
 `;
 
 export const Spacer = styled.div`
   margin: 3px;
+  box-sizing: border-box;
 `;
 
 export const TextHeader = styled.h2`
   font-size: ${fontSizeH2};
   margin: 0;
+  box-sizing: border-box;
 `;
 
 export const TextTitle = styled.h4`
   font-size: ${fontSizeH4};
   margin: 0;
+  box-sizing: border-box;
 `;
 
 export const TextSubTitle = styled.h5`
   font-size: ${fontSizeH5};
   margin: 0;
   font-weight: light;
+  box-sizing: border-box;
 `;
 
 export const Text = styled.p`
   font-size: ${fontSize};
   margin: 0;
+  box-sizing: border-box;
 `;
 
 export const SmallText = styled.p`

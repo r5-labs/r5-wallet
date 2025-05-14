@@ -1,7 +1,6 @@
-import { JSX, useState } from "react";
+import { JSX, useMemo, useState } from "react";
 import {
   ethers,
-  JsonRpcProvider,
   parseEther,
   parseUnits,
   formatUnits,
@@ -21,12 +20,12 @@ import {
   colorSemiBlack
 } from "../theme";
 import { LuArrowUpRight } from "react-icons/lu";
-import { RpcUrl } from "../constants";
 import { TxConfirm } from "./TxConfirm";
 import { FullPageLoader } from "./FullPageLoader";
 import { TxProcess } from "./TxProcess";
 import { useTxLifecycle } from "../hooks/useTxLifecycle";
 import { ModalInner } from "./ModalInner";
+import { useWeb3Context } from "../contexts/Web3Context";
 
 const SendIcon = LuArrowUpRight;
 
@@ -53,16 +52,18 @@ export function TransferFunds({
   const [errorMsg, setErrorMsg] = useState("");
 
   /* RPC */
-  const provider = new JsonRpcProvider(RpcUrl);
-  let wallet: ethers.Wallet;
-  try {
-    wallet = new ethers.Wallet(decryptedPrivateKey, provider);
-  } catch (err) {
-    console.error("Failed to create wallet:", err);
-    setErrorMsg("Invalid private key. Please reset your wallet.");
-    setShowErrorModal(true);
-    return null;
-  }
+  const { provider } = useWeb3Context()
+  // let wallet: ethers.Wallet;
+
+  const wallet = useMemo(() => {
+    try {
+      return new ethers.Wallet(decryptedPrivateKey, provider);
+    } catch (e) {
+      console.error("Invalid private key:", e);
+      alert("Invalid private key. Please reset your wallet.");
+      return null;
+    }
+  }, [decryptedPrivateKey])
 
   /* Tx lifecycle */
   const {
@@ -81,6 +82,7 @@ export function TransferFunds({
       setShowErrorModal(true);
       return null;
     }
+    if (!wallet) return null
     try {
       const feeData = await provider.getFeeData();
       if (!feeData.gasPrice) throw new Error("Gas price unavailable");
@@ -131,6 +133,7 @@ export function TransferFunds({
   };
 
   const confirmAndSend = async () => {
+    if (!wallet) return;
     setShowConfirmModal(false);
     setProcessOpen(true);
 

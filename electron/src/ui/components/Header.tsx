@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { ethers, JsonRpcProvider, formatEther } from "ethers";
+import { useState, useEffect, useMemo } from "react";
+import { ethers, formatEther } from "ethers";
 import {
   BoxHeader,
   HeaderSection,
@@ -13,7 +13,6 @@ import {
   TextTitle,
   Text
 } from "../theme";
-import { RpcUrl, ExplorerUrl } from "../constants";
 import {
   GoArrowDownLeft,
   GoTrash,
@@ -32,6 +31,8 @@ import { ReceiveFunds } from "./ReceiveFunds";
 import { PrivateKey } from "./PrivateKey";
 import { About } from "./About";
 import { Modal } from "./Modal";
+import Toggle from "./Toggle";
+import { useWeb3Context } from "../contexts/Web3Context";
 
 /* Icon aliases for readability */
 const ReceiveIcon = GoArrowDownLeft;
@@ -65,28 +66,33 @@ export function Header({
   /* ------------------------------------------------------------------ */
   /* Blockchain side                                                    */
   /* ------------------------------------------------------------------ */
-  const provider = new JsonRpcProvider(RpcUrl);
-  let wallet: ethers.Wallet;
-  try {
-    wallet = new ethers.Wallet(decryptedPrivateKey, provider);
-  } catch (e) {
-    console.error("Invalid private key:", e);
-    alert("Invalid private key. Please reset your wallet.");
-    return null;
-  }
+  const { provider, explorerUrl } = useWeb3Context()
+  // let wallet: ethers.Wallet;
+
+  const wallet = useMemo(() => {
+    try {
+      return new ethers.Wallet(decryptedPrivateKey, provider);
+    } catch (e) {
+      console.error("Invalid private key:", e);
+      alert("Invalid private key. Please reset your wallet.");
+      return null;
+    }
+  }, [decryptedPrivateKey])
+
 
   const updateBalance = () => {
-    provider
-      .getBalance(wallet.address)
-      .then((wei) => setBalance(formatEther(wei)))
-      .catch((err) => console.error("Failed to update balance:", err));
+    if (wallet)
+      provider
+        .getBalance(wallet.address)
+        .then((wei) => setBalance(formatEther(wei)))
+        .catch((err) => console.error("Failed to update balance:", err));
   };
 
   useEffect(() => {
     updateBalance();
     const id = setInterval(updateBalance, 60_000);
     return () => clearInterval(id);
-  }, [provider, wallet.address]);
+  }, [provider, wallet?.address]);
 
   /* ------------------------------------------------------------------ */
   /* Button handlers                                                    */
@@ -104,7 +110,7 @@ export function Header({
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${wallet.address}.key`;
+    a.download = `${wallet?.address}.key`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -113,7 +119,7 @@ export function Header({
 
   const handleCopy = () => {
     navigator.clipboard
-      .writeText(wallet.address)
+      .writeText(wallet?.address ?? '')
       .then(() => {
         setIsCopied(true);
         setTimeout(() => setIsCopied(false), 2_000);
@@ -222,7 +228,7 @@ export function Header({
             </span>
           </TextSubTitle>
           <SmallText style={{ display: "flex", alignItems: "center" }}>
-            <span>{wallet.address}</span>
+            <span>{wallet?.address ?? ''}</span>
             <span
               onClick={handleCopy}
               title="Copy Address"
@@ -249,11 +255,9 @@ export function Header({
 
             <ButtonRound
               title="Transaction History"
-              onClick={() =>
-                window.open(
-                  `${ExplorerUrl}/address/${wallet.address}`,
-                  "_blank"
-                )
+              onClick={() => {
+                  window.electron.openExternal(`${explorerUrl}/address/${wallet?.address ?? ''}`)
+                }
               }
             >
               <HistoryIcon />
@@ -284,6 +288,7 @@ export function Header({
             <ButtonRound title="Lock Wallet" onClick={handleLockWallet}>
               <LockIcon />
             </ButtonRound>
+            <Toggle />
           </HeaderButtonWrapper>
         </HeaderSection>
       </BoxHeader>
@@ -292,7 +297,7 @@ export function Header({
       <ReceiveFunds
         open={showReceiveQR}
         onClose={() => setShowReceiveQR(false)}
-        address={wallet.address}
+        address={wallet?.address ?? ''}
       />
       <PrivateKey
         open={showPrivateKey}

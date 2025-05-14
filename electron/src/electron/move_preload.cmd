@@ -1,1 +1,1 @@
-copy preload.js ..\..\dist‑electron\preload.js
+copy preload.cjs ..\..\dist-electron\preload.cjs

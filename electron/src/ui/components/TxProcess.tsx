@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled, { keyframes, css } from "styled-components";
 import {
   Text,
@@ -16,7 +16,7 @@ import {
   Sp
 } from "../theme";
 import { GoCheck, GoX, GoLinkExternal } from "react-icons/go";
-import { ExplorerUrl } from "../constants";
+import { useWeb3Context } from "../contexts/Web3Context";
 
 /* ------------------------------------------------------------
    STAGES
@@ -129,6 +129,23 @@ export function TxProcess({
   const [visible, setVisible] = useState(open);
   const [exiting, setExiting] = useState(false);
 
+  const { explorerUrl } = useWeb3Context()
+
+  /* logic reused from previous version */
+  const finalVisible = useMemo(() => stageIndex === 3, [stageIndex]);
+
+  const failed = useMemo(() => Boolean(error), [error]);
+  const succeeded = useMemo(() => finalVisible && success && !failed, [failed, finalVisible, success]);
+
+  const stageLabels = useMemo(() => [
+    "Initiating transaction",
+    "Processing transaction on the blockchain",
+    "Parsing transaction result",
+    failed
+      ? `Transaction failed: ${error}`
+      : `Transaction successful${txHash ? `, your receipt is ${txHash}` : ""}`
+  ] as const, [failed, error, txHash])
+
   useEffect(() => {
     if (open) {
       setVisible(true); // mount immediately
@@ -142,19 +159,7 @@ export function TxProcess({
 
   if (!visible) return null;
 
-  /* logic reused from previous version */
-  const finalVisible = stageIndex === 3;
-  const failed = Boolean(error);
-  const succeeded = finalVisible && success && !failed;
 
-  const stageLabels = [
-    "Initiating transaction",
-    "Processing transaction on the blockchain",
-    "Parsing transaction result",
-    failed
-      ? `Transaction failed: ${error}`
-      : `Transaction successful${txHash ? `, your receipt is ${txHash}` : ""}`
-  ] as const;
 
   /* render --------------------------------------------------------------- */
   return (
@@ -230,10 +235,7 @@ export function TxProcess({
                 margin: "auto"
               }}
               onClick={() =>
-                window.open(
-                  `${ExplorerUrl}/tx/${txHash}`,
-                  "_blank"
-                )
+                window.electron.openExternal(`${explorerUrl}/tx/${txHash}`)
               }
             >
               Open on Explorer <GoLinkExternal />

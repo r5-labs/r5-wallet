@@ -15,9 +15,9 @@ import {
   fadeIn,
   fadeOut,
 } from "../theme";
-import { RpcUrl } from "../constants";
+import { useWeb3Context } from "../contexts/Web3Context";
 
-const AnimatedStep = styled(StepWrapper)<{ $active: boolean }>`
+const AnimatedStep = styled(StepWrapper) <{ $active: boolean }>`
   animation: ${({ $active }) =>
     $active
       ? css`${fadeIn} 0.5s forwards`
@@ -61,7 +61,7 @@ export default function WalletConnectPage({
   /* ------------------------------------------------------------------ */
   /* Provider                                                            */
   /* ------------------------------------------------------------------ */
-  const provider = new ethers.JsonRpcProvider(RpcUrl);
+  const { provider } = useWeb3Context()
 
   const saveEncryptedWallet = async (
     address: string,
