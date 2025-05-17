@@ -11,7 +11,8 @@ import {
   ButtonSecondary,
   colorSemiBlack,
   TextTitle,
-  Text
+  Text,
+  colorGray
 } from "../theme";
 import {
   GoArrowDownLeft,
@@ -33,6 +34,7 @@ import { About } from "./About";
 import { Modal } from "./Modal";
 import Toggle from "./Toggle";
 import { useWeb3Context } from "../contexts/Web3Context";
+import usePrice from "../hooks/usePrice";
 
 /* Icon aliases for readability */
 const ReceiveIcon = GoArrowDownLeft;
@@ -62,6 +64,8 @@ export function Header({
   const [isCopied, setIsCopied] = useState(false);
   const [showConfirmPkModal, setShowConfirmPkModal] = useState(false);
   const [showConfirmResetModal, setShowConfirmResetModal] = useState(false);
+
+  const price = usePrice();
 
   /* ------------------------------------------------------------------ */
   /* Blockchain side                                                    */
@@ -153,9 +157,10 @@ export function Header({
           Expose Private Key?
         </TextTitle>
         <Text style={{ color: colorSemiBlack }}>
-          This will expose your private key on‑screen. You may want to do this for backing up your wallet, however, be aware that your funds will be inherently at risk. Only proceed if
-          you’re in a secure environment and have no one looking over your
-          shoulder.
+          This will expose your private key on‑screen. You may want to do this
+          for backing up your wallet, however, be aware that your funds will be
+          inherently at risk. Only proceed if you’re in a secure environment and
+          have no one looking over your shoulder.
         </Text>
         <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
           <ButtonSecondary onClick={() => setShowConfirmPkModal(false)}>
@@ -205,7 +210,7 @@ export function Header({
         {/* Balance & address */}
         <HeaderSection>
           <TextSubTitle>
-            R5 {balance}
+            R5 {Number(balance).toFixed(6)}
             <span
               onClick={handleRefresh}
               style={{
@@ -224,6 +229,12 @@ export function Header({
                   animation: isRefreshing ? "spin 1s linear" : undefined
                 }}
               />
+            </span>
+            <span>
+              {" "}
+              <text style={{ fontSize: "10pt", color: colorGray }}>
+                ${(Number(balance) * price).toFixed(2)}
+              </text>
             </span>
           </TextSubTitle>
           <SmallText style={{ display: "flex", alignItems: "center" }}>

@@ -1,1 +1,1 @@
-cp preload.js ../../dist‑electron/preload.js
+cp preload.cjs ../../dist‑electron/preload.cjs

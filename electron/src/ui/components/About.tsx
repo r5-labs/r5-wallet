@@ -7,7 +7,7 @@ interface AboutProps {
   onClose: () => void;
 }
 
-const openHelp = () => window.open(HelpUrl);
+const openHelp = () => window.electron.openExternal(`${HelpUrl ?? ""}`);
 
 export function About({ open, onClose }: AboutProps) {
   return (
@@ -21,7 +21,7 @@ export function About({ open, onClose }: AboutProps) {
       <Text style={{ marginBottom: "10px", color: colorSemiBlack }}>
         <b>Version:</b> {AppVersion}
       </Text>
-      <ButtonPrimary onClick={openHelp} style={{ marginBottom: '-10px' }}>
+      <ButtonPrimary onClick={openHelp} style={{ marginBottom: "-10px" }}>
         Help &amp; Support
       </ButtonPrimary>
       <ButtonPrimary onClick={onClose}>Close</ButtonPrimary>

@@ -8,3 +8,4 @@ export const RpcUrl = "https://rpc.r5.network" // Use your own RPC server or a p
 export const ExplorerUrl = "https://explorer.r5.network" // You can change the preferred explorer URL
 export const TestnetRpcUrl = "https://rpc-testnet.r5.network" // Use your own RPC server or a public one
 export const TestnetExplorerUrl = "https://explorer.testnet.r5.network" // You can change the preferred explorer URL
+export const PriceApiEndpoint = "https://api.coinpaprika.com/v1/tickers/r5-r5-network"

@@ -10,9 +10,11 @@ function createMainWindow() {
     const mainWindow = new BrowserWindow({
         width: 1100,
         height: 720,
-        resizable: false, // no drag‑to‑resize
-        maximizable: true, // but still allow Maximize
-        minimizable: true, // can minimise
+        minWidth: 1100,
+        minHeight: 720,
+        resizable: true,
+        maximizable: true,
+        minimizable: true,
         autoHideMenuBar: true,
         icon: path.join(app.getAppPath(), "window-icon.png"),
         webPreferences: {

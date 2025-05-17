@@ -16,3 +16,8 @@
 1.0.2-beta
 - Fixed grammar on welcome page.
 - Adjusted minor UI inconsistencies across the app.
+- Added support for testnet and a toggle to switch between them.
+- Improved information and grammar in dialogs across the application.
+- Wallet window can be now resized and maximized.
+- Links for help and tx history now properly open on an external window.
+- Added fiat price feed (in USD).

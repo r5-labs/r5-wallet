@@ -1,6 +1,7 @@
 {
   "name": "r5-wallet",
   "productName": "R5 Desktop Wallet",
+  "buildName": "r5_desktop_wallet",
   "description": "A dedicated GUI Desktop Wallet for R5 Network users.",
   "private": true,
   "version": "1.0.2",
@@ -59,7 +60,11 @@
     },
     "linux": {
       "icon": "window-icon.png",
-      "target": [ "tar.gz" ]
+      "target": [ "tar.gz", "deb" ],
+      "category": "Utility",
+      "maintainer": "R5 Labs <contact@r5.network>",
+      "synopsis": "A GUI Wallet for the R5 Blockchain",
+      "description": "The R5 Desktop Wallet is a secure, fast, and user-friendly application to manage R5 Coins."
     },
     "mac": {
       "icon": "window-icon.icns",
