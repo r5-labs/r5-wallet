@@ -8,7 +8,7 @@ function createMainWindow() {
     // Kill the default menu (File/Edit/View/etc)
     Menu.setApplicationMenu(null);
     const mainWindow = new BrowserWindow({
-        width: 1024,
+        width: 1100,
         height: 720,
         resizable: false, // no drag‑to‑resize
         maximizable: true, // but still allow Maximize

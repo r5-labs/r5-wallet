@@ -1,5 +1,5 @@
 export const AppName = "R5 Desktop Wallet" // Don't change this!
-export const AppDescription = "An open source and community-developed desktop wallet for the R5 Network." // Don't change this!
+export const AppDescription = "An open source and community-developed desktop wallet for the R5 Network. Visit https://github.com/r5-labs/r5-wallet to access, audit, or contribute to the source code. This software is provided on an 'AS IS' basis with no guarantees or warranties." // Don't change this!
 export const AppVersion = "1.0.2-beta" // Don't change this!
 export const VersionApiUrl = "https://api.github.com/repos/r5-labs/r5-wallet/releases/latest" // Don't change this!
 export const UpdateDownloadUrl = "https://github.com/r5-labs/r5-wallet/releases/latest" // Don't change this!

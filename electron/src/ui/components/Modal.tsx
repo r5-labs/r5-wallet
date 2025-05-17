@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
-import { ModalBackground, ModalContainer } from "../theme"
-
+import { BoxContent, BoxContentParent, ModalBackground, ModalContainer } from "../theme"
+import WalletLogo from "../assets/r5-wallet.png"
 interface ModalProps {
   open: boolean
   onClose: () => void
@@ -38,6 +38,11 @@ export function Modal({ open, onClose, children }: ModalProps) {
         onClick={onClose}
       />
       <ModalContainer exiting={exiting} style={{ zIndex: 1 }}>
+        <BoxContentParent>
+          <BoxContent>
+        <img src={WalletLogo} alt="R5 Wallet" style={{ width: 32, height: 32 }} />
+        </BoxContent>
+        </BoxContentParent>
         {children}
       </ModalContainer>
     </ModalBackground>

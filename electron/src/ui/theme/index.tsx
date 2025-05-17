@@ -444,8 +444,8 @@ export const ModalContainer = styled.div<{ exiting: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 20px;
-  max-width: 90%;
+  padding: 30px;
+  max-width: 800px;
   border-radius: ${borderRadiusDefault};
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   background: ${colorGlassBackgroundModal};

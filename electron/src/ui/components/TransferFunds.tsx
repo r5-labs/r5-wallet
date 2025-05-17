@@ -194,7 +194,7 @@ export function TransferFunds({
           <BoxSection style={{ gap: "10px", alignItems: "center" }}>
             <BoxContent style={{ gap: "10px", flexWrap: "wrap" }}>
               <div style={{ flex: 1 }}>
-                <Text style={{ marginLeft: "15px" }}>Gas Price (Gwei)</Text>
+                <Text style={{ marginLeft: "15px", marginBottom: "10px" }}>Gas Price (Gwei)</Text>
                 <Input
                   type="number"
                   value={gasPrice}
@@ -204,7 +204,7 @@ export function TransferFunds({
                 />
               </div>
               <div style={{ flex: 1 }}>
-                <Text style={{ marginLeft: "15px" }}>Max Gas</Text>
+                <Text style={{ marginLeft: "15px", marginBottom: "10px" }}>Max Gas</Text>
                 <Input
                   type="number"
                   value={maxGas}

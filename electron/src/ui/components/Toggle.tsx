@@ -1,7 +1,7 @@
-// Toggle.tsx
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { useWeb3Context } from '../contexts/Web3Context';
+import React from "react";
+import styled from "styled-components";
+import { useWeb3Context } from "../contexts/Web3Context";
+import { BoxContent, BoxContentParent, colorGlassBorder, colorLightGray, colorPrimary } from "../theme";
 
 const ToggleWrapper = styled.div`
   display: flex;
@@ -12,8 +12,9 @@ const ToggleWrapper = styled.div`
 const Switch = styled.div<{ isOn: boolean }>`
   width: 50px;
   height: 24px;
-  background-color: ${({ isOn }) => (isOn ? '#4caf50' : '#ccc')};
+  background-color: ${({ isOn }) => (isOn ? colorPrimary : "transparent" )};
   border-radius: 12px;
+  border: 1px solid ${colorGlassBorder};
   position: relative;
   transition: background-color 0.3s;
 `;
@@ -21,29 +22,38 @@ const Switch = styled.div<{ isOn: boolean }>`
 const Knob = styled.div<{ isOn: boolean }>`
   position: absolute;
   top: 2px;
-  left: ${({ isOn }) => (isOn ? '26px' : '2px')};
-  width: 20px;
-  height: 20px;
+  left: ${({ isOn }) => (isOn ? "26px" : "2px")};
+  width: 17px;
+  height: 17px;
   background-color: white;
   border-radius: 50%;
   transition: left 0.3s;
 `;
 
 const Label = styled.span`
-  margin-left: 10px;
-  font-size: 14px;
-  width: 50px;
+  margin: auto;
+  margin-top: -7px;
+  text-align: center;
+  font-size: 10px;
+  color: ${colorLightGray};
+  width: 100%;
 `;
 
 const Toggle: React.FC = () => {
-  const { isMainnet, swithNetwork } = useWeb3Context()
+  const { isMainnet, swithNetwork } = useWeb3Context();
 
   return (
     <ToggleWrapper onClick={() => swithNetwork(!isMainnet)}>
-      <Switch isOn={isMainnet}>
-        <Knob isOn={isMainnet} />
-      </Switch>
-      <Label>{isMainnet ? 'Mainnet' : 'Testnet'}</Label>
+      <BoxContentParent style={{ margin: "auto 10px auto 10px", height: "100%" }}>
+        <BoxContent>
+          <Switch isOn={isMainnet}>
+            <Knob isOn={isMainnet} />
+          </Switch>
+        </BoxContent>
+        <BoxContent>
+          <Label>{isMainnet ? "MAINNET" : "TESTNET"}</Label>
+        </BoxContent>
+      </BoxContentParent>
     </ToggleWrapper>
   );
 };

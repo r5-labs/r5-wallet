@@ -66,7 +66,7 @@ export function Header({
   /* ------------------------------------------------------------------ */
   /* Blockchain side                                                    */
   /* ------------------------------------------------------------------ */
-  const { provider, explorerUrl } = useWeb3Context()
+  const { provider, explorerUrl } = useWeb3Context();
   // let wallet: ethers.Wallet;
 
   const wallet = useMemo(() => {
@@ -77,8 +77,7 @@ export function Header({
       alert("Invalid private key. Please reset your wallet.");
       return null;
     }
-  }, [decryptedPrivateKey])
-
+  }, [decryptedPrivateKey]);
 
   const updateBalance = () => {
     if (wallet)
@@ -119,7 +118,7 @@ export function Header({
 
   const handleCopy = () => {
     navigator.clipboard
-      .writeText(wallet?.address ?? '')
+      .writeText(wallet?.address ?? "")
       .then(() => {
         setIsCopied(true);
         setTimeout(() => setIsCopied(false), 2_000);
@@ -154,7 +153,7 @@ export function Header({
           Expose Private Key?
         </TextTitle>
         <Text style={{ color: colorSemiBlack }}>
-          This will display your raw private key on‑screen. Only proceed if
+          This will expose your private key on‑screen. You may want to do this for backing up your wallet, however, be aware that your funds will be inherently at risk. Only proceed if
           you’re in a secure environment and have no one looking over your
           shoulder.
         </Text>
@@ -228,7 +227,7 @@ export function Header({
             </span>
           </TextSubTitle>
           <SmallText style={{ display: "flex", alignItems: "center" }}>
-            <span>{wallet?.address ?? ''}</span>
+            <span>{wallet?.address ?? ""}</span>
             <span
               onClick={handleCopy}
               title="Copy Address"
@@ -243,8 +242,14 @@ export function Header({
           </SmallText>
         </HeaderSection>
 
+        <HeaderSection
+          style={{ width: "100%", margin: "auto", alignItems: "center" }}
+        >
+          <Toggle />
+        </HeaderSection>
+
         {/* Buttons */}
-        <HeaderSection style={{ width: "100%" }}>
+        <HeaderSection style={{ width: "auto" }}>
           <HeaderButtonWrapper>
             <ButtonRound
               title="Receive Transaction"
@@ -256,9 +261,10 @@ export function Header({
             <ButtonRound
               title="Transaction History"
               onClick={() => {
-                  window.electron.openExternal(`${explorerUrl}/address/${wallet?.address ?? ''}`)
-                }
-              }
+                window.electron.openExternal(
+                  `${explorerUrl}/address/${wallet?.address ?? ""}`
+                );
+              }}
             >
               <HistoryIcon />
             </ButtonRound>
@@ -288,7 +294,6 @@ export function Header({
             <ButtonRound title="Lock Wallet" onClick={handleLockWallet}>
               <LockIcon />
             </ButtonRound>
-            <Toggle />
           </HeaderButtonWrapper>
         </HeaderSection>
       </BoxHeader>
@@ -297,7 +302,7 @@ export function Header({
       <ReceiveFunds
         open={showReceiveQR}
         onClose={() => setShowReceiveQR(false)}
-        address={wallet?.address ?? ''}
+        address={wallet?.address ?? ""}
       />
       <PrivateKey
         open={showPrivateKey}

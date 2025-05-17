@@ -181,8 +181,8 @@ function App() {
 
         {/* Info: wrong password */}
         <Modal open={showWrongPwModal} onClose={() => setShowWrongPwModal(false)}>
-          <TextTitle style={{ color: colorSemiBlack }}>Authentication Failed</TextTitle>
-          <Text style={{ color: colorSemiBlack }}>Wrong password. Please try again.</Text>
+          <TextTitle style={{ color: colorSemiBlack }}>Failed Unlocking Wallet</TextTitle>
+          <Text style={{ color: colorSemiBlack }}>It looks like you may have typed the wrong password. Please try again.</Text>
           <div style={{ display: "flex", justifyContent: "center" }}>
             <ButtonPrimary onClick={() => setShowWrongPwModal(false)}>Try Again</ButtonPrimary>
           </div>
