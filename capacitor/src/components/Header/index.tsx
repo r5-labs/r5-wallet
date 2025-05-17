@@ -12,10 +12,16 @@ import {
   colorSemiBlack,
   TextTitle,
   Text,
-  colorGray
+  colorGray,
+  colorGlassBackground,
+  colorBackground,
+  colorBorder,
+  borderRadiusDefault,
+  colorSecondary
 } from "../../theme";
 import {
   GoArrowDownLeft,
+  GoArrowUpRight,
   GoTrash,
   GoKey,
   GoHistory,
@@ -36,13 +42,26 @@ import { useWeb3Context } from "../../contexts/Web3Context";
 import usePrice from "../../hooks/usePrice";
 
 /* Icon aliases for readability */
-const ReceiveIcon = GoArrowDownLeft as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
+const ReceiveIcon = GoArrowDownLeft as unknown as React.FC<
+  React.SVGProps<SVGSVGElement>
+>;
+const SendIcon = GoArrowUpRight as unknown as React.FC<
+  React.SVGProps<SVGSVGElement>
+>;
 const ResetIcon = GoTrash as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
-const PrivateKeyIcon = GoKey as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
-const HistoryIcon = GoHistory as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
-const ExportIcon = GoUpload as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
+const PrivateKeyIcon = GoKey as unknown as React.FC<
+  React.SVGProps<SVGSVGElement>
+>;
+const HistoryIcon = GoHistory as unknown as React.FC<
+  React.SVGProps<SVGSVGElement>
+>;
+const ExportIcon = GoUpload as unknown as React.FC<
+  React.SVGProps<SVGSVGElement>
+>;
 const InfoIcon = GoInfo as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
-const RefreshIcon = GoSync as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
+const RefreshIcon = GoSync as unknown as React.FC<
+  React.SVGProps<SVGSVGElement>
+>;
 const CopyIcon = GoCopy as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
 const CheckIcon = GoCheck as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
 const LockIcon = GoLock as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
@@ -202,14 +221,14 @@ export function Header({
       </Modal>
       <BoxHeader>
         {/* Logo */}
-        <HeaderSection>
+        <HeaderSection style={{ margin: -7 }}>
           <img src={R5Logo} width={64} height={64} />
         </HeaderSection>
 
         {/* Balance & address */}
         <HeaderSection>
           <TextSubTitle>
-            R5 {Number(balance).toFixed(6)}
+          ${(Number(balance) * price).toFixed(2)}
             <span
               onClick={handleRefresh}
               style={{
@@ -232,46 +251,21 @@ export function Header({
             <span>
               {" "}
               <text style={{ fontSize: "10pt", color: colorGray }}>
-                ${(Number(balance) * price).toFixed(2)}
+              R5 {Number(balance).toFixed(6)}
+                
               </text>
             </span>
           </TextSubTitle>
           <SmallText style={{ display: "flex", alignItems: "center" }}>
             <span>{wallet?.address ?? ""}</span>
-            <span
-              onClick={handleCopy}
-              title="Copy Address"
-              style={{ marginLeft: 5, cursor: "pointer" }}
-            >
-              {isCopied ? (
-                <CheckIcon style={{ width: 12, height: 12 }} />
-              ) : (
-                <CopyIcon style={{ width: 12, height: 12 }} />
-              )}
-            </span>
           </SmallText>
         </HeaderSection>
-
-        {/* Buttons */}
         <HeaderSection style={{ width: "100%" }}>
           <HeaderButtonWrapper>
-            <ButtonRound
-              title="Receive Transaction"
-              onClick={() => setShowReceiveQR(true)}
-            >
-              <ReceiveIcon />
-            </ButtonRound>
-
-            <ButtonRound
-              title="Transaction History"
-            >
-              <HistoryIcon />
-            </ButtonRound>
-
             <ButtonRound title="Export Wallet File" onClick={exportWalletFile}>
               <ExportIcon />
             </ButtonRound>
-
+            {/*
             <ButtonRound
               title="Show Private Key"
               onClick={() => setShowConfirmPkModal(true)}
@@ -288,6 +282,56 @@ export function Header({
 
             <ButtonRound title="About" onClick={() => setShowInfo(true)}>
               <InfoIcon />
+            </ButtonRound>
+            */}
+          </HeaderButtonWrapper>
+        </HeaderSection>
+      </BoxHeader>
+
+      {/* Buttons */}
+      <BoxHeader
+        style={{
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          width: "100%",
+          zIndex: 2,
+          background: colorSecondary,
+          margin: 0,
+          padding: 5,
+          borderRadius: `${borderRadiusDefault} ${borderRadiusDefault} 0 0`
+        }}
+      >
+        <HeaderSection
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            width: "100%"
+          }}
+        >
+          <HeaderButtonWrapper
+            style={{
+              display: "flex",
+              gap: 10,
+              justifyContent: "center",
+            }}
+          >
+            <ButtonRound
+              title="Receive Transaction"
+              onClick={() => setShowReceiveQR(true)}
+            >
+              <ReceiveIcon />
+            </ButtonRound>
+
+            <ButtonRound
+              title="Receive Transaction"
+              onClick={() => setShowReceiveQR(true)}
+            >
+              <SendIcon />
+            </ButtonRound>
+
+            <ButtonRound title="Transaction History">
+              <HistoryIcon />
             </ButtonRound>
 
             <ButtonRound title="Lock Wallet" onClick={handleLockWallet}>

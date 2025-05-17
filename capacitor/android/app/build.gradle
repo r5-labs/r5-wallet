@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "network.r5"
+    namespace "org.r5labs"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "network.r5"
+        applicationId "org.r5labs"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

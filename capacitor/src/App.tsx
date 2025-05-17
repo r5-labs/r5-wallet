@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import WalletConnectPage from "./pages/Onboard";
+import Obnoard from "./pages/Onboard";
 import MainPage from "./pages/Wallet";
 import CryptoJS from "crypto-js";
 import {
@@ -22,6 +22,7 @@ import { getCurrentVersion } from "./utils/getCurrentVersion";
 import { useLatestRelease } from "./hooks/useLatestRelease";
 import { AppVersion, UpdateDownloadUrl } from "./constants";
 import { Web3Provider } from "./contexts/Web3Context";
+import Onboard from "./pages/Onboard";
 
 function App() {
   /* ------------------------------------------------------------------ */
@@ -227,7 +228,7 @@ function App() {
             </FullContainerBox>
           </FullPageBox>
         ) : (
-          <WalletConnectPage onWalletSetup={handleWalletSetup} />
+          <Onboard onWalletSetup={handleWalletSetup} />
         )}
       </FullPageBox>
     </Web3Provider>

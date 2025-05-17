@@ -1,4 +1,4 @@
-package network.r5;
+package org.r5labs;
 
 import com.getcapacitor.BridgeActivity;
 

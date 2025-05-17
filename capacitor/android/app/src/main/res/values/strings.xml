@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">R5 Wallet</string>
     <string name="title_activity_main">R5 Wallet</string>
-    <string name="package_name">network.r5</string>
-    <string name="custom_url_scheme">network.r5</string>
+    <string name="package_name">org.r5labs</string>
+    <string name="custom_url_scheme">org.r5labs</string>
 </resources>

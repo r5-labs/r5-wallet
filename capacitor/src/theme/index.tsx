@@ -248,8 +248,8 @@ export const FullContainerBox = styled.div`
   flex-direction: column;
   padding: ${paddingDefault};
   margin: 0;
-  border-radius: ${borderRadiusDefault};
-  border: 1px solid ${colorGlassBorder};
+  border-radius: ${borderRadiusDefault} ${borderRadiusDefault} 0 0;
+  border: none;
   background: ${colorGlassBackground};
   width: 100%;
   height: 100%;
@@ -308,7 +308,7 @@ export const BoxHeader = styled.div`
   justify-content: flex-start;
   background: ${colorTransparent};
   padding: 0;
-  margin: 0;
+  margin: 10px;
   width: 100%;
   box-sizing: border-box;
 `;
@@ -317,7 +317,8 @@ export const HeaderSection = styled.div`
   display: flex;
   flex-direction: column;
   width: auto;
-  margin: -10px 0 10px 0;
+  margin: auto;
+  padding: 2px;
   justify-content: center;
   align-items: flex-start;
   gap: 0;
@@ -444,6 +445,7 @@ export const ModalContainer = styled.div<{ exiting: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin: 10px;
   padding: 30px;
   max-width: 800px;
   border-radius: ${borderRadiusDefault};
