@@ -1,28 +1,22 @@
-# R5 GUI Desktop Wallet
+# R5 Wallet
 
 ![R5 Wallet](img/snapshot.png)
 
-Open source and community-maintained development repository of the R5 GUI Desktop Wallet.
+Open source and community-maintained development repository of the R5 GUI Desktop and Mobile Wallets.
 
-The R5 Desktop Wallet is a community effort that aims to strengthen the R5 ecosystem and general access by implementing independent, verifiable, and open source code that allow users to connect and use the R5 blockchain.
+The R5 Wallet is a community effort that aims to strengthen the R5 ecosystem and general access by implementing independent, verifiable, and open source code that allow users to connect and use the R5 blockchain on their desktop and mobile devices.
 
 ## Python Wallet
 
-We started developing the GUI in Python, but switched over to Electron/TS, so the unfinished Python GUI (inside `/python`) is there just for archive and historical purposes. If you want to continue developing it as an alternative to the Electron/TS GUI, please feel free to send your Pull Requests.
+We started developing the desktop GUI in Python, but switched over to Electron/TS, so the unfinished Python GUI (inside `/python`) is there just for archive and historical purposes. If you want to continue developing it as an alternative to the Electron/TS GUI, please feel free to send your Pull Requests.
 
 ## Electron Wallet
 
-Main GUI developed using Electron and TypeScript. It has all basic functions for users to manage their funds on the R5 Network, plus a few extra unique functions, such as allowing users to export their wallets into a "Wallet File" for backup purposes, and import given files into the app at a later date.
-
-**This wallet is still under heavy development, so bugs and glitches are to be expected.**
+Main desktop GUI developed using Electron and TypeScript. It has all basic functions for users to manage their funds on the R5 Network, plus a few extra unique functions, such as allowing users to export their wallets into a "Wallet File" for backup purposes, and import given files into the app at a later date.
 
 Feel free to contribute to the GUI development by submitting your PRs.
 
-## Copying/Forking
-
-Please follow the GNU General Public License guidelines for reproducing the contents of this repository, including the attribution requirements and maintaining modified code open source.
-
-## Running
+### Running Development Environment
 
 You can copy the repository by using `git clone`:
 
@@ -48,7 +42,7 @@ And use `npm` again to run the development environment:
 npm run dev
 ```
 
-## Building
+### Building
 
 Install all the dependencies with `npm`:
 
@@ -60,6 +54,15 @@ Make sure that all parameters are correct on `/src/ui/constants/index.ts`.
 
 Build to your desired OS using the scripts below:
 
-- `dist:win` for Windows,
-- `dist:mac` for macOS,
-- `dist:linux` for Linux,
+- `dist:win` for Windows
+- `dist:mac` for macOS
+- `dist:linux` for Linux
+
+## Capacitor Wallet
+
+Mobile wallet developed using Capacitor and TypeScript. Still under development and not ready for publishing.
+
+## Copying/Forking
+
+Please follow the GNU General Public License guidelines for reproducing the contents of this repository, including the attribution requirements and maintaining modified code open source.
+
