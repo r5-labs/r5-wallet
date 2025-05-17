@@ -1,5 +1,6 @@
 import { FullContainerBox } from "../../theme";
 import { TransferFunds } from "../TransferFunds";
+import { TxHistory } from "../TxHistory";
 
 export function Navigation({
   decryptedPrivateKey
@@ -9,7 +10,8 @@ export function Navigation({
   return (
     <>
       <FullContainerBox>
-        <TransferFunds decryptedPrivateKey={decryptedPrivateKey} />
+        <TxHistory />
+        {/*<TransferFunds decryptedPrivateKey={decryptedPrivateKey} />*/}
       </FullContainerBox>
     </>
   );

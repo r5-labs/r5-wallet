@@ -37,7 +37,7 @@ export function ReceiveFunds({ open, onClose, address }: ReceiveFundsProps) {
         Receive Funds
       </h3>
       <Text style={{ color: colorSemiBlack }}>
-        You can use the QR code below or copy your wallet address.
+        Use the QR code below or copy your address.
       </Text>
       <div
         style={{
@@ -58,7 +58,7 @@ export function ReceiveFunds({ open, onClose, address }: ReceiveFundsProps) {
           marginTop: "10px"
         }}
       >
-        <Text style={{ wordBreak: "break-all", color: colorSemiBlack }}>
+        <Text style={{ wordBreak: "break-all", color: colorSemiBlack, fontSize: "0.7rem" }}>
           {address}
         </Text>
         <span

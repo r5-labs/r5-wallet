@@ -13,9 +13,6 @@ import {
   TextTitle,
   Text,
   colorGray,
-  colorGlassBackground,
-  colorBackground,
-  colorBorder,
   borderRadiusDefault,
   colorSecondary
 } from "../../theme";
@@ -30,7 +27,9 @@ import {
   GoSync,
   GoCopy,
   GoCheck,
-  GoLock
+  GoLock,
+  GoSearch,
+  GoGear
 } from "react-icons/go";
 import R5Logo from "../../assets/logo_white-transparent.png";
 
@@ -38,6 +37,8 @@ import { ReceiveFunds } from "../ReceiveFunds";
 import { PrivateKey } from "../PrivateKey";
 import { About } from "../About";
 import { Modal } from "../Modal";
+import { TransferModal } from "../TransferFunds/TransferModal";
+import { MoreOptions } from "../MoreOptions";
 import { useWeb3Context } from "../../contexts/Web3Context";
 import usePrice from "../../hooks/usePrice";
 
@@ -65,6 +66,10 @@ const RefreshIcon = GoSync as unknown as React.FC<
 const CopyIcon = GoCopy as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
 const CheckIcon = GoCheck as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
 const LockIcon = GoLock as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
+const ExplorerIcon = GoSearch as unknown as React.FC<
+  React.SVGProps<SVGSVGElement>
+>;
+const ConfigIcon = GoGear as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
 
 export function Header({
   decryptedPrivateKey
@@ -79,9 +84,10 @@ export function Header({
   const [showReceiveQR, setShowReceiveQR] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isCopied, setIsCopied] = useState(false);
   const [showConfirmPkModal, setShowConfirmPkModal] = useState(false);
   const [showConfirmResetModal, setShowConfirmResetModal] = useState(false);
+  const [showSend, setShowSend] = useState(false);
+  const [showMoreOptions, setShowMoreOptions] = useState(false);
 
   const price = usePrice();
 
@@ -136,16 +142,6 @@ export function Header({
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-  };
-
-  const handleCopy = () => {
-    navigator.clipboard
-      .writeText(wallet?.address ?? "")
-      .then(() => {
-        setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 2_000);
-      })
-      .catch((err) => console.error("Failed to copy:", err));
   };
 
   /** Lock the wallet: keep encrypted JSON, drop any decrypted/session
@@ -219,16 +215,16 @@ export function Header({
           </ButtonPrimary>
         </div>
       </Modal>
-      <BoxHeader>
+      <BoxHeader style={{ marginBottom: -2 }}>
         {/* Logo */}
         <HeaderSection style={{ margin: -7 }}>
           <img src={R5Logo} width={64} height={64} />
         </HeaderSection>
 
         {/* Balance & address */}
-        <HeaderSection>
+        <HeaderSection style={{ width: "100%" }}>
           <TextSubTitle>
-          ${(Number(balance) * price).toFixed(2)}
+            ${(Number(balance) * price).toFixed(2)}
             <span
               onClick={handleRefresh}
               style={{
@@ -248,22 +244,23 @@ export function Header({
                 }}
               />
             </span>
-            <span>
+            <div style={{ marginTop: "-10px" }}>
               {" "}
               <text style={{ fontSize: "10pt", color: colorGray }}>
-              R5 {Number(balance).toFixed(6)}
-                
+                R5 {Number(balance).toFixed(6)}
               </text>
-            </span>
+            </div>
           </TextSubTitle>
+          {/*
           <SmallText style={{ display: "flex", alignItems: "center" }}>
             <span>{wallet?.address ?? ""}</span>
           </SmallText>
+          */}
         </HeaderSection>
-        <HeaderSection style={{ width: "100%" }}>
+        <HeaderSection>
           <HeaderButtonWrapper>
-            <ButtonRound title="Export Wallet File" onClick={exportWalletFile}>
-              <ExportIcon />
+            <ButtonRound title="More Options" onClick={() => setShowMoreOptions(true)}>
+              <ConfigIcon />
             </ButtonRound>
             {/*
             <ButtonRound
@@ -313,7 +310,7 @@ export function Header({
             style={{
               display: "flex",
               gap: 10,
-              justifyContent: "center",
+              justifyContent: "center"
             }}
           >
             <ButtonRound
@@ -323,19 +320,15 @@ export function Header({
               <ReceiveIcon />
             </ButtonRound>
 
+            <ButtonRound title="Inspect on Explorer">
+              <ExplorerIcon />
+            </ButtonRound>
+
             <ButtonRound
-              title="Receive Transaction"
-              onClick={() => setShowReceiveQR(true)}
+              title="Send Transaction"
+              onClick={() => setShowSend(true)}
             >
               <SendIcon />
-            </ButtonRound>
-
-            <ButtonRound title="Transaction History">
-              <HistoryIcon />
-            </ButtonRound>
-
-            <ButtonRound title="Lock Wallet" onClick={handleLockWallet}>
-              <LockIcon />
             </ButtonRound>
           </HeaderButtonWrapper>
         </HeaderSection>
@@ -352,7 +345,17 @@ export function Header({
         onClose={() => setShowPrivateKey(false)}
         privateKey={decryptedPrivateKey}
       />
+      <MoreOptions
+      open={showMoreOptions}
+      onClose={() => setShowMoreOptions(false)}
+      decryptedPrivateKey={decryptedPrivateKey}
+      />
       <About open={showInfo} onClose={() => setShowInfo(false)} />
+        <TransferModal
+          open={showSend}
+          onClose ={() => setShowSend(false)}
+          decryptedPrivateKey={decryptedPrivateKey}
+          />
     </>
   );
 }
