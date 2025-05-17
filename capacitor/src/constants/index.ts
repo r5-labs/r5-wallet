@@ -1,0 +1,11 @@
+export const AppName = "R5 Desktop Wallet" // Don't change this!
+export const AppDescription = "An open source and community-developed desktop wallet for the R5 Network. Visit https://github.com/r5-labs/r5-wallet to access, audit, or contribute to the source code. This software is provided on an 'AS IS' basis with no guarantees or warranties." // Don't change this!
+export const AppVersion = "1.0.2-beta" // Don't change this!
+export const VersionApiUrl = "https://api.github.com/repos/r5-labs/r5-wallet/releases/latest" // Don't change this!
+export const UpdateDownloadUrl = "https://github.com/r5-labs/r5-wallet/releases/latest" // Don't change this!
+export const HelpUrl = "https://docs.r5.network/tutorials-and-guides/r5-desktop-wallet" // Don't change this!
+export const RpcUrl = "https://rpc.r5.network" // Use your own RPC server or a public one
+export const ExplorerUrl = "https://explorer.r5.network" // You can change the preferred explorer URL
+export const TestnetRpcUrl = "https://rpc-testnet.r5.network" // Use your own RPC server or a public one
+export const TestnetExplorerUrl = "https://explorer.testnet.r5.network" // You can change the preferred explorer URL
+export const PriceApiEndpoint = "https://api.coinpaprika.com/v1/tickers/r5-r5-network"
