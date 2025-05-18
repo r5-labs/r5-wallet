@@ -14,7 +14,7 @@ export const colorGlassBorder = "rgba(255, 255, 255, 0.1)";
 export const colorPrimary = "#459381";
 export const colorSecondary = "#16222B";
 export const colorAccent = "#31806C";
-export const colorText = "#FFFFFF";
+export const colorText = "white";
 export const colorBorder = "#21303A";
 export const colorLightBorder = "#2E3F4A";
 export const colorShadow = "rgba(0, 0, 0, 0.1";
@@ -379,12 +379,14 @@ export const TextHeader = styled.h2`
   font-size: ${fontSizeH2};
   margin: 0;
   box-sizing: border-box;
+  color: ${colorText};
 `;
 
 export const TextTitle = styled.h4`
   font-size: ${fontSizeH4};
   margin: 0;
   box-sizing: border-box;
+  color: ${colorText};
 `;
 
 export const TextSubTitle = styled.h5`
@@ -392,17 +394,20 @@ export const TextSubTitle = styled.h5`
   margin: 0;
   font-weight: light;
   box-sizing: border-box;
+  color: ${colorText};
 `;
 
 export const Text = styled.p`
   font-size: ${fontSize};
   margin: 0;
   box-sizing: border-box;
+  color: ${colorText};
 `;
 
 export const SmallText = styled.p`
   font-size: 8pt;
   margin: 0;
+  color: ${colorText};
 `;
 
 export const Input = styled.input`

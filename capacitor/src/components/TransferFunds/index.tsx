@@ -336,15 +336,15 @@ export function TransferFunds({
   return (
     <>
       <BoxSection style={{ gap: "5px", color: colorSemiBlack, padding: 0 }}>
-        <TextSubTitle>Send Transaction</TextSubTitle>
-        <Text style={{ margin: "auto" }}>
+        <TextSubTitle style={{ color: colorSemiBlack }}>Send Transaction</TextSubTitle>
+        <Text style={{ margin: "auto", color: colorSemiBlack }}>
           Double-check the address and amount before confirming your
           transaction.
         </Text>
         <BoxSection
-          style={{ gap: "10px", alignItems: "flex-start", width: "100%" }}
+          style={{ gap: "10px", alignItems: "flex-start", width: "100%", color: colorSemiBlack }}
         >
-          <Text style={{ width: "100%" }}>
+          <Text style={{ width: "100%", color: colorSemiBlack }}>
             <b>To</b>
             <span
               onClick={() => setShowQRScanner(true)}
@@ -368,7 +368,7 @@ export function TransferFunds({
             onChange={(e) => setRecipient(e.target.value)}
             style={{ width: "100%" }}
           />
-          <Text style={{ marginTop: "10px", width: "100%" }}>
+          <Text style={{ marginTop: "10px", width: "100%", color: colorSemiBlack }}>
             <b>Amount in {useUSD ? "USD" : "R5 Coins"}</b>
             <span
               onClick={() => setUseUSD((prev) => !prev)}
@@ -407,7 +407,7 @@ export function TransferFunds({
             onChange={(e) => setAmount(e.target.value)}
             style={{ width: "100%" }}
           />
-          <SmallText style={{ width: "100%" }}>
+          <SmallText style={{ width: "100%", color: colorSemiBlack }}>
             {convertedAmount
               ? `Sending ${convertedAmount} ${useUSD ? "R5 Coins" : "USD"}`
               : ""}
