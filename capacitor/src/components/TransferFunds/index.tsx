@@ -99,7 +99,7 @@ export function TransferFunds({
 
         const config: Html5QrcodeCameraScanConfig = {
           fps: 10,
-          qrbox: { width: 250, height: 250 },
+          qrbox: { width: 320, height: 320 },
           videoConstraints: { deviceId: { exact: chosenCameraId } }
         };
 
@@ -337,7 +337,7 @@ export function TransferFunds({
                 cursor: "pointer"
               }}
             >
-              <QrIcon style={{ width: 16, height: 16, marginBottom: -4 }} />
+              <QrIcon style={{ width: 15, height: 15, marginBottom: -4 }} />
             </span>
           </Text>
           <InputModal
@@ -471,33 +471,65 @@ export function TransferFunds({
       </ModalInner>
 
       {showQRScanner && (
-        <ModalInner open onClose={cleanupScanner}>
-          <BoxContentParent style={{ position: "relative", padding: 0, overflow: "visible" }}>
-            <TextTitle style={{ color: colorSemiBlack, marginBottom: 10 }}>
-              Scan QR Code
-            </TextTitle>
+  <ModalInner
+    open
+    onClose={cleanupScanner}
+  >
+    <BoxContentParent
+      style={{
+        // make this a flex‐column container
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
 
-            <div
-              id="qr-reader"
-              style={{ width: "100%", height: 210, margin: "0 auto" }}
-            />
+        // cap its size to viewport
+        width: '100%',
+        maxWidth: '90vw',
+        maxHeight: '90vh',
 
-            <div
-              style={{
-                position: "absolute",
-                bottom: 16,
-                left: "50%",
-                transform: "translateX(-50%)",
-                zIndex: 10
-              }}
-            >
-              <ButtonSecondary onClick={cleanupScanner}>
-                X
-              </ButtonSecondary>
-            </div>
-          </BoxContentParent>
-        </ModalInner>
-      )}
+        // no overflow
+        overflow: 'hidden',
+        padding: 0,
+        position: 'relative',
+        margin: '0 auto'
+      }}
+    >
+      <TextTitle style={{ color: colorSemiBlack, margin: '0' }}>
+        Scan QR Code
+      </TextTitle>
+      <Text style={{ color: colorSemiBlack, marginTop: '-10px' }}>
+        Point your camera to the QR code containing your recipient's wallet address.
+      </Text>
+
+      {/* this DIV is the html5-qrcode host — it will size by CSS above */}
+      <div
+        id="qr-reader"
+        ref={scannerRef}
+        style={{
+          width: '100%',
+          // let it flex‐grow if parent has extra room
+          flex: '1 1 auto',
+          marginBottom: 16
+        }}
+      />
+
+      {/* bottom‐center close button */}
+      <ButtonSecondary
+        onClick={cleanupScanner}
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 10
+        }}
+      >
+        X
+      </ButtonSecondary>
+    </BoxContentParent>
+  </ModalInner>
+)}
     </>
   );
 }

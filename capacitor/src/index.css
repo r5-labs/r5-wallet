@@ -89,3 +89,14 @@ button:focus-visible {
     transform: rotate(0deg);
   }
 }
+
+#qr-reader,
+#qr-reader video,
+#qr-reader canvas {
+  width: 100% !important;
+  height: auto !important;
+  display: block;
+  object-fit: cover;
+  max-height: 90vh;
+  border-radius: 16px;
+}
