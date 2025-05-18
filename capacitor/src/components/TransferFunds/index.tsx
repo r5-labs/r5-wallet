@@ -189,7 +189,7 @@ export function TransferFunds({
     if (!recipient || !amount || txConfirmed) return;
     const interval = setInterval(calculateDefaultGas, 10000);
     return () => clearInterval(interval);
-  }, [recipient, amount, txConfirmed]); // ⬅️ add txConfirmed to deps  
+  }, [recipient, amount, txConfirmed]); // ⬅️ add txConfirmed to deps
 
   /* Tx lifecycle */
   const {
@@ -215,12 +215,12 @@ export function TransferFunds({
     try {
       const feeData = await provider.getFeeData();
       if (!feeData.gasPrice) throw new Error("Gas price unavailable");
-      const r5Amount = useUSD
-        ? (parseFloat(amount) / price).toFixed(6)
+      const r5AmountStr = useUSD
+        ? (parseFloat(amount) / price).toString()
         : amount;
       const estimatedGas = await wallet.estimateGas({
         to: recipient,
-        value: parseEther(r5Amount)
+        value: parseUnits(r5AmountStr, 18)
       });
       const gp = formatUnits(feeData.gasPrice, "gwei");
       const gl = estimatedGas.toString();
@@ -264,6 +264,7 @@ export function TransferFunds({
     }
     const gasParams = await calculateDefaultGas();
     if (!gasParams) return;
+    setConvertedAmount(r5Amount); 
     setLoadingModal(true);
     setTimeout(() => {
       setLoadingModal(false);
@@ -276,19 +277,18 @@ export function TransferFunds({
     setTxConfirmed(true); // ⬅️ prevent further gas updates
     setShowConfirmModal(false);
     setProcessOpen(true);
-    const r5Amount = useUSD
-      ? (parseFloat(amount) * usdToR5).toFixed(6)
+    const r5AmountStr = useUSD
+      ? (parseFloat(amount) * usdToR5).toString()
       : amount;
     await sendTx(() =>
       wallet.sendTransaction({
         to: recipient,
-        value: parseEther(r5Amount),
+        value: parseUnits(r5AmountStr, 18),
         gasPrice: parseUnits(gasPrice || defaultGasPrice, "gwei"),
         gasLimit: BigInt(maxGas || defaultMaxGas)
       })
     );
   };
-  
 
   const closeProcess = () => {
     setProcessOpen(false);
@@ -300,7 +300,7 @@ export function TransferFunds({
     setDefaultGasPrice("");
     setDefaultMaxGas("");
     setTxConfirmed(false); // ⬅️ reset for next tx
-  };  
+  };
 
   const handleMax = async () => {
     const fee = parseFloat(calculateFee());
@@ -459,7 +459,7 @@ export function TransferFunds({
 
       <TxConfirm
         open={showConfirmModal}
-        amount={amount}
+        amount={convertedAmount}
         recipient={recipient}
         fee={calculateFee()}
         onCancel={() => setShowConfirmModal(false)}
