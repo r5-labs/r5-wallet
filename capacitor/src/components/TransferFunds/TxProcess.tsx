@@ -17,6 +17,7 @@ import {
 } from "../../theme";
 import { GoCheck, GoX, GoLinkExternal } from "react-icons/go";
 import { useWeb3Context } from "../../contexts/Web3Context";
+import { ExplorerUrl } from "../../constants";
 
 const GoCheckIcon = GoCheck as React.FC<React.PropsWithChildren>;
 const GoXIcon = GoX as React.FC<React.PropsWithChildren>;
@@ -143,7 +144,7 @@ export function TxProcess({
 
   const stageLabels = useMemo(() => [
     "Initiating transaction",
-    "Processing transaction on the blockchain",
+    "Validating on the blockchain",
     "Parsing transaction result",
     failed
       ? `Transaction failed: ${error}`
@@ -222,7 +223,10 @@ export function TxProcess({
               <Text
                 style={{
                   color: colorSemiBlack,
-                  fontWeight: active || idx === stageIndex ? "bold" : "normal"
+                  fontWeight: active || idx === stageIndex ? "bold" : "normal",
+                  wordBreak: "break-all",
+          overflowWrap: "break-word",
+          whiteSpace: "pre-wrap"
                 }}
               >
                 {label}
@@ -234,6 +238,7 @@ export function TxProcess({
         {succeeded && (
           <>
             <Sp />
+            <a href={ExplorerUrl + `/tx/` + txHash} target="_blank" style={{ textAlign: "center" }}>
             <Text
               style={{
                 color: colorSecondary,
@@ -243,6 +248,7 @@ export function TxProcess({
             >
               Open on Explorer <GoLinkExternalIcon />
             </Text>
+            </a>
           </>
         )}
 

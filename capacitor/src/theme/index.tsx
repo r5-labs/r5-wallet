@@ -415,6 +415,18 @@ export const Input = styled.input`
   z-index: 2;
 `;
 
+export const InputModal = styled.input`
+  font-size: 10pt;
+  font-weight: 600;
+  border-radius: ${borderRadiusDefault};
+  padding: ${buttonPaddingDefault};
+  border: 1px solid ${colorGlassBorder};
+  text-align: center;
+  background: ${colorWhite};
+  color: ${colorSemiBlack};
+  z-index: 2;
+`;
+
 export const Hr = styled.hr`
   border: none;
   border-top: 1px solid ${colorGlassBorder};

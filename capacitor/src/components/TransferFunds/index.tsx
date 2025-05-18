@@ -1,4 +1,4 @@
-import { JSX, useMemo, useState } from "react";
+import { JSX, useEffect, useMemo, useState } from "react";
 import {
   ethers,
   parseEther,
@@ -15,9 +15,11 @@ import {
   TextSubTitle,
   Text,
   TextTitle,
-  colorLightGray,
   SmallText,
-  colorSemiBlack
+  colorSemiBlack,
+  InputModal,
+  colorPrimary,
+  colorText
 } from "../../theme";
 import { LuArrowUpRight } from "react-icons/lu";
 import { TxConfirm } from "./TxConfirm";
@@ -26,8 +28,10 @@ import { TxProcess } from "./TxProcess";
 import { useTxLifecycle } from "../../hooks/useTxLifecycle";
 import { ModalInner } from "../ModalInner";
 import { useWeb3Context } from "../../contexts/Web3Context";
+import usePrice from "../../hooks/usePrice";
+import { IoQrCode } from "react-icons/io5";
 
-const SendIcon = LuArrowUpRight;
+const QrIcon = IoQrCode as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
 
 export function TransferFunds({
   decryptedPrivateKey
@@ -42,19 +46,24 @@ export function TransferFunds({
   const [defaultGasPrice, setDefaultGasPrice] = useState("");
   const [defaultMaxGas, setDefaultMaxGas] = useState("");
 
+  /* currency toggle + balance */
+  const [useUSD, setUseUSD] = useState(true);
+  const [balance, setBalance] = useState("0");
+  const [convertedAmount, setConvertedAmount] = useState("");
+  const price = usePrice(); // price is in USD per 1 R5 coin
+  const usdToR5 = price ? 1 / price : 0; // convert USD → R5
+
   /* Modal flags */
   const [loadingModal, setLoadingModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [processOpen, setProcessOpen] = useState(false);
 
-  /* New: gas/error modal state */
+  /* gas/error modal state */
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
   /* RPC */
-  const { provider } = useWeb3Context()
-  // let wallet: ethers.Wallet;
-
+  const { provider } = useWeb3Context();
   const wallet = useMemo(() => {
     try {
       return new ethers.Wallet(decryptedPrivateKey, provider);
@@ -63,7 +72,43 @@ export function TransferFunds({
       alert("Invalid private key. Please reset your wallet.");
       return null;
     }
-  }, [decryptedPrivateKey])
+  }, [decryptedPrivateKey]);
+
+  /* update balance */
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (wallet) {
+        const bal = await provider.getBalance(wallet.address);
+        setBalance(formatEther(bal));
+      }
+    };
+    fetchBalance();
+  }, [wallet]);
+
+  useEffect(() => {
+    if (!amount || isNaN(parseFloat(amount))) return;
+
+    const interval = setInterval(() => {
+      updateConvertedAmount();
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [amount, useUSD]);
+
+  useEffect(() => {
+    updateConvertedAmount();
+  }, [amount, useUSD]);
+
+  /* poll gas every 10s */
+  useEffect(() => {
+    if (!recipient || !amount) return;
+
+    const interval = setInterval(() => {
+      calculateDefaultGas();
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [recipient, amount]);
 
   /* Tx lifecycle */
   const {
@@ -76,19 +121,40 @@ export function TransferFunds({
   } = useTxLifecycle(provider);
 
   /* Helpers */
+  const updateConvertedAmount = () => {
+    if (!amount || isNaN(parseFloat(amount)) || !price) {
+      setConvertedAmount("");
+      return;
+    }
+
+    const value = parseFloat(amount);
+    const result = useUSD
+      ? (value / price).toFixed(6) // USD → R5
+      : (value * price).toFixed(2); // R5 → USD
+
+    setConvertedAmount(result);
+  };
+
   const calculateDefaultGas = async () => {
     if (!recipient || !amount) {
-      setErrorMsg("Entering the recipient and amount of coins to send is required to calculate gas. You can leave the gas fields blank to calculate it automatically.");
+      setErrorMsg(
+        "Entering the recipient and amount of coins to send is required to calculate gas. You can leave the gas fields blank to calculate it automatically."
+      );
       setShowErrorModal(true);
       return null;
     }
-    if (!wallet) return null
+    if (!wallet) return null;
     try {
       const feeData = await provider.getFeeData();
       if (!feeData.gasPrice) throw new Error("Gas price unavailable");
+
+      const r5Amount = useUSD
+        ? (parseFloat(amount) / price).toFixed(6)
+        : amount;
+
       const estimatedGas = await wallet.estimateGas({
         to: recipient,
-        value: parseEther(amount)
+        value: parseEther(r5Amount)
       });
       const gp = formatUnits(feeData.gasPrice, "gwei");
       const gl = estimatedGas.toString();
@@ -115,13 +181,24 @@ export function TransferFunds({
     }
   };
 
-  /* Actions */
   const handleSendCoins = async () => {
     if (!recipient || !amount) {
       setErrorMsg("Please fill recipient and amount.");
       setShowErrorModal(true);
       return;
     }
+
+    const r5Amount = useUSD
+      ? (parseFloat(amount) * usdToR5).toFixed(6)
+      : amount;
+    const total = parseFloat(r5Amount) + parseFloat(calculateFee());
+
+    if (total > parseFloat(balance)) {
+      setErrorMsg("Insufficient funds to cover amount + gas.");
+      setShowErrorModal(true);
+      return;
+    }
+
     const gasParams = await calculateDefaultGas();
     if (!gasParams) return;
 
@@ -137,22 +214,23 @@ export function TransferFunds({
     setShowConfirmModal(false);
     setProcessOpen(true);
 
+    const r5Amount = useUSD
+      ? (parseFloat(amount) * usdToR5).toFixed(6)
+      : amount;
+
     await sendTx(() =>
       wallet.sendTransaction({
         to: recipient,
-        value: parseEther(amount),
+        value: parseEther(r5Amount),
         gasPrice: parseUnits(gasPrice || defaultGasPrice, "gwei"),
         gasLimit: BigInt(maxGas || defaultMaxGas)
       })
     );
   };
 
-  /* ← UPDATED: resets inputs + tx lifecycle */
   const closeProcess = () => {
     setProcessOpen(false);
-    resetLifecycle(); // clear TxProcess state
-
-    /* clear form inputs & gas defaults */
+    resetLifecycle();
     setRecipient("");
     setAmount("");
     setGasPrice("");
@@ -161,40 +239,105 @@ export function TransferFunds({
     setDefaultMaxGas("");
   };
 
+  const handleMax = async () => {
+    const fee = parseFloat(calculateFee());
+    const maxSendable = Math.max(parseFloat(balance) - fee, 0);
+    const value = useUSD
+      ? (maxSendable * price).toFixed(2) // R5 → USD
+      : maxSendable.toFixed(6); // R5
+    setAmount(value);
+  };
+
   /* Render */
   return (
     <>
-      <BoxSection style={{ gap: "5px" }}>
-        {/*<SendIcon />*/}
+      <BoxSection style={{ gap: "5px", color: colorSemiBlack, padding: 0 }}>
         <TextSubTitle>Send Transaction</TextSubTitle>
-        <Text style={{ margin: "auto", color: colorLightGray }}>
+        <Text style={{ margin: "auto" }}>
           Double‑check the address and amount before confirming your
           transaction.
         </Text>
 
-        <BoxSection style={{ gap: "10px", alignItems: "flex-start" }}>
-          <Text style={{ marginLeft: "15px" }}>To</Text>
-          <Input
+        <BoxSection
+          style={{ gap: "10px", alignItems: "flex-start", width: "100%" }}
+        >
+          <Text style={{ width: "100%" }}>
+            <b>To</b>
+            <span
+              onClick={handleMax}
+              style={{
+                background: colorPrimary,
+                padding: "5px 10px",
+                borderRadius: 10,
+                color: colorText,
+                fontSize: "8pt",
+                marginLeft: "10px",
+                cursor: "pointer"
+              }}
+            >
+              <QrIcon style={{ width: 16, height: 16, marginBottom: -4 }} />
+            </span>
+          </Text>
+          <InputModal
             type="text"
-            placeholder="Enter public address, starting with 0x..."
+            placeholder="Public address, starting with 0x..."
             value={recipient}
             onChange={(e) => setRecipient(e.target.value)}
-            style={{ minWidth: "40ch", width: "100%" }}
+            style={{ width: "100%" }}
           />
-
-          <Text style={{ marginLeft: "15px" }}>R5 Amount</Text>
-          <Input
+          <Text style={{ marginTop: "10px", width: "100%" }}>
+            <b>Amount in {useUSD ? "USD" : "R5 Coins"}</b>
+            <span
+              onClick={() => setUseUSD((prev) => !prev)}
+              style={{
+                background: colorPrimary,
+                padding: "5px 10px",
+                borderRadius: 10,
+                color: colorText,
+                fontSize: "8pt",
+                marginLeft: "10px",
+                cursor: "pointer"
+              }}
+            >
+              USE {useUSD ? "R5 COINS" : "USD"}
+            </span>
+            <span
+              onClick={handleMax}
+              style={{
+                background: colorPrimary,
+                padding: "5px 10px",
+                borderRadius: 10,
+                color: colorText,
+                fontSize: "8pt",
+                marginLeft: "10px",
+                cursor: "pointer"
+              }}
+            >
+              MAX
+            </span>
+          </Text>
+          <InputModal
             type="number"
-            placeholder="Enter the amount to send..."
+            placeholder="Amount to send..."
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            style={{ minWidth: "40ch", width: "100%" }}
+            style={{ width: "100%" }}
           />
+          <SmallText style={{ width: "100%" }}>
+            {convertedAmount
+              ? `Sending ${convertedAmount} ${useUSD ? "R5 Coins" : "USD"}`
+              : ""}
+          </SmallText>
 
-          <BoxSection style={{ gap: "10px", alignItems: "center" }}>
+          {/* Gas section (hidden by default) */}
+          <BoxSection
+            style={{ gap: "10px", alignItems: "center", display: "none" }}
+          >
             <BoxContent style={{ gap: "10px", flexWrap: "wrap" }}>
               <div style={{ flex: 1 }}>
-                <Text style={{ marginLeft: "15px", marginBottom: "10px" }}>Gas Price (Gwei)</Text>
+                <Text style={{ marginLeft: "15px", marginBottom: "10px" }}>
+                  Gas Price (Gwei)
+                </Text>
                 <Input
                   type="number"
                   value={gasPrice}
@@ -204,7 +347,9 @@ export function TransferFunds({
                 />
               </div>
               <div style={{ flex: 1 }}>
-                <Text style={{ marginLeft: "15px", marginBottom: "10px" }}>Max Gas</Text>
+                <Text style={{ marginLeft: "15px", marginBottom: "10px" }}>
+                  Max Gas
+                </Text>
                 <Input
                   type="number"
                   value={maxGas}
@@ -228,10 +373,8 @@ export function TransferFunds({
         </BoxSection>
       </BoxSection>
 
-      {/* Loading spinner */}
       <FullPageLoader open={loadingModal} />
 
-      {/* Confirm transaction */}
       <TxConfirm
         open={showConfirmModal}
         amount={amount}
@@ -241,7 +384,6 @@ export function TransferFunds({
         onConfirm={confirmAndSend}
       />
 
-      {/* Transaction progress */}
       <TxProcess
         open={processOpen}
         stageIndex={stageIndex}
@@ -251,15 +393,17 @@ export function TransferFunds({
         onClose={closeProcess}
       />
 
-      {/* Gas/error modal */}
-      <ModalInner open={showErrorModal} onClose={() => setShowErrorModal(false)}>
-        <TextTitle style={{ color: colorSemiBlack }}>Gas Calculation Error</TextTitle>
+      <ModalInner
+        open={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+      >
+        <TextTitle style={{ color: colorSemiBlack }}>Gas Fee Error</TextTitle>
         <Text style={{ marginBottom: 16, color: colorSemiBlack }}>
           {errorMsg}
         </Text>
         <div style={{ display: "flex", justifyContent: "center" }}>
           <ButtonPrimary onClick={() => setShowErrorModal(false)}>
-            OK
+            Done
           </ButtonPrimary>
         </div>
       </ModalInner>
