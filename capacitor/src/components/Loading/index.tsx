@@ -20,7 +20,6 @@ export function Loading() {
   return (
     <LoadingWrapper>
       <Spinner />
-      <LoadingText>Loading…</LoadingText>
     </LoadingWrapper>
   );
 }

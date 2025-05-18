@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
-import { borderRadiusDefault, ModalBackground, ModalContainer } from "../../theme";
+import {
+  borderRadiusDefault,
+  ModalBackground,
+  ModalContainer
+} from "../../theme";
 
 interface ModalProps {
   open: boolean;
@@ -48,6 +52,7 @@ export function ModalInner({ open, onClose, children }: ModalProps) {
 
       {/* 2) modal card: above the backdrop */}
       <ModalContainer
+        id="my-modal-id"
         exiting={exiting}
         style={{
           zIndex: 1,

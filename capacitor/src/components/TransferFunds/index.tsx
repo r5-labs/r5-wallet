@@ -57,6 +57,7 @@ export function TransferFunds({
   const [convertedAmount, setConvertedAmount] = useState("");
   const price = usePrice(); // price is in USD per 1 R5 coin
   const usdToR5 = price ? 1 / price : 0; // convert USD → R5
+  const amountInputRef = useRef<HTMLInputElement>(null);
 
   /* Modal flags */
   const [loadingModal, setLoadingModal] = useState(false);
@@ -75,7 +76,10 @@ export function TransferFunds({
 
   const handleQRScanSuccess = (decodedText: string) => {
     setRecipient(decodedText);
-    setShowQRScanner(false);
+    closeQRScannerModal();
+    setTimeout(() => {
+      amountInputRef.current?.focus();
+    }, 300); // wait for modal animation to finish
   };
 
   /* html5-qrcode effect */
@@ -119,7 +123,7 @@ export function TransferFunds({
         console.error("QR init error:", err);
         setErrorMsg(`QR init failed: ${err.message || err}`);
         setShowErrorModal(true);
-        setShowQRScanner(false);
+        closeQRScannerModal();
       });
 
     return () => {
@@ -129,7 +133,9 @@ export function TransferFunds({
         html5QrCodeRef.current
           .stop()
           .then(() => html5QrCodeRef.current?.clear())
-          .catch(() => {/* swallow */});
+          .catch(() => {
+            /* swallow */
+          });
         scanningActive.current = false;
       }
     };
@@ -308,7 +314,18 @@ export function TransferFunds({
         .catch(() => {});
       scanningActive.current = false;
     }
-    setShowQRScanner(false);
+    closeQRScannerModal();
+  };
+
+  const closeQRScannerModal = () => {
+    const modalBackdrop = document.querySelector("[data-modal='qr']");
+    if (modalBackdrop) {
+      modalBackdrop.classList.remove("open");
+      modalBackdrop.classList.add("close"); // Triggers fade-up
+      setTimeout(() => setShowQRScanner(false), 200); // Hide modal after transition
+    } else {
+      setShowQRScanner(false); // fallback if modal not found
+    }
   };
 
   /* Render */
@@ -379,6 +396,7 @@ export function TransferFunds({
             </span>
           </Text>
           <InputModal
+            ref={amountInputRef}
             type="number"
             placeholder="Amount to send..."
             value={amount}
@@ -471,65 +489,63 @@ export function TransferFunds({
       </ModalInner>
 
       {showQRScanner && (
-  <ModalInner
-    open
-    onClose={cleanupScanner}
-  >
-    <BoxContentParent
-      style={{
-        // make this a flex‐column container
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
+        <ModalInner open onClose={cleanupScanner}>
+          <BoxContentParent
+            style={{
+              // make this a flex‐column container
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
 
-        // cap its size to viewport
-        width: '100%',
-        maxWidth: '90vw',
-        maxHeight: '90vh',
+              // cap its size to viewport
+              width: "100%",
+              maxWidth: "90vw",
+              maxHeight: "90vh",
 
-        // no overflow
-        overflow: 'hidden',
-        padding: 0,
-        position: 'relative',
-        margin: '0 auto'
-      }}
-    >
-      <TextTitle style={{ color: colorSemiBlack, margin: '0' }}>
-        Scan QR Code
-      </TextTitle>
-      <Text style={{ color: colorSemiBlack, marginTop: '-10px' }}>
-        Point your camera to the QR code containing your recipient's wallet address.
-      </Text>
+              // no overflow
+              overflow: "hidden",
+              padding: 0,
+              position: "relative",
+              margin: "0 auto"
+            }}
+          >
+            <TextTitle style={{ color: colorSemiBlack, margin: "0" }}>
+              Scan QR Code
+            </TextTitle>
+            <Text style={{ color: colorSemiBlack, marginTop: "-10px" }}>
+              Point your camera to the QR code containing your recipient's
+              wallet address.
+            </Text>
 
-      {/* this DIV is the html5-qrcode host — it will size by CSS above */}
-      <div
-        id="qr-reader"
-        ref={scannerRef}
-        style={{
-          width: '100%',
-          // let it flex‐grow if parent has extra room
-          flex: '1 1 auto',
-          marginBottom: 16
-        }}
-      />
+            {/* this DIV is the html5-qrcode host — it will size by CSS above */}
+            <div
+              id="qr-reader"
+              ref={scannerRef}
+              style={{
+                width: "100%",
+                // let it flex‐grow if parent has extra room
+                flex: "1 1 auto",
+                marginBottom: 16
+              }}
+            />
 
-      {/* bottom‐center close button */}
-      <ButtonSecondary
-        onClick={cleanupScanner}
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 10
-        }}
-      >
-        X
-      </ButtonSecondary>
-    </BoxContentParent>
-  </ModalInner>
-)}
+            {/* bottom‐center close button */}
+            <ButtonSecondary
+              onClick={cleanupScanner}
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: "50%",
+                transform: "translateX(-50%)",
+                zIndex: 10
+              }}
+            >
+              X
+            </ButtonSecondary>
+          </BoxContentParent>
+        </ModalInner>
+      )}
     </>
   );
 }
