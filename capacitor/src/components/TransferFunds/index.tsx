@@ -1,4 +1,4 @@
-import { JSX, useEffect, useMemo, useState } from "react";
+import { JSX, useEffect, useMemo, useRef, useState } from "react";
 import {
   ethers,
   parseEther,
@@ -30,7 +30,11 @@ import { ModalInner } from "../ModalInner";
 import { useWeb3Context } from "../../contexts/Web3Context";
 import usePrice from "../../hooks/usePrice";
 import { IoQrCode } from "react-icons/io5";
-import { BarcodeScanner } from "@capacitor-mlkit/barcode-scanning";
+import {
+  Html5Qrcode,
+  Html5QrcodeCameraScanConfig,
+  CameraDevice
+} from "html5-qrcode";
 
 const QrIcon = IoQrCode as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
 
@@ -65,65 +69,82 @@ export function TransferFunds({
 
   /* QR */
   const [showQRScanner, setShowQRScanner] = useState(false);
+  const scannerRef = useRef<HTMLDivElement>(null);
+  const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
+  const scanningActive = useRef(false);
 
   const handleQRScanSuccess = (decodedText: string) => {
     setRecipient(decodedText);
     setShowQRScanner(false);
   };
 
+  /* html5-qrcode effect */
   useEffect(() => {
     if (!showQRScanner) return;
+    let mounted = true;
+    let chosenCameraId: string;
 
-    let scanListener: any;
-
-    const startScan = async () => {
-      try {
-        const permission = await BarcodeScanner.checkPermissions();
-        if (permission.camera !== "granted") {
-          setErrorMsg(
-            "Camera access was denied. Please enable camera permissions in your device settings and try again."
-          );
-          setShowErrorModal(true);
-          setShowQRScanner(false);
-          return;
+    Html5Qrcode.getCameras()
+      .then((devices) => {
+        if (!mounted || devices.length === 0) {
+          throw new Error("No cameras found");
         }
-
-        // Start scan and listen for scan results
-        scanListener = BarcodeScanner.addListener(
-          "barcodesScanned",
-          (result: any) => {
-            if (result?.barcodes?.length) {
-              const firstCode = result.barcodes[0];
-              if (firstCode && firstCode.rawValue) {
-                handleQRScanSuccess(firstCode.rawValue);
-              }
-            }
-          }
+        const backCam = devices.find((d) =>
+          /back|rear|environment/i.test(d.label)
         );
+        chosenCameraId = backCam?.id || devices[0].id;
 
-        await BarcodeScanner.startScan();
-      } catch (err: any) {
-        console.error("Scan error:", err);
-        setErrorMsg(
-          `QR scanning failed: ${
-            err?.message || err?.toString() || "Unknown error"
-          }`
+        const html5QrCode = new Html5Qrcode("qr-reader");
+        html5QrCodeRef.current = html5QrCode;
+
+        const config: Html5QrcodeCameraScanConfig = {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+          videoConstraints: { deviceId: { exact: chosenCameraId } }
+        };
+
+        // start() returns a Promise that resolves once preview is up
+        return html5QrCode.start(
+          chosenCameraId,
+          config,
+          (decodedText) => mounted && handleQRScanSuccess(decodedText),
+          () => {}
         );
+      })
+      .then(() => {
+        // once start() resolves, we know scanning is active
+        scanningActive.current = true;
+      })
+      .catch((err) => {
+        console.error("QR init error:", err);
+        setErrorMsg(`QR init failed: ${err.message || err}`);
         setShowErrorModal(true);
         setShowQRScanner(false);
-      }
-    };
+      });
 
-    startScan();
-
-    // Cleanup listener and stop scan when component unmounts or scanner closes
     return () => {
-      if (scanListener) {
-        scanListener.remove();
+      mounted = false;
+      // only call stop() if we actually started
+      if (scanningActive.current && html5QrCodeRef.current) {
+        html5QrCodeRef.current
+          .stop()
+          .then(() => html5QrCodeRef.current?.clear())
+          .catch(() => {/* swallow */});
+        scanningActive.current = false;
       }
-      BarcodeScanner.stopScan();
     };
   }, [showQRScanner]);
+
+  const updateConvertedAmount = () => {
+    if (!amount || isNaN(+amount) || !price) {
+      setConvertedAmount("");
+      return;
+    }
+    const value = +amount;
+    setConvertedAmount(
+      useUSD ? (value / price).toFixed(6) : (value * price).toFixed(2)
+    );
+  };
 
   /* RPC */
   const { provider } = useWeb3Context();
@@ -137,7 +158,7 @@ export function TransferFunds({
     }
   }, [decryptedPrivateKey]);
 
-  /* update balance */
+  /* Balance */
   useEffect(() => {
     const fetchBalance = async () => {
       if (wallet) {
@@ -148,28 +169,18 @@ export function TransferFunds({
     fetchBalance();
   }, [wallet]);
 
+  /* Converted amount */
   useEffect(() => {
     if (!amount || isNaN(parseFloat(amount))) return;
-
-    const interval = setInterval(() => {
-      updateConvertedAmount();
-    }, 10000);
-
+    const interval = setInterval(updateConvertedAmount, 10000);
     return () => clearInterval(interval);
   }, [amount, useUSD]);
+  useEffect(updateConvertedAmount, [amount, useUSD]);
 
-  useEffect(() => {
-    updateConvertedAmount();
-  }, [amount, useUSD]);
-
-  /* poll gas every 10s */
+  /* Poll gas */
   useEffect(() => {
     if (!recipient || !amount) return;
-
-    const interval = setInterval(() => {
-      calculateDefaultGas();
-    }, 10000);
-
+    const interval = setInterval(calculateDefaultGas, 10000);
     return () => clearInterval(interval);
   }, [recipient, amount]);
 
@@ -184,19 +195,6 @@ export function TransferFunds({
   } = useTxLifecycle(provider);
 
   /* Helpers */
-  const updateConvertedAmount = () => {
-    if (!amount || isNaN(parseFloat(amount)) || !price) {
-      setConvertedAmount("");
-      return;
-    }
-
-    const value = parseFloat(amount);
-    const result = useUSD
-      ? (value / price).toFixed(6) // USD → R5
-      : (value * price).toFixed(2); // R5 → USD
-
-    setConvertedAmount(result);
-  };
 
   const calculateDefaultGas = async () => {
     if (!recipient || !amount) {
@@ -210,11 +208,9 @@ export function TransferFunds({
     try {
       const feeData = await provider.getFeeData();
       if (!feeData.gasPrice) throw new Error("Gas price unavailable");
-
       const r5Amount = useUSD
         ? (parseFloat(amount) / price).toFixed(6)
         : amount;
-
       const estimatedGas = await wallet.estimateGas({
         to: recipient,
         value: parseEther(r5Amount)
@@ -250,21 +246,17 @@ export function TransferFunds({
       setShowErrorModal(true);
       return;
     }
-
     const r5Amount = useUSD
       ? (parseFloat(amount) * usdToR5).toFixed(6)
       : amount;
     const total = parseFloat(r5Amount) + parseFloat(calculateFee());
-
     if (total > parseFloat(balance)) {
       setErrorMsg("Insufficient funds to cover amount + gas.");
       setShowErrorModal(true);
       return;
     }
-
     const gasParams = await calculateDefaultGas();
     if (!gasParams) return;
-
     setLoadingModal(true);
     setTimeout(() => {
       setLoadingModal(false);
@@ -276,11 +268,9 @@ export function TransferFunds({
     if (!wallet) return;
     setShowConfirmModal(false);
     setProcessOpen(true);
-
     const r5Amount = useUSD
       ? (parseFloat(amount) * usdToR5).toFixed(6)
       : amount;
-
     await sendTx(() =>
       wallet.sendTransaction({
         to: recipient,
@@ -305,10 +295,20 @@ export function TransferFunds({
   const handleMax = async () => {
     const fee = parseFloat(calculateFee());
     const maxSendable = Math.max(parseFloat(balance) - fee, 0);
-    const value = useUSD
-      ? (maxSendable * price).toFixed(2) // R5 → USD
-      : maxSendable.toFixed(6); // R5
-    setAmount(value);
+    setAmount(
+      useUSD ? (maxSendable * price).toFixed(2) : maxSendable.toFixed(6)
+    );
+  };
+
+  const cleanupScanner = () => {
+    if (scanningActive.current && html5QrCodeRef.current) {
+      html5QrCodeRef.current
+        .stop()
+        .then(() => html5QrCodeRef.current?.clear())
+        .catch(() => {});
+      scanningActive.current = false;
+    }
+    setShowQRScanner(false);
   };
 
   /* Render */
@@ -317,10 +317,9 @@ export function TransferFunds({
       <BoxSection style={{ gap: "5px", color: colorSemiBlack, padding: 0 }}>
         <TextSubTitle>Send Transaction</TextSubTitle>
         <Text style={{ margin: "auto" }}>
-          Double‑check the address and amount before confirming your
+          Double-check the address and amount before confirming your
           transaction.
         </Text>
-
         <BoxSection
           style={{ gap: "10px", alignItems: "flex-start", width: "100%" }}
         >
@@ -330,8 +329,8 @@ export function TransferFunds({
               onClick={() => setShowQRScanner(true)}
               style={{
                 background: colorPrimary,
-                padding: "5px 10px",
-                borderRadius: 10,
+                padding: "7px",
+                borderRadius: 99,
                 color: colorText,
                 fontSize: "8pt",
                 marginLeft: "10px",
@@ -391,7 +390,6 @@ export function TransferFunds({
               ? `Sending ${convertedAmount} ${useUSD ? "R5 Coins" : "USD"}`
               : ""}
           </SmallText>
-
           {/* Gas section (hidden by default) */}
           <BoxSection
             style={{ gap: "10px", alignItems: "center", display: "none" }}
@@ -429,7 +427,6 @@ export function TransferFunds({
               Reset Gas Calculation
             </ButtonSecondary>
           </BoxSection>
-
           <ButtonPrimary onClick={handleSendCoins} style={{ width: "100%" }}>
             Send Transaction
           </ButtonPrimary>
@@ -461,7 +458,7 @@ export function TransferFunds({
         onClose={() => setShowErrorModal(false)}
       >
         <TextTitle style={{ color: colorSemiBlack }}>
-          That didn't work...
+          That didn’t work…
         </TextTitle>
         <Text style={{ marginBottom: 16, color: colorSemiBlack }}>
           {errorMsg}
@@ -474,25 +471,28 @@ export function TransferFunds({
       </ModalInner>
 
       {showQRScanner && (
-        <ModalInner open={true} onClose={() => setShowQRScanner(false)}>
-          <BoxContentParent>
+        <ModalInner open onClose={cleanupScanner}>
+          <BoxContentParent style={{ position: "relative", padding: 0, overflow: "visible" }}>
             <TextTitle style={{ color: colorSemiBlack, marginBottom: 10 }}>
               Scan QR Code
             </TextTitle>
-            <BoxContent style={{ color: colorSemiBlack }}>
-              <p style={{ textAlign: "center", margin: "24px 0" }}>
-                Opening camera...
-              </p>
-            </BoxContent>
+
+            <div
+              id="qr-reader"
+              style={{ width: "100%", height: 210, margin: "0 auto" }}
+            />
+
             <div
               style={{
-                display: "flex",
-                justifyContent: "center",
-                marginTop: 16
+                position: "absolute",
+                bottom: 16,
+                left: "50%",
+                transform: "translateX(-50%)",
+                zIndex: 10
               }}
             >
-              <ButtonSecondary onClick={() => setShowQRScanner(false)}>
-                Close Scanner
+              <ButtonSecondary onClick={cleanupScanner}>
+                X
               </ButtonSecondary>
             </div>
           </BoxContentParent>

@@ -47,5 +47,7 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>We need access to your camera to scan QR codes</string>
+	<key>CAPBridgeViewControllerBackgroundColor</key>
+	<string>#00000000</string>  <!-- transparent -->
 </dict>
 </plist>

@@ -20,6 +20,10 @@
   width: 100%; /* With box-sizing set to border-box, the padding is included */
 }
 
+html, body, #app, .capacitor-webview {
+  background-color: transparent !important;
+}
+
 a {
   font-weight: 500;
   color: #31806C;

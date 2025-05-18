@@ -97,9 +97,9 @@ export function Header({
 
   return (
     <>
-      <BoxHeader style={{ marginBottom: -2 }}>
+      <BoxHeader style={{ margin: "30px auto 15px auto" }}>
         {/* Logo */}
-        <HeaderSection style={{ margin: -7 }}>
+        <HeaderSection style={{ margin: -2 }}>
           <img src={R5Logo} width={64} height={64} />
         </HeaderSection>
 
@@ -134,7 +134,7 @@ export function Header({
             </div>
           </TextSubTitle>
         </HeaderSection>
-        <HeaderSection>
+        <HeaderSection style={{ marginRight: 5 }}>
           <HeaderButtonWrapper>
             <ButtonRound
               title="More Options"
@@ -156,7 +156,7 @@ export function Header({
           zIndex: 2,
           background: colorSecondary,
           margin: 0,
-          padding: 5,
+          padding: "20px 5px",
           borderRadius: `${borderRadiusDefault} ${borderRadiusDefault} 0 0`
         }}
       >
