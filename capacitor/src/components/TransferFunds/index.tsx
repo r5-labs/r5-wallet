@@ -19,7 +19,8 @@ import {
   colorSemiBlack,
   InputModal,
   colorPrimary,
-  colorText
+  colorText,
+  BoxContentParent
 } from "../../theme";
 import { TxConfirm } from "./TxConfirm";
 import { FullPageLoader } from "../FullPageLoader";
@@ -29,7 +30,7 @@ import { ModalInner } from "../ModalInner";
 import { useWeb3Context } from "../../contexts/Web3Context";
 import usePrice from "../../hooks/usePrice";
 import { IoQrCode } from "react-icons/io5";
-import { Html5QrcodeScanner } from "html5-qrcode";
+import { BarcodeScanner } from "@capacitor-mlkit/barcode-scanning";
 
 const QrIcon = IoQrCode as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
 
@@ -73,29 +74,54 @@ export function TransferFunds({
   useEffect(() => {
     if (!showQRScanner) return;
 
-    const scanner = new Html5QrcodeScanner(
-      "qr-reader",
-      {
-        fps: 10,
-        qrbox: 250
-      },
-      false
-    );
+    let scanListener: any;
 
-    scanner.render(
-      (decodedText) => {
-        handleQRScanSuccess(decodedText);
-        scanner.clear();
-      },
-      (error) => {
-        console.warn("QR scan error:", error);
+    const startScan = async () => {
+      try {
+        const permission = await BarcodeScanner.checkPermissions();
+        if (permission.camera !== "granted") {
+          setErrorMsg(
+            "Camera access was denied. Please enable camera permissions in your device settings and try again."
+          );
+          setShowErrorModal(true);
+          setShowQRScanner(false);
+          return;
+        }
+
+        // Start scan and listen for scan results
+        scanListener = BarcodeScanner.addListener(
+          "barcodesScanned",
+          (result: any) => {
+            if (result?.barcodes?.length) {
+              const firstCode = result.barcodes[0];
+              if (firstCode && firstCode.rawValue) {
+                handleQRScanSuccess(firstCode.rawValue);
+              }
+            }
+          }
+        );
+
+        await BarcodeScanner.startScan();
+      } catch (err: any) {
+        console.error("Scan error:", err);
+        setErrorMsg(
+          `QR scanning failed: ${
+            err?.message || err?.toString() || "Unknown error"
+          }`
+        );
+        setShowErrorModal(true);
+        setShowQRScanner(false);
       }
-    );
+    };
 
+    startScan();
+
+    // Cleanup listener and stop scan when component unmounts or scanner closes
     return () => {
-      scanner
-        .clear()
-        .catch((err) => console.error("QR scanner cleanup error:", err));
+      if (scanListener) {
+        scanListener.remove();
+      }
+      BarcodeScanner.stopScan();
     };
   }, [showQRScanner]);
 
@@ -434,7 +460,9 @@ export function TransferFunds({
         open={showErrorModal}
         onClose={() => setShowErrorModal(false)}
       >
-        <TextTitle style={{ color: colorSemiBlack }}>Gas Fee Error</TextTitle>
+        <TextTitle style={{ color: colorSemiBlack }}>
+          That didn't work...
+        </TextTitle>
         <Text style={{ marginBottom: 16, color: colorSemiBlack }}>
           {errorMsg}
         </Text>
@@ -447,20 +475,27 @@ export function TransferFunds({
 
       {showQRScanner && (
         <ModalInner open={true} onClose={() => setShowQRScanner(false)}>
-          <TextTitle style={{ color: colorSemiBlack, marginBottom: 10 }}>
-            Scan QR Code
-          </TextTitle>
-          <div
-            id="qr-reader"
-            style={{ width: "100%", maxWidth: 400, margin: "auto" }}
-          />
-          <div
-            style={{ display: "flex", justifyContent: "center", marginTop: 16 }}
-          >
-            <ButtonSecondary onClick={() => setShowQRScanner(false)}>
-              Cancel
-            </ButtonSecondary>
-          </div>
+          <BoxContentParent>
+            <TextTitle style={{ color: colorSemiBlack, marginBottom: 10 }}>
+              Scan QR Code
+            </TextTitle>
+            <BoxContent style={{ color: colorSemiBlack }}>
+              <p style={{ textAlign: "center", margin: "24px 0" }}>
+                Opening camera...
+              </p>
+            </BoxContent>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: 16
+              }}
+            >
+              <ButtonSecondary onClick={() => setShowQRScanner(false)}>
+                Close Scanner
+              </ButtonSecondary>
+            </div>
+          </BoxContentParent>
         </ModalInner>
       )}
     </>
