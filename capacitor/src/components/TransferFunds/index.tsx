@@ -21,7 +21,6 @@ import {
   colorPrimary,
   colorText
 } from "../../theme";
-import { LuArrowUpRight } from "react-icons/lu";
 import { TxConfirm } from "./TxConfirm";
 import { FullPageLoader } from "../FullPageLoader";
 import { TxProcess } from "./TxProcess";
@@ -30,6 +29,7 @@ import { ModalInner } from "../ModalInner";
 import { useWeb3Context } from "../../contexts/Web3Context";
 import usePrice from "../../hooks/usePrice";
 import { IoQrCode } from "react-icons/io5";
+import { Html5QrcodeScanner } from "html5-qrcode";
 
 const QrIcon = IoQrCode as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
 
@@ -61,6 +61,43 @@ export function TransferFunds({
   /* gas/error modal state */
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+
+  /* QR */
+  const [showQRScanner, setShowQRScanner] = useState(false);
+
+  const handleQRScanSuccess = (decodedText: string) => {
+    setRecipient(decodedText);
+    setShowQRScanner(false);
+  };
+
+  useEffect(() => {
+    if (!showQRScanner) return;
+
+    const scanner = new Html5QrcodeScanner(
+      "qr-reader",
+      {
+        fps: 10,
+        qrbox: 250
+      },
+      false
+    );
+
+    scanner.render(
+      (decodedText) => {
+        handleQRScanSuccess(decodedText);
+        scanner.clear();
+      },
+      (error) => {
+        console.warn("QR scan error:", error);
+      }
+    );
+
+    return () => {
+      scanner
+        .clear()
+        .catch((err) => console.error("QR scanner cleanup error:", err));
+    };
+  }, [showQRScanner]);
 
   /* RPC */
   const { provider } = useWeb3Context();
@@ -264,7 +301,7 @@ export function TransferFunds({
           <Text style={{ width: "100%" }}>
             <b>To</b>
             <span
-              onClick={handleMax}
+              onClick={() => setShowQRScanner(true)}
               style={{
                 background: colorPrimary,
                 padding: "5px 10px",
@@ -407,6 +444,25 @@ export function TransferFunds({
           </ButtonPrimary>
         </div>
       </ModalInner>
+
+      {showQRScanner && (
+        <ModalInner open={true} onClose={() => setShowQRScanner(false)}>
+          <TextTitle style={{ color: colorSemiBlack, marginBottom: 10 }}>
+            Scan QR Code
+          </TextTitle>
+          <div
+            id="qr-reader"
+            style={{ width: "100%", maxWidth: 400, margin: "auto" }}
+          />
+          <div
+            style={{ display: "flex", justifyContent: "center", marginTop: 16 }}
+          >
+            <ButtonSecondary onClick={() => setShowQRScanner(false)}>
+              Cancel
+            </ButtonSecondary>
+          </div>
+        </ModalInner>
+      )}
     </>
   );
 }
