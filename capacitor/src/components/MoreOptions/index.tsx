@@ -6,9 +6,20 @@ import {
   ButtonSecondary,
   ButtonPrimary,
   BoxContentParent,
-  BoxContent
+  BoxContent,
+  HorMenuOption
 } from "../../theme";
 import { Modal } from "../Modal";
+import { GoInfo, GoKey, GoLock, GoTrash } from "react-icons/go";
+import { About } from "../About";
+import { PrivateKey } from "../PrivateKey";
+
+const LockIcon = GoLock as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
+const InfoIcon = GoInfo as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
+const ResetIcon = GoTrash as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
+const PrivateKeyIcon = GoKey as unknown as React.FC<
+  React.SVGProps<SVGSVGElement>
+>;
 
 interface MoreOptionsProps {
   open: boolean;
@@ -24,6 +35,7 @@ export function MoreOptions({
   const [showConfirmResetModal, setShowConfirmResetModal] = useState(false);
   const [showConfirmPkModal, setShowConfirmPkModal] = useState(false);
   const [showPrivateKey, setShowPrivateKey] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
 
   const handleResetWallet = () => {
     sessionStorage.clear();
@@ -44,13 +56,63 @@ export function MoreOptions({
   return (
     <>
       <Modal open={open} onClose={onClose}>
-        <BoxContentParent>
-            <BoxContent>
-                Option 1
+        <BoxContentParent style={{ width: "100%" }}>
+
+        <HorMenuOption onClick={() => setShowConfirmPkModal(true)}>
+            <BoxContent style={{ width: "auto" }}><PrivateKeyIcon /></BoxContent>
+            <BoxContent
+              style={{
+                width: "100%",
+                justifyContent: "flex-start",
+                marginLeft: 10
+              }}
+            >
+              Show Private Key
             </BoxContent>
+          </HorMenuOption>
+
+          <HorMenuOption onClick={() => setShowConfirmResetModal(true)}>
+            <BoxContent style={{ width: "auto" }}><ResetIcon /></BoxContent>
+            <BoxContent
+              style={{
+                width: "100%",
+                justifyContent: "flex-start",
+                marginLeft: 10
+              }}
+            >
+              Reset Wallet
+            </BoxContent>
+          </HorMenuOption>
+
+          <HorMenuOption onClick={() => setShowInfo(true)}>
+            <BoxContent style={{ width: "auto" }}><InfoIcon /></BoxContent>
+            <BoxContent
+              style={{
+                width: "100%",
+                justifyContent: "flex-start",
+                marginLeft: 10
+              }}
+            >
+              About
+            </BoxContent>
+          </HorMenuOption>
+
+          <HorMenuOption onClick={handleLockWallet}>
+            <BoxContent style={{ width: "auto" }}><LockIcon /></BoxContent>
+            <BoxContent
+              style={{
+                width: "100%",
+                justifyContent: "flex-start",
+                marginLeft: 10
+              }}
+            >
+              Logout
+            </BoxContent>
+          </HorMenuOption>
+
         </BoxContentParent>
       </Modal>
-      
+
       {/**
        * Confirmation dialogs before displaying private key or resetting wallet
        */}
@@ -62,8 +124,8 @@ export function MoreOptions({
       >
         <TextTitle style={{ color: colorSemiBlack }}>Reset Wallet?</TextTitle>
         <Text style={{ color: colorSemiBlack }}>
-          This will delete all locally‑stored wallet data. Make sure you’ve
-          exported a backup before continuing. This action cannot be undone.
+          This will permanently delete your wallet data. Make sure you’ve
+          backed up your private key before continuing. This action cannot be undone.
         </Text>
         <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
           <ButtonSecondary onClick={() => setShowConfirmResetModal(false)}>
@@ -109,6 +171,13 @@ export function MoreOptions({
         </div>
       </Modal>
 
+      <About open={showInfo} onClose={() => setShowInfo(false)} />
+
+        <PrivateKey
+                open={showPrivateKey}
+                onClose={() => setShowPrivateKey(false)}
+                privateKey={decryptedPrivateKey}
+              />
     </>
   );
 }

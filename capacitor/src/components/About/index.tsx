@@ -7,7 +7,7 @@ interface AboutProps {
   onClose: () => void;
 }
 
-const openHelp = () => {};
+const openHelp = () => window.open(`https://r5.network`);
 
 export function About({ open, onClose }: AboutProps) {
   return (

@@ -162,8 +162,8 @@ function App() {
         <Modal open={showResetModal} onClose={() => setShowResetModal(false)}>
           <TextTitle style={{ color: colorSemiBlack }}>Reset Wallet?</TextTitle>
           <Text style={{ color: colorSemiBlack }}>
-            This will <strong>delete your local wallet data</strong>. Make sure
-            you’ve exported a backup first. This action cannot be undone.
+            This will <strong>permanently delete your wallet data</strong>. Make sure
+            you have a backup of your private key. This action cannot be undone.
           </Text>
           <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
             <ButtonSecondary onClick={() => setShowResetModal(false)}>
@@ -200,7 +200,7 @@ function App() {
                 alt="R5 Logo"
                 style={{ width: 96, height: 96, margin: "-25px 0" }}
               />
-              <TextHeader style={{ marginBottom: -15 }}>Welcome Back!</TextHeader>
+              <TextTitle style={{ marginBottom: -15 }}>Welcome Back!</TextTitle>
               <Text>Enter your password to unlock and access your wallet.</Text>
 
               <Input

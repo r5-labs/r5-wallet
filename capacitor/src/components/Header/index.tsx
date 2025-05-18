@@ -4,14 +4,8 @@ import {
   BoxHeader,
   HeaderSection,
   TextSubTitle,
-  SmallText,
   ButtonRound,
   HeaderButtonWrapper,
-  ButtonPrimary,
-  ButtonSecondary,
-  colorSemiBlack,
-  TextTitle,
-  Text,
   colorGray,
   borderRadiusDefault,
   colorSecondary
@@ -19,24 +13,13 @@ import {
 import {
   GoArrowDownLeft,
   GoArrowUpRight,
-  GoTrash,
-  GoKey,
-  GoHistory,
-  GoUpload,
-  GoInfo,
   GoSync,
-  GoCopy,
-  GoCheck,
-  GoLock,
   GoSearch,
   GoGear
 } from "react-icons/go";
 import R5Logo from "../../assets/logo_white-transparent.png";
 
 import { ReceiveFunds } from "../ReceiveFunds";
-import { PrivateKey } from "../PrivateKey";
-import { About } from "../About";
-import { Modal } from "../Modal";
 import { TransferModal } from "../TransferFunds/TransferModal";
 import { MoreOptions } from "../MoreOptions";
 import { useWeb3Context } from "../../contexts/Web3Context";
@@ -49,23 +32,9 @@ const ReceiveIcon = GoArrowDownLeft as unknown as React.FC<
 const SendIcon = GoArrowUpRight as unknown as React.FC<
   React.SVGProps<SVGSVGElement>
 >;
-const ResetIcon = GoTrash as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
-const PrivateKeyIcon = GoKey as unknown as React.FC<
-  React.SVGProps<SVGSVGElement>
->;
-const HistoryIcon = GoHistory as unknown as React.FC<
-  React.SVGProps<SVGSVGElement>
->;
-const ExportIcon = GoUpload as unknown as React.FC<
-  React.SVGProps<SVGSVGElement>
->;
-const InfoIcon = GoInfo as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
 const RefreshIcon = GoSync as unknown as React.FC<
   React.SVGProps<SVGSVGElement>
 >;
-const CopyIcon = GoCopy as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
-const CheckIcon = GoCheck as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
-const LockIcon = GoLock as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
 const ExplorerIcon = GoSearch as unknown as React.FC<
   React.SVGProps<SVGSVGElement>
 >;
@@ -80,12 +49,8 @@ export function Header({
   /* State                                                               */
   /* ------------------------------------------------------------------ */
   const [balance, setBalance] = useState("0");
-  const [showPrivateKey, setShowPrivateKey] = useState(false);
   const [showReceiveQR, setShowReceiveQR] = useState(false);
-  const [showInfo, setShowInfo] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [showConfirmPkModal, setShowConfirmPkModal] = useState(false);
-  const [showConfirmResetModal, setShowConfirmResetModal] = useState(false);
   const [showSend, setShowSend] = useState(false);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
 
@@ -130,91 +95,8 @@ export function Header({
     setTimeout(() => setIsRefreshing(false), 1_000);
   };
 
-  const exportWalletFile = () => {
-    const raw = localStorage.getItem("walletInfo");
-    if (!raw) return alert("No wallet to export.");
-    const blob = new Blob([raw], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${wallet?.address}.key`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  };
-
-  /** Lock the wallet: keep encrypted JSON, drop any decrypted/session
-   *  data, and reload so the app shows the password screen again. */
-  const handleLockWallet = () => {
-    /* Clear anything that might hold plaintext keys */
-    sessionStorage.clear();
-    /* Reload the renderer – React will mount at the login page */
-    window.location.reload();
-  };
-
-  const handleResetWallet = () => {
-    sessionStorage.clear();
-    window.location.reload();
-    localStorage.clear();
-    window.location.reload();
-  };
-
   return (
     <>
-      {/* Confirm: expose private key */}
-      <Modal
-        open={showConfirmPkModal}
-        onClose={() => setShowConfirmPkModal(false)}
-      >
-        <TextTitle style={{ color: colorSemiBlack }}>
-          Expose Private Key?
-        </TextTitle>
-        <Text style={{ color: colorSemiBlack }}>
-          This will expose your private key on‑screen. You may want to do this
-          for backing up your wallet, however, be aware that your funds will be
-          inherently at risk. Only proceed if you’re in a secure environment and
-          have no one looking over your shoulder.
-        </Text>
-        <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
-          <ButtonSecondary onClick={() => setShowConfirmPkModal(false)}>
-            Cancel
-          </ButtonSecondary>
-          <ButtonPrimary
-            onClick={() => {
-              setShowConfirmPkModal(false);
-              setShowPrivateKey(true);
-            }}
-          >
-            Show Private Key
-          </ButtonPrimary>
-        </div>
-      </Modal>
-
-      {/* Confirm: reset wallet */}
-      <Modal
-        open={showConfirmResetModal}
-        onClose={() => setShowConfirmResetModal(false)}
-      >
-        <TextTitle style={{ color: colorSemiBlack }}>Reset Wallet?</TextTitle>
-        <Text style={{ color: colorSemiBlack }}>
-          This will delete all locally‑stored wallet data. Make sure you’ve
-          exported a backup before continuing. This action cannot be undone.
-        </Text>
-        <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
-          <ButtonSecondary onClick={() => setShowConfirmResetModal(false)}>
-            Cancel
-          </ButtonSecondary>
-          <ButtonPrimary
-            onClick={() => {
-              setShowConfirmResetModal(false);
-              handleResetWallet();
-            }}
-          >
-            Reset Wallet
-          </ButtonPrimary>
-        </div>
-      </Modal>
       <BoxHeader style={{ marginBottom: -2 }}>
         {/* Logo */}
         <HeaderSection style={{ margin: -7 }}>
@@ -251,36 +133,15 @@ export function Header({
               </text>
             </div>
           </TextSubTitle>
-          {/*
-          <SmallText style={{ display: "flex", alignItems: "center" }}>
-            <span>{wallet?.address ?? ""}</span>
-          </SmallText>
-          */}
         </HeaderSection>
         <HeaderSection>
           <HeaderButtonWrapper>
-            <ButtonRound title="More Options" onClick={() => setShowMoreOptions(true)}>
+            <ButtonRound
+              title="More Options"
+              onClick={() => setShowMoreOptions(true)}
+            >
               <ConfigIcon />
             </ButtonRound>
-            {/*
-            <ButtonRound
-              title="Show Private Key"
-              onClick={() => setShowConfirmPkModal(true)}
-            >
-              <PrivateKeyIcon />
-            </ButtonRound>
-
-            <ButtonRound
-              title="Reset Wallet"
-              onClick={() => setShowConfirmResetModal(true)}
-            >
-              <ResetIcon />
-            </ButtonRound>
-
-            <ButtonRound title="About" onClick={() => setShowInfo(true)}>
-              <InfoIcon />
-            </ButtonRound>
-            */}
           </HeaderButtonWrapper>
         </HeaderSection>
       </BoxHeader>
@@ -320,9 +181,13 @@ export function Header({
               <ReceiveIcon />
             </ButtonRound>
 
-            <ButtonRound title="Inspect on Explorer">
+            <a href={explorerUrl + `/address/` + wallet?.address} target="_blank">
+            <ButtonRound
+              title="Inspect on Explorer"
+              >
               <ExplorerIcon />
             </ButtonRound>
+            </a>
 
             <ButtonRound
               title="Send Transaction"
@@ -340,22 +205,16 @@ export function Header({
         onClose={() => setShowReceiveQR(false)}
         address={wallet?.address ?? ""}
       />
-      <PrivateKey
-        open={showPrivateKey}
-        onClose={() => setShowPrivateKey(false)}
-        privateKey={decryptedPrivateKey}
-      />
       <MoreOptions
-      open={showMoreOptions}
-      onClose={() => setShowMoreOptions(false)}
-      decryptedPrivateKey={decryptedPrivateKey}
+        open={showMoreOptions}
+        onClose={() => setShowMoreOptions(false)}
+        decryptedPrivateKey={decryptedPrivateKey}
       />
-      <About open={showInfo} onClose={() => setShowInfo(false)} />
-        <TransferModal
-          open={showSend}
-          onClose ={() => setShowSend(false)}
-          decryptedPrivateKey={decryptedPrivateKey}
-          />
+      <TransferModal
+        open={showSend}
+        onClose={() => setShowSend(false)}
+        decryptedPrivateKey={decryptedPrivateKey}
+      />
     </>
   );
 }

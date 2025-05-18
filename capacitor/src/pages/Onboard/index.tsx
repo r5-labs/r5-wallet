@@ -14,18 +14,24 @@ import {
   StepWrapper,
   fadeIn,
   fadeOut,
+  BoxContentParent
 } from "../../theme";
 import { useWeb3Context } from "../../contexts/Web3Context";
+import R5Logo from "../../assets/r5-wallet.png"
 
-const AnimatedStep = styled(StepWrapper) <{ $active: boolean }>`
+const AnimatedStep = styled(StepWrapper)<{ $active: boolean }>`
   animation: ${({ $active }) =>
     $active
-      ? css`${fadeIn} 0.5s forwards`
-      : css`${fadeOut} 0.5s forwards`};
+      ? css`
+          ${fadeIn} 0.5s forwards
+        `
+      : css`
+          ${fadeOut} 0.5s forwards
+        `};
 `;
 
 export default function Onboard({
-  onWalletSetup,
+  onWalletSetup
 }: {
   onWalletSetup: () => void;
 }) {
@@ -53,7 +59,7 @@ export default function Onboard({
       0: fileInputRef,
       1: passwordRef,
       2: undefined,
-      3: privateKeyInputRef,
+      3: privateKeyInputRef
     };
     refMap[step]?.current?.focus();
   }, [step]);
@@ -61,7 +67,7 @@ export default function Onboard({
   /* ------------------------------------------------------------------ */
   /* Provider                                                            */
   /* ------------------------------------------------------------------ */
-  const { provider } = useWeb3Context()
+  const { provider } = useWeb3Context();
 
   const saveEncryptedWallet = async (
     address: string,
@@ -189,118 +195,158 @@ export default function Onboard({
   /* ------------------------------------------------------------------ */
   return (
     <FullContainerBox style={{ position: "relative", height: "100vh" }}>
-      {/* STEP 0: Import .key file */}
-      <AnimatedStep $active={step === 0} style={{ marginBottom: "20px" }}>
-        <TextSubTitle>
-          Do you have an R5 key wallet file you would like to import?
-        </TextSubTitle>
-        <Input
-          type="file"
-          accept=".key"
-          onChange={handleFileImport}
-          style={{ margin: "20px auto", display: "block" }}
-          ref={fileInputRef}
-        />
-        <ButtonPrimary onClick={() => setStep(1)}>
-          I don't have an R5 key wallet file…
-        </ButtonPrimary>
-      </AnimatedStep>
-
-      {/* STEP 1: Set password */}
-      <AnimatedStep $active={step === 1}>
-        <ButtonSecondary
-          onClick={() => setStep(0)}
-          style={{ alignSelf: "center", marginBottom: "10px" }}
+      
+        {/* STEP 0: T&Cs */}
+        <BoxContentParent>
+        <AnimatedStep
+          $active={step === 0}
+          style={{ marginBottom: "auto", padding: 10 }}
         >
-          ← Go Back
-        </ButtonSecondary>
-        <TextSubTitle>First, let's set a secure password…</TextSubTitle>
-        <Text>
-          Your password must have at least 8 characters. Avoid using dates of
-          birth or easy‑to‑guess words.
-        </Text>
-        <Sp />
-        <BoxContent>
-          <Input
-            ref={passwordRef}
-            type="password"
-            placeholder="Enter password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={{ minWidth: "40ch", zIndex: 1000 }}
-          />
-          <Input
-            type="password"
-            placeholder="Confirm password"
-            value={confirmPassword}
-            onChange={(e) => setConfirm(e.target.value)}
-            style={{ minWidth: "40ch", zIndex: 1000 }}
-          />
-        </BoxContent>
-        <ButtonPrimary onClick={handleSetPassword}>
-          Set Wallet Password
-        </ButtonPrimary>
-      </AnimatedStep>
-
-      {/* STEP 2: Choose create or import */}
-      <AnimatedStep $active={step === 2}>
-        <ButtonSecondary
-          onClick={() => setStep(1)}
-          style={{ alignSelf: "center", marginBottom: "10px" }}
-        >
-          ← Go Back
-        </ButtonSecondary>
-        <TextSubTitle>
-          Do you already have a wallet or want to create a new one?
-        </TextSubTitle>
-        <Text>
-          You can create a fresh new wallet or import an existing one using its
-          private key.
-        </Text>
-        <Sp />
-        <BoxContent>
-          <ButtonSecondary onClick={() => setStep(3)}>
-            Import Wallet
-          </ButtonSecondary>
-          <ButtonPrimary onClick={handleCreateWallet}>
-            Create Wallet
+          <img src={R5Logo} alt="R5Logo" width={64} height={64} />
+          <Sp />
+          <TextSubTitle>
+            <b>Important:</b> This Software is provided on an "AS IS" basis.
+          </TextSubTitle>
+          <Text>
+            This software is provided "as is", without warranty of any kind,
+            express or implied, including but not limited to the warranties of
+            merchantability, fitness for a particular purpose and
+            noninfringement. In no event shall the authors or copyright holders
+            be liable for any claim, damages, or other liability, whether in an
+            action of contract, tort or otherwise, arising from, out of or in
+            connection with the software or the use or other dealings in the
+            software. The software developers and contributors assume <b>no liability</b> for
+            the usage of this application under any circumstance.
+          </Text>
+          <Text>
+            Additionally, it is important for you to understand that this is a
+            <b>self-custody wallet</b>, which means that{" "}
+            <b>NO ONE WILL BE ABLE TO HELP YOU TO RECOVER YOUR FUNDS</b> if your
+            private key is stolen or if you lose your device and do not have a
+            backup of your keys.
+          </Text>
+          <Text>
+            <b>
+              Make sure you understand and agree with the terms above before creating
+              your wallet.
+            </b>
+          </Text>
+          <Sp />
+          <ButtonPrimary onClick={() => setStep(1)}>
+            Agree & Continue
           </ButtonPrimary>
-        </BoxContent>
-      </AnimatedStep>
+        </AnimatedStep>
+        </BoxContentParent>
 
-      {/* STEP 3: Import via private key */}
-      <AnimatedStep $active={step === 3}>
-        <ButtonSecondary
-          onClick={() => setStep(2)}
-          style={{ alignSelf: "center", marginBottom: "10px" }}
-        >
-          ← Go Back
-        </ButtonSecondary>
-        <TextSubTitle>Your Private Key</TextSubTitle>
-        <Text>
-          Enter your private key string below and click on "Import Wallet" to
-          proceed.
-        </Text>
-        <Sp />
-        <Input
-          ref={privateKeyInputRef}
-          type="text"
-          placeholder="Enter private key"
-          value={privateKey}
-          onChange={(e) => setPrivateKey(e.target.value)}
-          style={{ minWidth: "64ch" }}
-        />
-        <ButtonPrimary onClick={handleImportWallet}>
-          Import Wallet
-        </ButtonPrimary>
-      </AnimatedStep>
+        {/* STEP 1: Set password */}
+        <BoxContentParent>
+        <AnimatedStep $active={step === 1} style={{ marginBottom: "auto", padding: 10 }}>
+          <ButtonSecondary
+            onClick={() => setStep(0)}
+            style={{ alignSelf: "center", marginBottom: "10px" }}
+          >
+            ← Go Back
+          </ButtonSecondary>
+          <TextSubTitle>Secure Your Wallet</TextSubTitle>
+          <Text>
+            Your password must have at least 8 characters. Avoid using dates of
+            birth or easy‑to‑guess words.
+          </Text>
+          <Sp />
+          <BoxContent>
+            <Input
+              ref={passwordRef}
+              type="password"
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{ minWidth: "40ch", zIndex: 1000 }}
+            />
+            </BoxContent>
+            <BoxContent>
+            <Input
+              type="password"
+              placeholder="Confirm password"
+              value={confirmPassword}
+              onChange={(e) => setConfirm(e.target.value)}
+              style={{ minWidth: "40ch", zIndex: 1000 }}
+            />
+          </BoxContent>
+          <ButtonPrimary onClick={handleSetPassword}>
+            Set Wallet Password
+          </ButtonPrimary>
+        </AnimatedStep>
+        </BoxContentParent>
 
-      {/* Error banner */}
-      {error && (
-        <p style={{ position: "absolute", bottom: 20, color: "red" }}>
-          {error}
-        </p>
-      )}
+        {/* STEP 2: Choose create or import */}
+        <BoxContentParent>
+        <AnimatedStep $active={step === 2} style={{ marginBottom: "auto", padding: 10 }}>
+          <ButtonSecondary
+            onClick={() => setStep(1)}
+            style={{ alignSelf: "center", marginBottom: "10px" }}
+          >
+            ← Go Back
+          </ButtonSecondary>
+          <Sp />
+          <TextSubTitle>
+            Import an existing private key or want to create a new wallet?
+          </TextSubTitle>
+          <Text>
+            You can create a fresh new wallet or import an existing one using
+            its private key.
+          </Text>
+          <Text>
+            If you want to use the same wallet as you use on your R5 Desktop Wallet
+            software, you can do that by using the "Show Private Key" option on your
+            desktop and importing it to your mobile wallet application.
+          </Text>
+          <Sp />
+          <BoxContent>
+            <ButtonSecondary onClick={() => setStep(3)}>
+              Import Wallet
+            </ButtonSecondary>
+            <ButtonPrimary onClick={handleCreateWallet}>
+              Create Wallet
+            </ButtonPrimary>
+          </BoxContent>
+        </AnimatedStep>
+        </BoxContentParent>
+
+        {/* STEP 3: Import via private key */}
+        <BoxContentParent>
+        <AnimatedStep $active={step === 3} style={{ marginBottom: "auto", padding: 10 }}>
+          <ButtonSecondary
+            onClick={() => setStep(2)}
+            style={{ alignSelf: "center", marginBottom: "10px" }}
+          >
+            ← Go Back
+          </ButtonSecondary>
+          <TextSubTitle>Your Private Key</TextSubTitle>
+          <Text>
+            Enter your private key string below and click on "Import Wallet" to
+            proceed.
+          </Text>
+          <Sp />
+          <Input
+            ref={privateKeyInputRef}
+            type="text"
+            placeholder="Enter private key"
+            value={privateKey}
+            onChange={(e) => setPrivateKey(e.target.value)}
+            style={{ minWidth: "100%" }}
+          />
+          <ButtonPrimary onClick={handleImportWallet}>
+            Import Wallet
+          </ButtonPrimary>
+        </AnimatedStep>
+
+        {/* Error banner */}
+        {error && (
+          <p style={{ position: "absolute", bottom: 20, color: "red" }}>
+            {error}
+          </p>
+        )}
+      </BoxContentParent>
     </FullContainerBox>
   );
 }
