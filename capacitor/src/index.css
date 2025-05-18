@@ -16,8 +16,11 @@
   -moz-osx-font-smoothing: grayscale;
   font-size: 1em;
   height: 100vh;
+  max-height: 100vh;
   padding: 0px;
   width: 100%; /* With box-sizing set to border-box, the padding is included */
+  overflow: hidden;
+  overflow: -moz-hidden-unscrollable;
 }
 
 html, body, #app, .capacitor-webview {
