@@ -50,6 +50,7 @@ export function TransferFunds({
   const [maxGas, setMaxGas] = useState("");
   const [defaultGasPrice, setDefaultGasPrice] = useState("");
   const [defaultMaxGas, setDefaultMaxGas] = useState("");
+  const [txConfirmed, setTxConfirmed] = useState(false);
 
   /* currency toggle + balance */
   const [useUSD, setUseUSD] = useState(true);
@@ -185,10 +186,10 @@ export function TransferFunds({
 
   /* Poll gas */
   useEffect(() => {
-    if (!recipient || !amount) return;
+    if (!recipient || !amount || txConfirmed) return;
     const interval = setInterval(calculateDefaultGas, 10000);
     return () => clearInterval(interval);
-  }, [recipient, amount]);
+  }, [recipient, amount, txConfirmed]); // ⬅️ add txConfirmed to deps  
 
   /* Tx lifecycle */
   const {
@@ -272,6 +273,7 @@ export function TransferFunds({
 
   const confirmAndSend = async () => {
     if (!wallet) return;
+    setTxConfirmed(true); // ⬅️ prevent further gas updates
     setShowConfirmModal(false);
     setProcessOpen(true);
     const r5Amount = useUSD
@@ -286,6 +288,7 @@ export function TransferFunds({
       })
     );
   };
+  
 
   const closeProcess = () => {
     setProcessOpen(false);
@@ -296,7 +299,8 @@ export function TransferFunds({
     setMaxGas("");
     setDefaultGasPrice("");
     setDefaultMaxGas("");
-  };
+    setTxConfirmed(false); // ⬅️ reset for next tx
+  };  
 
   const handleMax = async () => {
     const fee = parseFloat(calculateFee());
