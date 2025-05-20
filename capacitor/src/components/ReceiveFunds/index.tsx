@@ -33,7 +33,7 @@ export function ReceiveFunds({ open, onClose, address }: ReceiveFundsProps) {
 
   return (
     <Modal open={open} onClose={onClose}>
-      <h3 style={{ marginBottom: "-10px", color: colorSemiBlack }}>
+      <h3 style={{ margin: "auto auto -10px auto", color: colorSemiBlack }}>
         Receive Funds
       </h3>
       <Text style={{ color: colorSemiBlack }}>
