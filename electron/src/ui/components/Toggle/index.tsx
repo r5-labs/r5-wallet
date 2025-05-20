@@ -4,6 +4,7 @@ import { useWeb3Context } from "../../contexts/Web3Context";
 import {
   BoxContent,
   BoxContentParent,
+  colorDarkGray,
   colorGlassBorder,
   colorLightGray,
   colorPrimary
@@ -20,7 +21,7 @@ const Switch = styled.div<{ isOn: boolean }>`
   height: 24px;
   background-color: ${({ isOn }) => (isOn ? colorPrimary : "transparent")};
   border-radius: 12px;
-  border: 1px solid ${colorGlassBorder};
+  border: 1px solid ${colorLightGray};
   position: relative;
   transition: background-color 0.3s;
 `;
@@ -41,7 +42,7 @@ const Label = styled.span`
   margin-top: -7px;
   text-align: center;
   font-size: 10px;
-  color: ${colorLightGray};
+  color: ${colorDarkGray};
   width: 100%;
 `;
 

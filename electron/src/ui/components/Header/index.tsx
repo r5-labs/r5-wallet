@@ -12,7 +12,11 @@ import {
   colorSemiBlack,
   TextTitle,
   Text,
-  colorGray
+  colorGray,
+  BoxContent,
+  HorMenuOption,
+  BoxContentParent,
+  colorGlassBackgroundModal
 } from "../../theme";
 import {
   GoArrowDownLeft,
@@ -24,8 +28,10 @@ import {
   GoSync,
   GoCopy,
   GoCheck,
-  GoLock
+  GoLock,
+  GoGear
 } from "react-icons/go";
+import { LuNetwork } from "react-icons/lu";
 import R5Logo from "../../assets/logo_white-transparent.png";
 
 import { ReceiveFunds } from "../ReceiveFunds";
@@ -47,6 +53,8 @@ const RefreshIcon = GoSync;
 const CopyIcon = GoCopy;
 const CheckIcon = GoCheck;
 const LockIcon = GoLock;
+const SettingsIcon = GoGear;
+const NetworkIcon = LuNetwork;
 
 export function Header({
   decryptedPrivateKey
@@ -64,6 +72,7 @@ export function Header({
   const [isCopied, setIsCopied] = useState(false);
   const [showConfirmPkModal, setShowConfirmPkModal] = useState(false);
   const [showConfirmResetModal, setShowConfirmResetModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   const price = usePrice();
 
@@ -148,6 +157,113 @@ export function Header({
 
   return (
     <>
+      {/* Settings dialog */}
+      <Modal
+        open={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+      >
+        <BoxContentParent style={{ marginTop: 10 }}>
+
+        <HorMenuOption style={{ background: colorGlassBackgroundModal }}>
+        <BoxContent style={{ width: "auto" }}>
+            <NetworkIcon />
+          </BoxContent>
+        <BoxContent
+            style={{
+              width: "100%",
+              justifyContent: "flex-start",
+              marginLeft: 10
+            }}
+          >
+            Network
+          </BoxContent>
+        <BoxContent>
+        <Toggle />
+        </BoxContent>
+        </HorMenuOption>
+
+        <HorMenuOption onClick={exportWalletFile}>
+          <BoxContent style={{ width: "auto" }}>
+            <ExportIcon />
+          </BoxContent>
+          <BoxContent
+            style={{
+              width: "100%",
+              justifyContent: "flex-start",
+              marginLeft: 10
+            }}
+          >
+            Export Wallet File
+          </BoxContent>
+        </HorMenuOption>
+        
+        <HorMenuOption onClick={() => setShowConfirmPkModal(true)}>
+          <BoxContent style={{ width: "auto" }}>
+            <PrivateKeyIcon />
+          </BoxContent>
+          <BoxContent
+            style={{
+              width: "100%",
+              justifyContent: "flex-start",
+              marginLeft: 10
+            }}
+          >
+            Show Private Key
+          </BoxContent>
+        </HorMenuOption>
+
+        <HorMenuOption onClick={() => setShowConfirmResetModal(true)}>
+          <BoxContent style={{ width: "auto" }}>
+            <ResetIcon />
+          </BoxContent>
+          <BoxContent
+            style={{
+              width: "100%",
+              justifyContent: "flex-start",
+              marginLeft: 10
+            }}
+          >
+            Reset Wallet
+          </BoxContent>
+        </HorMenuOption>
+
+        <HorMenuOption onClick={() => setShowInfo(true)}>
+          <BoxContent style={{ width: "auto" }}>
+            <InfoIcon />
+          </BoxContent>
+          <BoxContent
+            style={{
+              width: "100%",
+              justifyContent: "flex-start",
+              marginLeft: 10
+            }}
+          >
+            About
+          </BoxContent>
+        </HorMenuOption>
+
+        <HorMenuOption onClick={handleLockWallet}>
+          <BoxContent style={{ width: "auto" }}>
+            <LockIcon />
+          </BoxContent>
+          <BoxContent
+            style={{
+              width: "100%",
+              justifyContent: "flex-start",
+              marginLeft: 10
+            }}
+          >
+            Logout
+          </BoxContent>
+        </HorMenuOption>
+
+        </BoxContentParent>
+
+        <ButtonSecondary onClick={() => setShowSettingsModal(false)}>
+          Close
+        </ButtonSecondary>
+      </Modal>
+
       {/* Confirm: expose private key */}
       <Modal
         open={showConfirmPkModal}
@@ -201,6 +317,7 @@ export function Header({
           </ButtonPrimary>
         </div>
       </Modal>
+
       <BoxHeader>
         {/* Logo */}
         <HeaderSection>
@@ -256,7 +373,7 @@ export function Header({
         <HeaderSection
           style={{ width: "100%", margin: "auto", alignItems: "center" }}
         >
-          <Toggle />
+
         </HeaderSection>
 
         {/* Buttons */}
@@ -280,30 +397,11 @@ export function Header({
               <HistoryIcon />
             </ButtonRound>
 
-            <ButtonRound title="Export Wallet File" onClick={exportWalletFile}>
-              <ExportIcon />
-            </ButtonRound>
-
             <ButtonRound
-              title="Show Private Key"
-              onClick={() => setShowConfirmPkModal(true)}
+              title="More Options"
+              onClick={() => setShowSettingsModal(true)}
             >
-              <PrivateKeyIcon />
-            </ButtonRound>
-
-            <ButtonRound
-              title="Reset Wallet"
-              onClick={() => setShowConfirmResetModal(true)}
-            >
-              <ResetIcon />
-            </ButtonRound>
-
-            <ButtonRound title="About" onClick={() => setShowInfo(true)}>
-              <InfoIcon />
-            </ButtonRound>
-
-            <ButtonRound title="Lock Wallet" onClick={handleLockWallet}>
-              <LockIcon />
+              <SettingsIcon />
             </ButtonRound>
           </HeaderButtonWrapper>
         </HeaderSection>

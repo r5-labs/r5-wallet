@@ -9,6 +9,7 @@ export const colorGlassBackground =
 export const colorGlassBackgroundModal =
   "radial-gradient(circle, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.5) 100%)";
 export const colorGlassBackgroundBlur = "rgba(0, 0, 0, 0.5)";
+export const colorGlassBackgroundMenu = "rgba(255, 255, 255, 0.75)";
 export const colorGlassBorder = "rgba(255, 255, 255, 0.1)";
 export const colorPrimary = "#459381";
 export const colorSecondary = "#16222B";
@@ -301,6 +302,27 @@ export const BoxContent = styled.div`
   gap: ${defaultGap};
   z-index: 2;
 `;
+
+export const HorMenuOption = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  min-width: 280px;
+  justify-content: flex-start;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 600;
+  gap: 0px;
+  cursor: pointer;
+  background: ${colorGlassBackgroundModal};
+  color: ${colorSemiBlack};
+  padding: 12px 20px;
+  border: 1px solid ${colorGlassBorder};
+  border-radius: ${borderRadiusDefault};
+  &:hover {
+    background: ${colorGlassBackgroundMenu};
+  }
+`
 
 export const BoxHeader = styled.div`
   display: flex;
