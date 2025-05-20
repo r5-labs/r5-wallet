@@ -1,13 +1,18 @@
 import { useState, useEffect } from "react";
-import { borderRadiusDefault, ModalBackground, ModalContainer } from "../theme";
-
+import {
+  BoxContent,
+  BoxContentParent,
+  ModalBackground,
+  ModalContainer
+} from "../../theme";
+import WalletLogo from "../../assets/r5-wallet.png";
 interface ModalProps {
   open: boolean;
   onClose: () => void;
   children: React.ReactNode;
 }
 
-export function ModalInner({ open, onClose, children }: ModalProps) {
+export function Modal({ open, onClose, children }: ModalProps) {
   const [visible, setVisible] = useState(open);
   const [exiting, setExiting] = useState(false);
 
@@ -28,15 +33,7 @@ export function ModalInner({ open, onClose, children }: ModalProps) {
   if (!visible) return null;
 
   return (
-    <ModalBackground
-      visible
-      style={{
-        borderRadius: borderRadiusDefault,
-        background: "rgba(0, 0, 0, 0.75",
-        backdropFilter: "none"
-      }}
-    >
-      {/* 1) backdrop click catcher: below the modal */}
+    <ModalBackground visible={visible}>
       <div
         style={{
           position: "absolute",
@@ -45,18 +42,16 @@ export function ModalInner({ open, onClose, children }: ModalProps) {
         }}
         onClick={onClose}
       />
-
-      {/* 2) modal card: above the backdrop */}
-      <ModalContainer
-        exiting={exiting}
-        style={{
-          zIndex: 1,
-          borderRadius: borderRadiusDefault,
-          background:
-            "radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.65) 100%)",
-          backdropFilter: "none"
-        }}
-      >
+      <ModalContainer exiting={exiting} style={{ zIndex: 1 }}>
+        <BoxContentParent>
+          <BoxContent>
+            <img
+              src={WalletLogo}
+              alt="R5 Wallet"
+              style={{ width: 32, height: 32 }}
+            />
+          </BoxContent>
+        </BoxContentParent>
         {children}
       </ModalContainer>
     </ModalBackground>

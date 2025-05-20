@@ -14,9 +14,9 @@ import {
   fadeInUp,
   fadeOutUp,
   Sp
-} from "../theme";
+} from "../../theme";
 import { GoCheck, GoX, GoLinkExternal } from "react-icons/go";
-import { useWeb3Context } from "../contexts/Web3Context";
+import { useWeb3Context } from "../../contexts/Web3Context";
 
 /* ------------------------------------------------------------
    STAGES
@@ -53,7 +53,11 @@ const Overlay = styled.div<{ $exiting: boolean }>`
 
 /* Container slides up / down */
 const Container = styled.div<{ $exiting: boolean }>`
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.65) 100%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.65) 100%
+  );
   border-radius: ${borderRadiusDefault};
   padding: 40px 20px;
   width: 90%;
@@ -129,22 +133,31 @@ export function TxProcess({
   const [visible, setVisible] = useState(open);
   const [exiting, setExiting] = useState(false);
 
-  const { explorerUrl } = useWeb3Context()
+  const { explorerUrl } = useWeb3Context();
 
   /* logic reused from previous version */
   const finalVisible = useMemo(() => stageIndex === 3, [stageIndex]);
 
   const failed = useMemo(() => Boolean(error), [error]);
-  const succeeded = useMemo(() => finalVisible && success && !failed, [failed, finalVisible, success]);
+  const succeeded = useMemo(
+    () => finalVisible && success && !failed,
+    [failed, finalVisible, success]
+  );
 
-  const stageLabels = useMemo(() => [
-    "Initiating transaction",
-    "Processing transaction on the blockchain",
-    "Parsing transaction result",
-    failed
-      ? `Transaction failed: ${error}`
-      : `Transaction successful${txHash ? `, your receipt is ${txHash}` : ""}`
-  ] as const, [failed, error, txHash])
+  const stageLabels = useMemo(
+    () =>
+      [
+        "Initiating transaction",
+        "Processing transaction on the blockchain",
+        "Parsing transaction result",
+        failed
+          ? `Transaction failed: ${error}`
+          : `Transaction successful${
+              txHash ? `, your receipt is ${txHash}` : ""
+            }`
+      ] as const,
+    [failed, error, txHash]
+  );
 
   useEffect(() => {
     if (open) {
@@ -158,8 +171,6 @@ export function TxProcess({
   }, [open, visible]);
 
   if (!visible) return null;
-
-
 
   /* render --------------------------------------------------------------- */
   return (

@@ -1,7 +1,7 @@
 import { Header } from "../components/Header";
 import { MainPageBody } from "../components/MainPageBody";
 
-function MainPage({
+function Wallet({
   decryptedPrivateKey,
 }: {
   onReset: () => void;
@@ -15,4 +15,4 @@ function MainPage({
   );
 }
 
-export default MainPage;
+export default Wallet;

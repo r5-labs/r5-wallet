@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import Obnoard from "./pages/Onboard";
-import MainPage from "./pages/Wallet";
+import Wallet from "./pages/Wallet";
 import CryptoJS from "crypto-js";
 import {
   FullPageBox,
@@ -191,7 +191,7 @@ function App() {
 
         {/* Main UI */}
         {isAuthenticated ? (
-          <MainPage onReset={handleReset} decryptedPrivateKey={decryptedKey} />
+          <Wallet onReset={handleReset} decryptedPrivateKey={decryptedKey} />
         ) : hasWallet ? (
           <FullPageBox style={{ minHeight: "100%" }}>
             <FullContainerBox>

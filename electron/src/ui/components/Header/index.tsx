@@ -13,12 +13,12 @@ import {
   TextTitle,
   Text,
   colorGray
-} from "../theme";
+} from "../../theme";
 import {
   GoArrowDownLeft,
   GoTrash,
   GoKey,
-  GoHistory,
+  GoSearch,
   GoUpload,
   GoInfo,
   GoSync,
@@ -26,21 +26,21 @@ import {
   GoCheck,
   GoLock
 } from "react-icons/go";
-import R5Logo from "../assets/logo_white-transparent.png";
+import R5Logo from "../../assets/logo_white-transparent.png";
 
-import { ReceiveFunds } from "./ReceiveFunds";
-import { PrivateKey } from "./PrivateKey";
-import { About } from "./About";
-import { Modal } from "./Modal";
-import Toggle from "./Toggle";
-import { useWeb3Context } from "../contexts/Web3Context";
-import usePrice from "../hooks/usePrice";
+import { ReceiveFunds } from "../ReceiveFunds";
+import { PrivateKey } from "../PrivateKey";
+import { About } from "../About";
+import { Modal } from "../Modal";
+import Toggle from "../Toggle";
+import { useWeb3Context } from "../../contexts/Web3Context";
+import usePrice from "../../hooks/usePrice";
 
 /* Icon aliases for readability */
 const ReceiveIcon = GoArrowDownLeft;
 const ResetIcon = GoTrash;
 const PrivateKeyIcon = GoKey;
-const HistoryIcon = GoHistory;
+const HistoryIcon = GoSearch;
 const ExportIcon = GoUpload;
 const InfoIcon = GoInfo;
 const RefreshIcon = GoSync;
@@ -210,7 +210,13 @@ export function Header({
         {/* Balance & address */}
         <HeaderSection>
           <TextSubTitle>
-            R5 {Number(balance).toFixed(6)}
+            ${(Number(balance) * price).toFixed(2)}
+            <span>
+              {" "}
+              <text style={{ fontSize: "10pt", color: colorGray }}>
+                R5 {Number(balance).toFixed(6)}
+              </text>
+            </span>
             <span
               onClick={handleRefresh}
               style={{
@@ -229,12 +235,6 @@ export function Header({
                   animation: isRefreshing ? "spin 1s linear" : undefined
                 }}
               />
-            </span>
-            <span>
-              {" "}
-              <text style={{ fontSize: "10pt", color: colorGray }}>
-                ${(Number(balance) * price).toFixed(2)}
-              </text>
             </span>
           </TextSubTitle>
           <SmallText style={{ display: "flex", alignItems: "center" }}>

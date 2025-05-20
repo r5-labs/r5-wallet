@@ -1,5 +1,5 @@
-import { FullContainerBox } from "../theme";
-import { TransferFunds } from "./TransferFunds";
+import { FullContainerBox } from "../../theme";
+import { TransferFunds } from "../TransferFunds";
 
 export function MainPageBody({
   decryptedPrivateKey

@@ -24,7 +24,7 @@ const AnimatedStep = styled(StepWrapper) <{ $active: boolean }>`
       : css`${fadeOut} 0.5s forwards`};
 `;
 
-export default function WalletConnectPage({
+export default function Onboard({
   onWalletSetup,
 }: {
   onWalletSetup: () => void;

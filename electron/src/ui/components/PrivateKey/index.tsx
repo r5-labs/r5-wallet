@@ -4,8 +4,8 @@ import {
   colorWhite,
   borderRadiusDefault,
   colorSemiBlack
-} from "../theme";
-import { Modal } from "./Modal";
+} from "../../theme";
+import { Modal } from "../Modal";
 
 interface PrivateKeyProps {
   open: boolean;

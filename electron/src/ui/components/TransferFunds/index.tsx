@@ -18,14 +18,14 @@ import {
   colorLightGray,
   SmallText,
   colorSemiBlack
-} from "../theme";
+} from "../../theme";
 import { LuArrowUpRight } from "react-icons/lu";
 import { TxConfirm } from "./TxConfirm";
-import { FullPageLoader } from "./FullPageLoader";
+import { FullPageLoader } from "../FullPageLoader";
 import { TxProcess } from "./TxProcess";
-import { useTxLifecycle } from "../hooks/useTxLifecycle";
-import { ModalInner } from "./ModalInner";
-import { useWeb3Context } from "../contexts/Web3Context";
+import { useTxLifecycle } from "../../hooks/useTxLifecycle";
+import { ModalInner } from "../ModalInner";
+import { useWeb3Context } from "../../contexts/Web3Context";
 
 const SendIcon = LuArrowUpRight;
 
@@ -52,7 +52,7 @@ export function TransferFunds({
   const [errorMsg, setErrorMsg] = useState("");
 
   /* RPC */
-  const { provider } = useWeb3Context()
+  const { provider } = useWeb3Context();
   // let wallet: ethers.Wallet;
 
   const wallet = useMemo(() => {
@@ -63,7 +63,7 @@ export function TransferFunds({
       alert("Invalid private key. Please reset your wallet.");
       return null;
     }
-  }, [decryptedPrivateKey])
+  }, [decryptedPrivateKey]);
 
   /* Tx lifecycle */
   const {
@@ -78,11 +78,13 @@ export function TransferFunds({
   /* Helpers */
   const calculateDefaultGas = async () => {
     if (!recipient || !amount) {
-      setErrorMsg("Entering the recipient and amount of coins to send is required to calculate gas. You can leave the gas fields blank to calculate it automatically.");
+      setErrorMsg(
+        "Entering the recipient and amount of coins to send is required to calculate gas. You can leave the gas fields blank to calculate it automatically."
+      );
       setShowErrorModal(true);
       return null;
     }
-    if (!wallet) return null
+    if (!wallet) return null;
     try {
       const feeData = await provider.getFeeData();
       if (!feeData.gasPrice) throw new Error("Gas price unavailable");
@@ -194,7 +196,9 @@ export function TransferFunds({
           <BoxSection style={{ gap: "10px", alignItems: "center" }}>
             <BoxContent style={{ gap: "10px", flexWrap: "wrap" }}>
               <div style={{ flex: 1 }}>
-                <Text style={{ marginLeft: "15px", marginBottom: "10px" }}>Gas Price (Gwei)</Text>
+                <Text style={{ marginLeft: "15px", marginBottom: "10px" }}>
+                  Gas Price (Gwei)
+                </Text>
                 <Input
                   type="number"
                   value={gasPrice}
@@ -204,7 +208,9 @@ export function TransferFunds({
                 />
               </div>
               <div style={{ flex: 1 }}>
-                <Text style={{ marginLeft: "15px", marginBottom: "10px" }}>Max Gas</Text>
+                <Text style={{ marginLeft: "15px", marginBottom: "10px" }}>
+                  Max Gas
+                </Text>
                 <Input
                   type="number"
                   value={maxGas}
@@ -252,8 +258,13 @@ export function TransferFunds({
       />
 
       {/* Gas/error modal */}
-      <ModalInner open={showErrorModal} onClose={() => setShowErrorModal(false)}>
-        <TextTitle style={{ color: colorSemiBlack }}>Gas Calculation Error</TextTitle>
+      <ModalInner
+        open={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+      >
+        <TextTitle style={{ color: colorSemiBlack }}>
+          Gas Calculation Error
+        </TextTitle>
         <Text style={{ marginBottom: 16, color: colorSemiBlack }}>
           {errorMsg}
         </Text>

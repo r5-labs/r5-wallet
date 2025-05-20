@@ -1,6 +1,6 @@
-import { ButtonPrimary, Text, colorSemiBlack } from "../theme";
-import { Modal } from "./Modal";
-import { AppName, AppDescription, AppVersion, HelpUrl } from "../constants";
+import { ButtonPrimary, Text, colorSemiBlack } from "../../theme";
+import { Modal } from "../Modal";
+import { AppName, AppDescription, AppVersion, HelpUrl } from "../../constants";
 
 interface AboutProps {
   open: boolean;

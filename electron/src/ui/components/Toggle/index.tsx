@@ -1,7 +1,13 @@
 import React from "react";
 import styled from "styled-components";
-import { useWeb3Context } from "../contexts/Web3Context";
-import { BoxContent, BoxContentParent, colorGlassBorder, colorLightGray, colorPrimary } from "../theme";
+import { useWeb3Context } from "../../contexts/Web3Context";
+import {
+  BoxContent,
+  BoxContentParent,
+  colorGlassBorder,
+  colorLightGray,
+  colorPrimary
+} from "../../theme";
 
 const ToggleWrapper = styled.div`
   display: flex;
@@ -12,7 +18,7 @@ const ToggleWrapper = styled.div`
 const Switch = styled.div<{ isOn: boolean }>`
   width: 50px;
   height: 24px;
-  background-color: ${({ isOn }) => (isOn ? colorPrimary : "transparent" )};
+  background-color: ${({ isOn }) => (isOn ? colorPrimary : "transparent")};
   border-radius: 12px;
   border: 1px solid ${colorGlassBorder};
   position: relative;
@@ -44,7 +50,9 @@ const Toggle: React.FC = () => {
 
   return (
     <ToggleWrapper onClick={() => swithNetwork(!isMainnet)}>
-      <BoxContentParent style={{ margin: "auto 10px auto 10px", height: "100%" }}>
+      <BoxContentParent
+        style={{ margin: "auto 10px auto 10px", height: "100%" }}
+      >
         <BoxContent>
           <Switch isOn={isMainnet}>
             <Knob isOn={isMainnet} />

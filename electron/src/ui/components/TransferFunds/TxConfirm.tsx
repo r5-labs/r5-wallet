@@ -1,5 +1,5 @@
-import { ButtonPrimary, BoxContent, Text, colorSemiBlack } from "../theme";
-import { ModalInner } from "./ModalInner";
+import { ButtonPrimary, BoxContent, Text, colorSemiBlack } from "../../theme";
+import { ModalInner } from "../ModalInner";
 
 interface TxConfirmProps {
   open: boolean;

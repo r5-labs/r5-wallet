@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { colorPrimary, Spinner } from "../theme";
+import { colorPrimary, Spinner } from "../../theme";
 
 const LoadingWrapper = styled.div`
   display: flex;

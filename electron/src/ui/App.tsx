@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import WalletConnectPage from "./pages/WalletConnectPage";
-import MainPage from "./pages/MainPage";
+import Onboard from "./pages/Onboard";
+import Wallet from "./pages/Wallet";
 import CryptoJS from "crypto-js";
 import {
   FullPageBox,
@@ -190,7 +190,7 @@ function App() {
 
         {/* Main UI */}
         {isAuthenticated ? (
-          <MainPage onReset={handleReset} decryptedPrivateKey={decryptedKey} />
+          <Wallet onReset={handleReset} decryptedPrivateKey={decryptedKey} />
         ) : hasWallet ? (
           <FullPageBox style={{ minHeight: "100%" }}>
             <FullContainerBox>
@@ -227,7 +227,7 @@ function App() {
             </FullContainerBox>
           </FullPageBox>
         ) : (
-          <WalletConnectPage onWalletSetup={handleWalletSetup} />
+          <Onboard onWalletSetup={handleWalletSetup} />
         )}
       </FullPageBox>
     </Web3Provider>

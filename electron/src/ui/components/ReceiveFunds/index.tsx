@@ -5,8 +5,8 @@ import {
   ButtonPrimary,
   colorSemiBlack,
   Text
-} from "../theme";
-import { Modal } from "./Modal";
+} from "../../theme";
+import { Modal } from "../Modal";
 import { GoCopy, GoCheck } from "react-icons/go";
 
 interface ReceiveFundsProps {
@@ -61,7 +61,11 @@ export function ReceiveFunds({ open, onClose, address }: ReceiveFundsProps) {
         <span
           onClick={handleCopy}
           title="Copy Address"
-          style={{ cursor: "pointer", display: "inline-flex", color: colorSemiBlack }}
+          style={{
+            cursor: "pointer",
+            display: "inline-flex",
+            color: colorSemiBlack
+          }}
         >
           {isCopied ? (
             <GoCheck style={{ width: 12, height: 12 }} />
