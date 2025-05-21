@@ -1,4 +1,4 @@
-import { JSX, useEffect, useMemo, useRef, useState } from "react";
+import { JSX, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ethers,
 
@@ -74,13 +74,25 @@ export function TransferFunds({
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
   const scanningActive = useRef(false);
 
-  const handleQRScanSuccess = (decodedText: string) => {
+  /* RPC */
+  const { provider } = useWeb3Context();
+  const wallet = useMemo(() => {
+    try {
+      return new ethers.Wallet(decryptedPrivateKey, provider);
+    } catch (e) {
+      console.error("Invalid private key:", e);
+      alert("Invalid private key. Please reset your wallet.");
+      return null;
+    }
+  }, [decryptedPrivateKey, provider]);
+
+  const handleQRScanSuccess = useCallback((decodedText: string) => {
     setRecipient(decodedText);
     closeQRScannerModal();
     setTimeout(() => {
       amountInputRef.current?.focus();
     }, 300); // wait for modal animation to finish
-  };
+  }, [amountInputRef])
 
   /* html5-qrcode effect */
   useEffect(() => {
@@ -112,7 +124,7 @@ export function TransferFunds({
           chosenCameraId,
           config,
           (decodedText) => mounted && handleQRScanSuccess(decodedText),
-          () => {}
+          () => { }
         );
       })
       .then(() => {
@@ -139,9 +151,9 @@ export function TransferFunds({
         scanningActive.current = false;
       }
     };
-  }, [showQRScanner]);
+  }, [showQRScanner, handleQRScanSuccess]);
 
-  const updateConvertedAmount = () => {
+  const updateConvertedAmount = useCallback(() => {
     if (!amount || isNaN(+amount) || !price) {
       setConvertedAmount("");
       return;
@@ -150,59 +162,11 @@ export function TransferFunds({
     setConvertedAmount(
       useUSD ? (value / price).toFixed(6) : (value * price).toFixed(2)
     );
-  };
-
-  /* RPC */
-  const { provider } = useWeb3Context();
-  const wallet = useMemo(() => {
-    try {
-      return new ethers.Wallet(decryptedPrivateKey, provider);
-    } catch (e) {
-      console.error("Invalid private key:", e);
-      alert("Invalid private key. Please reset your wallet.");
-      return null;
-    }
-  }, [decryptedPrivateKey]);
-
-  /* Balance */
-  useEffect(() => {
-    const fetchBalance = async () => {
-      if (wallet) {
-        const bal = await provider.getBalance(wallet.address);
-        setBalance(formatEther(bal));
-      }
-    };
-    fetchBalance();
-  }, [wallet]);
-
-  /* Converted amount */
-  useEffect(() => {
-    if (!amount || isNaN(parseFloat(amount))) return;
-    const interval = setInterval(updateConvertedAmount, 10000);
-    return () => clearInterval(interval);
-  }, [amount, useUSD]);
-  useEffect(updateConvertedAmount, [amount, useUSD]);
-
-  /* Poll gas */
-  useEffect(() => {
-    if (!recipient || !amount || txConfirmed) return;
-    const interval = setInterval(calculateDefaultGas, 10000);
-    return () => clearInterval(interval);
-  }, [recipient, amount, txConfirmed]); // ⬅️ add txConfirmed to deps
-
-  /* Tx lifecycle */
-  const {
-    stageIndex,
-    success,
-    error,
-    txHash,
-    sendTx,
-    reset: resetLifecycle
-  } = useTxLifecycle(provider);
+  }, [amount, price, useUSD]);
 
   /* Helpers */
 
-  const calculateDefaultGas = async () => {
+  const calculateDefaultGas = useCallback(async () => {
     if (!recipient || !amount) {
       setErrorMsg(
         "Entering the recipient and amount of coins to send is required to calculate gas. You can leave the gas fields blank to calculate it automatically."
@@ -234,7 +198,7 @@ export function TransferFunds({
       setShowErrorModal(true);
       return null;
     }
-  };
+  }, [recipient, amount, wallet, useUSD, price, provider]);
 
   const calculateFee = () => {
     if (!gasPrice || !maxGas) return "0";
@@ -263,7 +227,7 @@ export function TransferFunds({
     }
     const gasParams = await calculateDefaultGas();
     if (!gasParams) return;
-    setConvertedAmount(r5Amount); 
+    setConvertedAmount(r5Amount);
     setLoadingModal(true);
     setTimeout(() => {
       setLoadingModal(false);
@@ -314,7 +278,7 @@ export function TransferFunds({
       html5QrCodeRef.current
         .stop()
         .then(() => html5QrCodeRef.current?.clear())
-        .catch(() => {});
+        .catch(() => { });
       scanningActive.current = false;
     }
     closeQRScannerModal();
@@ -330,6 +294,45 @@ export function TransferFunds({
       setShowQRScanner(false); // fallback if modal not found
     }
   };
+
+  /* Balance */
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (wallet) {
+        const bal = await provider.getBalance(wallet.address);
+        setBalance(formatEther(bal));
+      }
+    };
+    fetchBalance();
+  }, [wallet, provider]);
+
+  /* Converted amount */
+  useEffect(() => {
+    if (!amount || isNaN(parseFloat(amount))) return;
+    const interval = setInterval(updateConvertedAmount, 10000);
+    return () => clearInterval(interval);
+  }, [amount, useUSD, updateConvertedAmount]);
+
+  useEffect(updateConvertedAmount, [updateConvertedAmount]);
+
+  /* Poll gas */
+  useEffect(() => {
+    if (!recipient || !amount || txConfirmed) return;
+    const interval = setInterval(calculateDefaultGas, 10000);
+    return () => clearInterval(interval);
+  }, [recipient, amount, txConfirmed, calculateDefaultGas]); // ⬅️ add txConfirmed to deps
+
+  /* Tx lifecycle */
+  const {
+    stageIndex,
+    success,
+    error,
+    txHash,
+    sendTx,
+    reset: resetLifecycle
+  } = useTxLifecycle(provider);
+
+
 
   /* Render */
   return (

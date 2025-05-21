@@ -1,6 +1,5 @@
 import {
   BoxContent,
-  BoxContentParent,
   TextSubTitle,
   Text,
   colorBorder,
