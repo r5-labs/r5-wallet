@@ -5,7 +5,6 @@ import {
   BoxContent,
   BoxContentParent,
   colorDarkGray,
-  colorGlassBorder,
   colorLightGray,
   colorPrimary
 } from "../../theme";
