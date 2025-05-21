@@ -358,7 +358,7 @@ export function TransferFunds({
         <BoxSection style={{ gap: "10px", alignItems: "center", color: colorSemiBlack }}>
           <BoxContent style={{ gap: "10px", flexWrap: "wrap" }}>
             <div style={{ flex: 1 }}>
-              <Text style={{ textAlign: "center", marginBottom: "10px" }}>
+              <Text style={{ textAlign: "center", marginBottom: "10px", color: colorSemiBlack }}>
                 Gas Price (Gwei)
               </Text>
               <InputModal
@@ -370,7 +370,7 @@ export function TransferFunds({
               />
             </div>
             <div style={{ flex: 1 }}>
-              <Text style={{ textAlign: "center", marginBottom: "10px" }}>
+              <Text style={{ textAlign: "center", marginBottom: "10px", color: colorSemiBlack }}>
                 Max Gas
               </Text>
               <InputModal
@@ -382,7 +382,7 @@ export function TransferFunds({
               />
             </div>
           </BoxContent>
-          <SmallText>
+          <SmallText style={{ color: colorSemiBlack }}>
             * Leave blank to calculate the gas parameters automatically.
           </SmallText>
           <BoxContentParent>
