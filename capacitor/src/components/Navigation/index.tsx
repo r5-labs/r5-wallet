@@ -10,7 +10,7 @@ export function Navigation({
   decryptedPrivateKey: string;
 }): any {
 
-  const { provider, explorerUrl } = useWeb3Context();
+  const { provider } = useWeb3Context();
 
   const wallet = useMemo(() => {
     try {
@@ -20,7 +20,7 @@ export function Navigation({
       alert("Invalid private key. Please reset your wallet.");
       return null;
     }
-  }, [decryptedPrivateKey]);
+  }, [decryptedPrivateKey, provider]);
 
   return (
     <>

@@ -33,7 +33,7 @@ export default function useTxHistory(address?: string) {
     const fetchTxs = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${TxApiEndpoint}` + `${address}`);
+        const res = await fetch(`${TxApiEndpoint}${address}`);
         const json = await res.json();
         const data = json?.transactions || [];
 

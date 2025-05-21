@@ -1,4 +1,4 @@
-import React, { JSX, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled, { keyframes, css } from "styled-components";
 import {
   Text,
@@ -17,7 +17,6 @@ import {
 } from "../../theme";
 import { GoCheck, GoX, GoLinkExternal } from "react-icons/go";
 import { useWeb3Context } from "../../contexts/Web3Context";
-import { ExplorerUrl } from "../../constants";
 
 const GoCheckIcon = GoCheck as React.FC<React.PropsWithChildren>;
 const GoXIcon = GoX as React.FC<React.PropsWithChildren>;
@@ -186,7 +185,7 @@ export function TxProcess({
               icon =
                 stageIndex > idx ? (
                   <>
-                  <GoCheckIcon />
+                    <GoCheckIcon />
                   </>
                 ) : (
                   <Spinner style={{ width: 20, height: 20 }} />
@@ -225,8 +224,8 @@ export function TxProcess({
                   color: colorSemiBlack,
                   fontWeight: active || idx === stageIndex ? "bold" : "normal",
                   wordBreak: "break-all",
-          overflowWrap: "break-word",
-          whiteSpace: "pre-wrap"
+                  overflowWrap: "break-word",
+                  whiteSpace: "pre-wrap"
                 }}
               >
                 {label}
@@ -238,16 +237,16 @@ export function TxProcess({
         {succeeded && (
           <>
             <Sp />
-            <a href={ExplorerUrl + `/tx/` + txHash} target="_blank" style={{ textAlign: "center" }}>
-            <Text
-              style={{
-                color: colorSecondary,
-                cursor: "pointer",
-                margin: "auto"
-              }}
-            >
-              Open on Explorer <GoLinkExternalIcon />
-            </Text>
+            <a href={explorerUrl + `/tx/` + txHash} target="_blank" rel="noreferrer" style={{ textAlign: "center" }}>
+              <Text
+                style={{
+                  color: colorSecondary,
+                  cursor: "pointer",
+                  margin: "auto"
+                }}
+              >
+                Open on Explorer <GoLinkExternalIcon />
+              </Text>
             </a>
           </>
         )}

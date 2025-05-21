@@ -1,12 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import Obnoard from "./pages/Onboard";
 import Wallet from "./pages/Wallet";
 import CryptoJS from "crypto-js";
 import {
   FullPageBox,
   FullContainerBox,
   Input,
-  TextHeader,
   Text,
   ButtonPrimary,
   ButtonSecondary,
@@ -46,22 +44,6 @@ function App() {
   // const dismissedVersion = localStorage.getItem("dismissedVersion")
   const dismissedVersion = "0";
 
-  // if fetch fails, just log it
-  useEffect(() => {
-    if (error) console.error("Latest‐release fetch failed:", error);
-  }, [error]);
-
-  // once latest is loaded, compare raw strings, and only if not yet dismissed:
-  useEffect(() => {
-    if (
-      latest &&
-      latest.tag !== currentVersion &&
-      dismissedVersion !== latest.tag
-    ) {
-      setShowUpdateModal(true);
-    }
-  }, [latest, currentVersion, dismissedVersion]);
-
   // when user says “Later” or after Download, never show again for this tag
   const dismissRelease = () => {
     if (latest) {
@@ -74,20 +56,6 @@ function App() {
   /* Ref to focus the password input                                     */
   /* ------------------------------------------------------------------ */
   const passwordInputRef = useRef<HTMLInputElement | null>(null);
-  useEffect(() => {
-    if (hasWallet && !isAuthenticated) {
-      passwordInputRef.current?.focus();
-    }
-  }, [hasWallet, isAuthenticated]);
-
-  /* ------------------------------------------------------------------ */
-  /* Check for existing wallet                                           */
-  /* ------------------------------------------------------------------ */
-  useEffect(() => {
-    if (localStorage.getItem("walletInfo")) {
-      setHasWallet(true);
-    }
-  }, []);
 
   /* ------------------------------------------------------------------ */
   /* Handlers                                                            */
@@ -132,6 +100,37 @@ function App() {
     setDecryptedPrivateKey("");
   };
 
+  // if fetch fails, just log it
+  useEffect(() => {
+    if (error) console.error("Latest-release fetch failed:", error);
+  }, [error]);
+
+  // once latest is loaded, compare raw strings, and only if not yet dismissed:
+  useEffect(() => {
+    if (
+      latest &&
+      latest.tag !== currentVersion &&
+      dismissedVersion !== latest.tag
+    ) {
+      setShowUpdateModal(true);
+    }
+  }, [latest, currentVersion, dismissedVersion]);
+
+  useEffect(() => {
+    if (hasWallet && !isAuthenticated) {
+      passwordInputRef.current?.focus();
+    }
+  }, [hasWallet, isAuthenticated]);
+
+  /* ------------------------------------------------------------------ */
+  /* Check for existing wallet                                           */
+  /* ------------------------------------------------------------------ */
+  useEffect(() => {
+    if (localStorage.getItem("walletInfo")) {
+      setHasWallet(true);
+    }
+  }, []);
+
   /* ------------------------------------------------------------------ */
   /* Render                                                              */
   /* ------------------------------------------------------------------ */
@@ -146,13 +145,13 @@ function App() {
             <strong>{latest?.tag}</strong> is the currently recommended release.
             Please update your wallet to get the latest security patches and
             features. Full changelog on the{" "}
-            <a href={UpdateDownloadUrl} target="_blank" rel="noopener">
+            <a href={UpdateDownloadUrl} target="_blank" rel="noreferrer">
               release page
             </a>.
           </Text>
           <div style={{ display: "flex", justifyContent: "center", gap: 8 }}>
             <ButtonPrimary onClick={dismissRelease}>Remind Me Later</ButtonPrimary>
-            <a href={UpdateDownloadUrl} target="_blank" rel="noopener">
+            <a href={UpdateDownloadUrl} target="_blank" rel="noreferrer">
               <ButtonPrimary>Download {latest?.tag}</ButtonPrimary>
             </a>
           </div>

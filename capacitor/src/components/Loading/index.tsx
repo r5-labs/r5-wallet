@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { colorPrimary, Spinner } from "../../theme";
+import { Spinner } from "../../theme";
 
 const LoadingWrapper = styled.div`
   display: flex;
@@ -10,11 +10,11 @@ const LoadingWrapper = styled.div`
   padding: 20px;
 `;
 
-const LoadingText = styled.p`
-  font-size: 14pt;
-  color: ${colorPrimary};
-  margin: 0;
-`;
+// const LoadingText = styled.p`
+//   font-size: 14pt;
+//   color: ${colorPrimary};
+//   margin: 0;
+// `;
 
 export function Loading() {
   return (

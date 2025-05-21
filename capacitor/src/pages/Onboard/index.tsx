@@ -19,9 +19,9 @@ import {
 } from "../../theme";
 import { useWeb3Context } from "../../contexts/Web3Context";
 import R5Logo from "../../assets/r5-wallet.png";
-import { Html5QrcodeScanner, Html5Qrcode } from "html5-qrcode";
+import { Html5Qrcode } from "html5-qrcode";
 
-const AnimatedStep = styled(StepWrapper)<{ $active: boolean }>`
+const AnimatedStep = styled(StepWrapper) <{ $active: boolean }>`
   animation: ${({ $active }) =>
     $active
       ? css`
@@ -172,28 +172,28 @@ export default function Onboard({
   /* ------------------------------------------------------------------ */
   /* File import                                                         */
   /* ------------------------------------------------------------------ */
-  const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setError("");
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setError("");
+  //   const file = e.target.files?.[0];
+  //   if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const parsed = JSON.parse(event.target?.result as string);
-        if (!parsed.address || !parsed.encryptedPrivateKey)
-          throw new Error("Invalid wallet file: missing required fields.");
-        if (!/^0x[0-9a-fA-F]{40}$/.test(parsed.address))
-          throw new Error("Invalid wallet file: invalid address format.");
+  //   const reader = new FileReader();
+  //   reader.onload = (event) => {
+  //     try {
+  //       const parsed = JSON.parse(event.target?.result as string);
+  //       if (!parsed.address || !parsed.encryptedPrivateKey)
+  //         throw new Error("Invalid wallet file: missing required fields.");
+  //       if (!/^0x[0-9a-fA-F]{40}$/.test(parsed.address))
+  //         throw new Error("Invalid wallet file: invalid address format.");
 
-        localStorage.setItem("walletInfo", JSON.stringify(parsed));
-        window.location.reload();
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "File import failed.");
-      }
-    };
-    reader.readAsText(file);
-  };
+  //       localStorage.setItem("walletInfo", JSON.stringify(parsed));
+  //       window.location.reload();
+  //     } catch (err) {
+  //       setError(err instanceof Error ? err.message : "File import failed.");
+  //     }
+  //   };
+  //   reader.readAsText(file);
+  // };
 
   /* ------------------------------------------------------------------ */
   /* Keyboard shortcuts                                                  */

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { ethers, formatEther } from "ethers";
 import {
   BoxHeader,
@@ -70,21 +70,15 @@ export function Header({
       alert("Invalid private key. Please reset your wallet.");
       return null;
     }
-  }, [decryptedPrivateKey]);
+  }, [decryptedPrivateKey, provider]);
 
-  const updateBalance = () => {
+  const updateBalance = useCallback(() => {
     if (wallet)
       provider
         .getBalance(wallet.address)
         .then((wei: ethers.BigNumberish) => setBalance(formatEther(wei)))
         .catch((err: any) => console.error("Failed to update balance:", err));
-  };
-
-  useEffect(() => {
-    updateBalance();
-    const id = setInterval(updateBalance, 60_000);
-    return () => clearInterval(id);
-  }, [provider, wallet?.address]);
+  }, [wallet, provider])
 
   /* ------------------------------------------------------------------ */
   /* Button handlers                                                    */
@@ -95,12 +89,18 @@ export function Header({
     setTimeout(() => setIsRefreshing(false), 1_000);
   };
 
+  useEffect(() => {
+    updateBalance();
+    const id = setInterval(updateBalance, 60_000);
+    return () => clearInterval(id);
+  }, [updateBalance]);
+
   return (
     <>
       <BoxHeader style={{ margin: "30px auto 15px auto" }}>
         {/* Logo */}
         <HeaderSection style={{ margin: -2 }}>
-          <img src={R5Logo} width={64} height={64} />
+          <img src={R5Logo} alt='R5 Logo' width={64} height={64} />
         </HeaderSection>
 
         {/* Balance & address */}
@@ -181,12 +181,12 @@ export function Header({
               <ReceiveIcon />
             </ButtonRound>
 
-            <a href={explorerUrl + `/address/` + wallet?.address} target="_blank">
-            <ButtonRound
-              title="Inspect on Explorer"
+            <a href={explorerUrl + `/address/` + wallet?.address} target="_blank"  rel="noreferrer">
+              <ButtonRound
+                title="Inspect on Explorer"
               >
-              <ExplorerIcon />
-            </ButtonRound>
+                <ExplorerIcon />
+              </ButtonRound>
             </a>
 
             <ButtonRound
