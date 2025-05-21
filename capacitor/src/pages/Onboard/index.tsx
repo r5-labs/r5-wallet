@@ -161,7 +161,7 @@ export default function Onboard({
           scanner.stop().then(() => scanner.clear());
         },
         (error) => {
-          // Optional: console.log("QR Scan Error", error);
+          console.log("QR Scan Error", error);
         }
       )
       .catch((err) => {
