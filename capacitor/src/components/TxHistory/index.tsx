@@ -44,38 +44,63 @@ export const TxItem = styled.div`
 export function TxHistory({ walletAddress }: { walletAddress: string }) {
   const { transactions, loading } = useTxHistory(walletAddress);
 
-    // Helper to display "You" if the address matches
-    const formatAddress = (address: string) =>
-      address.toLowerCase() === walletAddress.toLowerCase() ? "You" : address;
+  const isSender = (tx: any) =>
+    tx.from_address.toLowerCase() === walletAddress.toLowerCase();
 
-    return (
-      <PageWrapper>
-        <BoxContent style={{ alignItems: "center", justifyContent: "center", flexShrink: 0, width: "100%" }}>
-          <TextSubTitle style={{ marginBottom: 10 }}>Latest Activity</TextSubTitle>
+  const isReceiver = (tx: any) =>
+    tx.to_address.toLowerCase() === walletAddress.toLowerCase();
+
+  const formatCounterparty = (address: string) =>
+    address.toLowerCase() === walletAddress.toLowerCase() ? "You" : address;
+
+  return (
+    <PageWrapper>
+      <BoxContent
+        style={{
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+          width: "100%",
+        }}
+      >
+        <TextSubTitle style={{ marginBottom: 10 }}>
+          Latest Activity
+        </TextSubTitle>
+      </BoxContent>
+
+      {loading ? (
+        <BoxContent style={{ flex: 1, width: "100%", flexShrink: 0 }}>
+          <Loading />
         </BoxContent>
-  
-        {loading ? (
-          <BoxContent style={{ flex: 1, width: "100%", flexShrink: 0 }}>
-            <Loading />
-          </BoxContent>
-        ) : transactions.length === 0 ? (
-          <Text>There's no recorded activity.</Text>
-        ) : (
-          <ScrollContainer>
-            {transactions.slice(0, 10).map((tx) => (
+      ) : transactions.length === 0 ? (
+        <Text>There's no recorded activity.</Text>
+      ) : (
+        <ScrollContainer>
+          {transactions.slice(0, 10).map((tx) => {
+            const amount = Number(formatEther(tx.value)).toFixed(6);
+            const timestamp = new Date(tx.sent_at).toLocaleString();
+
+            let message = "";
+
+            if (isSender(tx)) {
+              message = `Sent R5 ${amount} To ${formatCounterparty(tx.to_address)}`;
+            } else if (isReceiver(tx)) {
+              message = `Received R5 ${amount} From ${formatCounterparty(tx.from_address)}`;
+            } else {
+              message = `Sent R5 ${amount}`; // fallback
+            }
+
+            return (
               <TxItem key={tx.id}>
-                <div style={{ textAlign: "center" }}>
-                  {new Date(tx.sent_at).toLocaleString()}
-                </div>
-                <div style={{ marginTop: 10, textAlign: "center" }}>
-                  <b>{formatAddress(tx.from_address)}</b> Sent{" "}
-                  <b>R5 {Number(formatEther(tx.value)).toFixed(6)}</b> To{" "}
-                  <b>{formatAddress(tx.to_address)}</b>
+                <div style={{ textAlign: "center", fontSize: "0.7rem" }}>{timestamp}</div>
+                <div style={{ marginTop: 10, textAlign: "center", fontSize: "0.7rem" }}>
+                  <b>{message}</b>
                 </div>
               </TxItem>
-            ))}
-          </ScrollContainer>
-        )}
-      </PageWrapper>
-    );
-  }  
+            );
+          })}
+        </ScrollContainer>
+      )}
+    </PageWrapper>
+  );
+}
