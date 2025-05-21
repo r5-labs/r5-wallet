@@ -11,7 +11,7 @@ export interface Transaction {
   sent_at: string;
 }
 
-const CACHE_DURATION = 60 * 1000; // 60 seconds
+const CACHE_DURATION = 120 * 1000; // 120 seconds
 const cache: Record<string, { timestamp: number; data: Transaction[] }> = {};
 
 export default function useTxHistory(address?: string) {

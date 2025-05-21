@@ -1,7 +1,6 @@
 import { ethers } from "ethers";
 import { useMemo } from "react";
 import { FullContainerBox } from "../../theme";
-// import { TransferFunds } from "../TransferFunds";
 import { TxHistory } from "../TxHistory";
 import { useWeb3Context } from "../../contexts/Web3Context";
 
@@ -27,7 +26,6 @@ export function Navigation({
     <>
       <FullContainerBox>
         <TxHistory walletAddress={wallet?.address ?? ""} />
-        {/*<TransferFunds decryptedPrivateKey={decryptedPrivateKey} />*/}
       </FullContainerBox>
     </>
   );

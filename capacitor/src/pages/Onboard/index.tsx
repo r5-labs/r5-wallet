@@ -200,12 +200,11 @@ export default function Onboard({
         <BoxContentParent>
         <AnimatedStep
           $active={step === 0}
-          style={{ marginBottom: "auto", padding: 10 }}
+          style={{ marginBottom: "auto" }}
         >
-          <img src={R5Logo} alt="R5Logo" width={64} height={64} />
-          <Sp />
+          <img src={R5Logo} alt="R5Logo" width={64} height={64} style={{ margin: 0 }} />
           <TextSubTitle>
-            <b>Important:</b> This Software is provided on an "AS IS" basis.
+            <b>Important:</b> This Software is provided "AS IS".
           </TextSubTitle>
           <Text>
             This software is provided "as is", without warranty of any kind,
@@ -326,6 +325,13 @@ export default function Onboard({
             Enter your private key string below and click on "Import Wallet" to
             proceed.
           </Text>
+          <Text>
+              You can sync with your Desktop Wallet by exposing your Private Key <b>(More Options ~ Expose Private Key)</b> and scanning the QR code using the button below.
+
+          </Text>
+          <ButtonPrimary>
+            Scan QR Code
+          </ButtonPrimary>
           <Sp />
           <Input
             ref={privateKeyInputRef}

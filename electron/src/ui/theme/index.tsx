@@ -377,12 +377,14 @@ export const TextHeader = styled.h2`
   font-size: ${fontSizeH2};
   margin: 0;
   box-sizing: border-box;
+  color: ${colorText};
 `;
 
 export const TextTitle = styled.h4`
   font-size: ${fontSizeH4};
   margin: 0;
   box-sizing: border-box;
+  color: ${colorText};
 `;
 
 export const TextSubTitle = styled.h5`
@@ -390,17 +392,20 @@ export const TextSubTitle = styled.h5`
   margin: 0;
   font-weight: light;
   box-sizing: border-box;
+  color: ${colorText};
 `;
 
 export const Text = styled.p`
   font-size: ${fontSize};
   margin: 0;
   box-sizing: border-box;
+  color: ${colorText};
 `;
 
 export const SmallText = styled.p`
   font-size: 8pt;
   margin: 0;
+  color: ${colorText};
 `;
 
 export const Input = styled.input`

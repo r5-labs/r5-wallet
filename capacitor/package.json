@@ -1,6 +1,6 @@
 {
   "name": "r5-mobile-wallet",
-  "version": "0.1.0",
+  "version": "1.0.3",
   "private": true,
   "dependencies": {
     "@capacitor/android": "^7.2.0",

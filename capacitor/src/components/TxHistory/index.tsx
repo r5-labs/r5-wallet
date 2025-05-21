@@ -45,34 +45,38 @@ export const TxItem = styled.div`
 export function TxHistory({ walletAddress }: { walletAddress: string }) {
   const { transactions, loading } = useTxHistory(walletAddress);
 
-  return (
-    <PageWrapper>
-      <BoxContent style={{ alignItems: "flex-start", justifyContent: "flex-start", flexShrink: 0, width: "100%" }}>
-        <TextSubTitle style={{ marginBottom: 10 }}>Latest Account Activity</TextSubTitle>
-      </BoxContent>
+    // Helper to display "You" if the address matches
+    const formatAddress = (address: string) =>
+      address.toLowerCase() === walletAddress.toLowerCase() ? "You" : address;
 
-      {loading ? (
-        <BoxContent style={{ flex: 1, width: "100%", flexShrink: 0 }}>
-          <Loading />
+    return (
+      <PageWrapper>
+        <BoxContent style={{ alignItems: "center", justifyContent: "center", flexShrink: 0, width: "100%" }}>
+          <TextSubTitle style={{ marginBottom: 10 }}>Latest Activity</TextSubTitle>
         </BoxContent>
-      ) : transactions.length === 0 ? (
-        <Text>There's no recorded activity.</Text>
-      ) : (
-        <ScrollContainer>
-          {transactions.slice(0, 10).map((tx) => (
-            <TxItem key={tx.id}>
-              <div style={{ textAlign: "center" }}>
-                {new Date(tx.sent_at).toLocaleString()}
-              </div>
-              <div style={{ marginTop: 10, textAlign: "center" }}>
-                <b>{tx.from_address}</b> Sent{" "}
-                <b>R5 {Number(formatEther(tx.value)).toFixed(6)}</b> To{" "}
-                <b>{tx.to_address}</b>
-              </div>
-            </TxItem>
-          ))}
-        </ScrollContainer>
-      )}
-    </PageWrapper>
-  );
-}
+  
+        {loading ? (
+          <BoxContent style={{ flex: 1, width: "100%", flexShrink: 0 }}>
+            <Loading />
+          </BoxContent>
+        ) : transactions.length === 0 ? (
+          <Text>There's no recorded activity.</Text>
+        ) : (
+          <ScrollContainer>
+            {transactions.slice(0, 10).map((tx) => (
+              <TxItem key={tx.id}>
+                <div style={{ textAlign: "center" }}>
+                  {new Date(tx.sent_at).toLocaleString()}
+                </div>
+                <div style={{ marginTop: 10, textAlign: "center" }}>
+                  <b>{formatAddress(tx.from_address)}</b> Sent{" "}
+                  <b>R5 {Number(formatEther(tx.value)).toFixed(6)}</b> To{" "}
+                  <b>{formatAddress(tx.to_address)}</b>
+                </div>
+              </TxItem>
+            ))}
+          </ScrollContainer>
+        )}
+      </PageWrapper>
+    );
+  }  

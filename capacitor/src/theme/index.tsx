@@ -455,6 +455,7 @@ export const StepWrapper = styled.div<{ $active: boolean }>`
   align-items: center;
   justify-content: center;
   gap: 10px;
+  margin: auto 20px;
 
   /* fade in/out */
   opacity: ${({ $active }) => ($active ? 1 : 0)};

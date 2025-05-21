@@ -1,7 +1,7 @@
 import { JSX, useEffect, useMemo, useRef, useState } from "react";
 import {
   ethers,
-  parseEther,
+
   parseUnits,
   formatUnits,
   formatEther
@@ -33,7 +33,6 @@ import { IoQrCode } from "react-icons/io5";
 import {
   Html5Qrcode,
   Html5QrcodeCameraScanConfig,
-  CameraDevice
 } from "html5-qrcode";
 
 const QrIcon = IoQrCode as unknown as React.FC<React.SVGProps<SVGSVGElement>>;
