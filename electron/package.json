@@ -27,6 +27,7 @@
     "crypto-js": "^4.2.0",
     "ethers": "^6.13.5",
     "fernet": "^0.3.3",
+    "html5-qrcode": "^2.3.8",
     "qrcode.react": "^4.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -61,7 +62,10 @@
     },
     "linux": {
       "icon": "window-icon.png",
-      "target": [ "tar.gz", "deb" ],
+      "target": [
+        "tar.gz",
+        "deb"
+      ],
       "category": "Utility",
       "maintainer": "R5 Labs <contact@r5.network>",
       "synopsis": "A GUI Wallet for the R5 Blockchain",
@@ -69,7 +73,10 @@
     },
     "mac": {
       "icon": "window-icon.icns",
-      "target": [ "dmg", "zip" ]
+      "target": [
+        "dmg",
+        "zip"
+      ]
     }
   }
 }

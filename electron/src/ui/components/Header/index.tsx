@@ -19,7 +19,6 @@ import {
   colorGlassBackgroundModal
 } from "../../theme";
 import {
-  GoArrowDownLeft,
   GoTrash,
   GoKey,
   GoSearch,
@@ -31,6 +30,7 @@ import {
   GoLock,
   GoGear
 } from "react-icons/go";
+import { IoQrCode } from "react-icons/io5";
 import { LuNetwork } from "react-icons/lu";
 import R5Logo from "../../assets/logo_white-transparent.png";
 
@@ -43,7 +43,7 @@ import { useWeb3Context } from "../../contexts/Web3Context";
 import usePrice from "../../hooks/usePrice";
 
 /* Icon aliases for readability */
-const ReceiveIcon = GoArrowDownLeft;
+const ReceiveIcon = IoQrCode;
 const ResetIcon = GoTrash;
 const PrivateKeyIcon = GoKey;
 const HistoryIcon = GoSearch;
@@ -162,7 +162,7 @@ export function Header({
         open={showSettingsModal}
         onClose={() => setShowSettingsModal(false)}
       >
-        <BoxContentParent style={{ marginTop: 10 }}>
+        <BoxContentParent style={{ marginTop: 10, width: 350 }}>
 
         <HorMenuOption style={{ background: colorGlassBackgroundModal }}>
         <BoxContent style={{ width: "auto" }}>
@@ -177,7 +177,7 @@ export function Header({
           >
             Network
           </BoxContent>
-        <BoxContent>
+        <BoxContent style={{ justifyContent: "flex-end" }}>
         <Toggle />
         </BoxContent>
         </HorMenuOption>
@@ -387,7 +387,7 @@ export function Header({
             </ButtonRound>
 
             <ButtonRound
-              title="Transaction History"
+              title="Inspect on Explorer"
               onClick={() => {
                 window.electron.openExternal(
                   `${explorerUrl}/address/${wallet?.address ?? ""}`
