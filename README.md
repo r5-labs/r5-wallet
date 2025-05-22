@@ -2,11 +2,11 @@
 
 ![R5 Wallet](img/snapshot.png)
 
-Open source and community-maintained development repository of the R5 GUI Desktop and Mobile Wallets.
+Open source and community-maintained development repository of the R5 GUI Desktop Wallet.
 
 The R5 Wallet is a community effort that aims to strengthen the R5 ecosystem and general access by implementing independent, verifiable, and open source code that allow users to connect and use the R5 blockchain on their desktop and mobile devices.
 
-## Python Wallet
+## Python Wallet (_archive)
 
 We started developing the desktop GUI in Python, but switched over to Electron/TS, so the unfinished Python GUI (inside `/python`) is there just for archive and historical purposes. If you want to continue developing it as an alternative to the Electron/TS GUI, please feel free to send your Pull Requests.
 
@@ -57,10 +57,6 @@ Build to your desired OS using the scripts below:
 - `dist:win` for Windows
 - `dist:mac` for macOS
 - `dist:linux` for Linux
-
-## Capacitor Wallet
-
-Mobile wallet developed using Capacitor and TypeScript. Still under development and not ready for publishing.
 
 ## Copying/Forking
 

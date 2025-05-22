@@ -21,3 +21,16 @@
 - Wallet window can be now resized and maximized.
 - Links for help and tx history now properly open on an external window.
 - Added fiat price feed (in USD).
+
+1.0.3-beta
+- Major improvements to the UI.
+- New menu "More Options" that consolidates usage functions not directly related to sending or receiving coins.
+- Wallet now uses USD denomination by default.
+- Refactored transaction component:
+* Uses USD by default, with the option to switch to R5 Coins as main transaction denomination.
+* Added "MAX" button to allow users to empty their wallets more easily.
+* Gas customization separated from main UI for a better and easier UX.
+- Fixed a bug where font colors weren't displayed properly across the UI.
+- Added a QR code to Private Key dialog to make it easier to sync with mobile wallet.
+- Network toggle moved to new "More Options" menu.
+- Replaced a few icons for better and faster visual response to buttons and functions.
