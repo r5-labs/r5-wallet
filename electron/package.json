@@ -4,7 +4,7 @@
   "buildName": "r5_desktop_wallet",
   "description": "A dedicated GUI Desktop Wallet for R5 Network users.",
   "private": true,
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": "R5 Labs",
   "homepage": "https://r5.network",
   "type": "module",

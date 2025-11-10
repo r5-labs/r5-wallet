@@ -16,7 +16,7 @@ import {
   BoxContent,
   HorMenuOption,
   BoxContentParent,
-  colorGlassBackgroundModal
+//  colorGlassBackgroundModal
 } from "../../theme";
 import {
   GoTrash,
@@ -31,14 +31,14 @@ import {
   GoGear
 } from "react-icons/go";
 import { IoQrCode } from "react-icons/io5";
-import { LuNetwork } from "react-icons/lu";
+// import { LuNetwork } from "react-icons/lu";
 import R5Logo from "../../assets/logo_white-transparent.png";
 
 import { ReceiveFunds } from "../ReceiveFunds";
 import { PrivateKey } from "../PrivateKey";
 import { About } from "../About";
 import { Modal } from "../Modal";
-import Toggle from "../Toggle";
+// import Toggle from "../Toggle";
 import { useWeb3Context } from "../../contexts/Web3Context";
 import usePrice from "../../hooks/usePrice";
 
@@ -54,7 +54,7 @@ const CopyIcon = GoCopy;
 const CheckIcon = GoCheck;
 const LockIcon = GoLock;
 const SettingsIcon = GoGear;
-const NetworkIcon = LuNetwork;
+// const NetworkIcon = LuNetwork;
 
 export function Header({
   decryptedPrivateKey
@@ -163,7 +163,7 @@ export function Header({
         onClose={() => setShowSettingsModal(false)}
       >
         <BoxContentParent style={{ marginTop: 10, width: 350 }}>
-
+        {/*
         <HorMenuOption style={{ background: colorGlassBackgroundModal }}>
         <BoxContent style={{ width: "auto" }}>
             <NetworkIcon />
@@ -181,6 +181,7 @@ export function Header({
         <Toggle />
         </BoxContent>
         </HorMenuOption>
+        */}
 
         <HorMenuOption onClick={exportWalletFile}>
           <BoxContent style={{ width: "auto" }}>

@@ -34,3 +34,8 @@
 - Added a QR code to Private Key dialog to make it easier to sync with mobile wallet.
 - Network toggle moved to new "More Options" menu.
 - Replaced a few icons for better and faster visual response to buttons and functions.
+
+1.0.4-beta
+- Fixed outdated API endpoints.
+- Disabled testnet network toggle (deprecated).
+- Re-established R5 coins as the default denominator for transfers (instead of USD).

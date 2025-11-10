@@ -54,7 +54,7 @@ export function TransferFunds({
   const [showCustomizeGas, setShowCustomizeGas] = useState(false);
 
   /* currency toggle + balance */
-  const [useUSD, setUseUSD] = useState(true);
+  const [useUSD, setUseUSD] = useState(false);
   const [balance, setBalance] = useState("0");
   const [convertedAmount, setConvertedAmount] = useState("");
   const price = usePrice(); // price is in USD per 1 R5 coin

@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { PriceApiEndpoint } from "../constants";
 import { useWeb3Context } from "../contexts/Web3Context";
 
-const CACHE_DURATION = 60 * 1000; // 60 seconds
-
+const CACHE_DURATION = 60 * 1000; // 60 s
 let cachedPrice = 0;
 let lastFetchTime = 0;
 
@@ -18,7 +17,6 @@ const usePrice = (): number => {
     }
 
     const now = Date.now();
-
     if (now - lastFetchTime < CACHE_DURATION && cachedPrice > 0) {
       setPrice(cachedPrice);
       return;
@@ -27,9 +25,11 @@ const usePrice = (): number => {
     const fetchPrice = async () => {
       try {
         const response = await fetch(PriceApiEndpoint);
-        const data = await response.json();
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-        const fetchedPrice = Number(data?.quotes?.USD?.price);
+        const data = await response.json();
+        const fetchedPrice = Number(data.price);
+
         if (!isNaN(fetchedPrice)) {
           cachedPrice = fetchedPrice;
           lastFetchTime = Date.now();
